@@ -1,30 +1,27 @@
-package com.lmg.crawler_qa_tester.config;
+package com.lmg.crawler_qa_tester.service;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.openqa.selenium.Cookie;
 import org.openqa.selenium.WebDriver;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Scope;
+import org.springframework.beans.factory.annotation.Autowired;
 import com.lmg.crawler_qa_tester.model.Domain;
 import com.lmg.crawler_qa_tester.util.WebDriverFactory;
+import org.springframework.stereotype.Service;
 
 import java.util.concurrent.TimeUnit;
 
 import static com.lmg.crawler_qa_tester.util.Constants.DEFAULT_CONFIG_PAGE_LOADOUT_TIME;
 
-@Configuration
-@RequiredArgsConstructor
+@Service
 @Slf4j
-public class DriverConfig {
-    @Qualifier("prodDomain")
-    private final Domain prodDomain;
-    @Qualifier("preProdDomain")
-    private final Domain preProdDomain;
+public class DriverService {
+    @Autowired
+    private Domain prodDomain;
+    @Autowired
+    private Domain preProdDomain;
 
     private WebDriver createDriver(Domain domain) {
+
         log.info("Creating WebDriver for domain: {}", domain.getName());
 
         WebDriver driver =
@@ -33,21 +30,21 @@ public class DriverConfig {
             .pageLoadTimeout(DEFAULT_CONFIG_PAGE_LOADOUT_TIME, TimeUnit.SECONDS);
         driver.manage().window().maximize();
 
-        driver.get(domain.getBaseUrl());
-        driver.manage().addCookie(new Cookie("preprod", "true", null, "/", null));
+        if ("PRE_PROD".equals(domain.getName())) {
+            driver.get(domain.getBaseUrl());
+            driver.manage().addCookie(new Cookie("preprod", "true", null, "/", null));
+        }
 
         return driver;
     }
 
-    @Bean
-    @Scope("prototype")
-    public WebDriver prodDriver() {
+    public WebDriver getProdDriver() {
+
         return createDriver(prodDomain);
     }
 
-    @Bean
-    @Scope("prototype")
-    public WebDriver preProdDriver() {
+    public WebDriver getPreProdDriver() {
+
         return createDriver(preProdDomain);
     }
 

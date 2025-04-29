@@ -24,11 +24,11 @@ public class ProdConsumer {
     @Autowired
     private Domain prodDomain;
     @Autowired
-    private WebDriver prodDriver;
-    @Autowired
     private Crawler crawler;
     @Autowired
     private LinkRepository linkRepository;
+    @Autowired
+    private DriverService driverService;
 
     @ServiceActivator(inputChannel = PROD_CHANNEL)
     public void crawlProd(Message<List<LinkEntity>> message) {
@@ -37,6 +37,8 @@ public class ProdConsumer {
     }
 
     private void processLinks(Message<List<LinkEntity>> message, Domain domain) {
+
+        WebDriver prodDriver = driverService.getProdDriver();
 
         if (message.getPayload().isEmpty())
             return;
@@ -50,7 +52,7 @@ public class ProdConsumer {
 
             List<LinkEntity> newLinks = urls.stream()
                 .map(url -> LinkEntity.builder().url(url).processed("N").type(domain.getName())
-                    .build()).limit(3)
+                    .build()).limit(10)
                 .toList();
             link.setStatus("SUCCESS");
             link.setProcessed("Y");
@@ -67,6 +69,8 @@ public class ProdConsumer {
             log.error("Failed to access URL: {} - {}", e.getUrl(), errorMessage);
         } catch (Exception e) {
             log.error("Unexpected error crawling URL: {}", link.getUrl(), e);
+        } finally {
+            prodDriver.quit();
         }
     }
 

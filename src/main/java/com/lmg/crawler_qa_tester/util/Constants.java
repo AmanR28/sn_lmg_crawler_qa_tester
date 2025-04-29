@@ -8,7 +8,7 @@ public class Constants {
     public static final String PRE_PROD_CHANNEL = "preProdChannel";
 
     public static final boolean DEFAULT_CONFIG_BROWSER_HEADLESS = false;
-    public static final int DEFAULT_CONFIG_CONSUMER_THREADS = 1;
+    public static final int DEFAULT_CONFIG_CONSUMER_THREADS = 2;
     public static final String DEFAULT_CONFIG_BROWSER_TYPE = "chrome";
     public static final Integer DEFAULT_CONFIG_PAGE_LOADOUT_TIME = 60;
 

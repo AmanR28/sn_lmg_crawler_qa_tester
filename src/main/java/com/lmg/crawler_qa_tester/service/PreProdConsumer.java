@@ -21,11 +21,11 @@ public class PreProdConsumer {
     @Autowired
     private Domain preProdDomain;
     @Autowired
-    private WebDriver preProdDriver;
-    @Autowired
     private Crawler crawler;
     @Autowired
     private LinkRepository linkRepository;
+    @Autowired
+    private DriverService driverService;
 
     @ServiceActivator(inputChannel = PRE_PROD_CHANNEL)
     public void crawlPreProd(Message<List<LinkEntity>> message) {
@@ -34,6 +34,8 @@ public class PreProdConsumer {
     }
 
     private void processLinks(Message<List<LinkEntity>> message, Domain domain) {
+
+        WebDriver preProdDriver = driverService.getPreProdDriver();
 
         if (message.getPayload().isEmpty())
             return;
@@ -60,6 +62,8 @@ public class PreProdConsumer {
             log.error("Failed to access URL: {} - {}", e.getUrl(), errorMessage);
         } catch (Exception e) {
             log.error("Unexpected error crawling URL: {}", link.getUrl(), e);
+        } finally {
+            preProdDriver.quit();
         }
     }
 
