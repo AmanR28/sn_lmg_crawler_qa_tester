@@ -1,30 +1,31 @@
 package com.lmg.crawler_qa_tester.service;
 
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.openqa.selenium.WebDriver;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.integration.annotation.ServiceActivator;
-import org.springframework.messaging.Message;
-import org.springframework.stereotype.Service;
 import com.lmg.crawler_qa_tester.exception.PageAccessException;
 import com.lmg.crawler_qa_tester.model.Domain;
 import com.lmg.crawler_qa_tester.model.LinkEntity;
+import com.lmg.crawler_qa_tester.repository.LinkRepository;
+import lombok.extern.slf4j.Slf4j;
+import org.openqa.selenium.WebDriver;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.integration.annotation.ServiceActivator;
+import org.springframework.messaging.Message;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 import static com.lmg.crawler_qa_tester.util.Constants.PRE_PROD_CHANNEL;
 
 @Service
-@RequiredArgsConstructor
 @Slf4j
 public class PreProdConsumer {
-    @Qualifier("preProdDomain")
-    private final Domain preProdDomain;
-    @Qualifier("preProdDriver")
-    private final WebDriver preProdDriver;
-
-    private final Crawler crawler;
+    @Autowired
+    private Domain preProdDomain;
+    @Autowired
+    private WebDriver preProdDriver;
+    @Autowired
+    private Crawler crawler;
+    @Autowired
+    private LinkRepository linkRepository;
 
     @ServiceActivator(inputChannel = PRE_PROD_CHANNEL)
     public void crawlPreProd(Message<List<LinkEntity>> message) {
@@ -46,10 +47,11 @@ public class PreProdConsumer {
 
             List<LinkEntity> newLinks = urls.stream()
                 .map(url -> LinkEntity.builder().url(url).processed("N").type(domain.getName())
-                    .build())
+                    .build()).limit(3)
                 .toList();
             link.setStatus("SUCCESS");
             log.info("Found {} links on page: {}", newLinks.size(), link.getUrl());
+            linkRepository.saveLinks(newLinks);
         } catch (PageAccessException e) {
             String errorMessage = e.getStatusCode() != null ?
                 String.format("HTTP %d: %s", e.getStatusCode(), e.getMessage()) :

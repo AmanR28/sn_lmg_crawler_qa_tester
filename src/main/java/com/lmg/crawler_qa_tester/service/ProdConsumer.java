@@ -3,9 +3,11 @@ package com.lmg.crawler_qa_tester.service;
 import com.lmg.crawler_qa_tester.exception.PageAccessException;
 import com.lmg.crawler_qa_tester.model.Domain;
 import com.lmg.crawler_qa_tester.model.LinkEntity;
+import com.lmg.crawler_qa_tester.repository.LinkRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.openqa.selenium.WebDriver;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Scope;
 import org.springframework.integration.annotation.ServiceActivator;
@@ -17,16 +19,16 @@ import java.util.List;
 import static com.lmg.crawler_qa_tester.util.Constants.PROD_CHANNEL;
 
 @Service
-@RequiredArgsConstructor
-@Scope("prototype")
 @Slf4j
 public class ProdConsumer {
-    @Qualifier("prodDomain")
-    private final Domain prodDomain;
-    @Qualifier("prodDriver")
-    private final WebDriver prodDriver;
-
-    private final Crawler crawler;
+    @Autowired
+    private Domain prodDomain;
+    @Autowired
+    private WebDriver prodDriver;
+    @Autowired
+    private Crawler crawler;
+    @Autowired
+    private LinkRepository linkRepository;
 
     @ServiceActivator(inputChannel = PROD_CHANNEL)
     public void crawlProd(Message<List<LinkEntity>> message) {
@@ -48,15 +50,20 @@ public class ProdConsumer {
 
             List<LinkEntity> newLinks = urls.stream()
                 .map(url -> LinkEntity.builder().url(url).processed("N").type(domain.getName())
-                    .build())
+                    .build()).limit(3)
                 .toList();
             link.setStatus("SUCCESS");
+            link.setProcessed("Y");
+            linkRepository.updateLink(link);
             log.info("Found {} links on page: {}", newLinks.size(), link.getUrl());
+            linkRepository.saveLinks(newLinks);
         } catch (PageAccessException e) {
             String errorMessage = e.getStatusCode() != null ?
                 String.format("HTTP %d: %s", e.getStatusCode(), e.getMessage()) :
                 e.getMessage();
             link.setStatus("NOT_FOUND");
+            link.setProcessed("Y");
+            linkRepository.updateLink(link);
             log.error("Failed to access URL: {} - {}", e.getUrl(), errorMessage);
         } catch (Exception e) {
             log.error("Unexpected error crawling URL: {}", link.getUrl(), e);

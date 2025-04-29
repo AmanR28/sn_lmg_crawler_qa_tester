@@ -15,4 +15,4 @@ env:
   pre_prod:
     base-url: https://blc.centrepointstores.com/kw/en
     web-driver:
-      headless: false
+      headless: true

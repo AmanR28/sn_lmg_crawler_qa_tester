@@ -6,9 +6,14 @@ import lombok.Data;
 @Data
 @Builder
 public class LinkEntity {
-    private Integer id;
+    private int id;
     private String url;
     private String processed;
     private String status;
     private String type;
+
+    public String toString() {
+        return "LinkEntity [id=" + id + ", url=" + url + ", processed=" + processed + ", status=" + status
+                + ", type=" + type + "]";
+    }
 }
