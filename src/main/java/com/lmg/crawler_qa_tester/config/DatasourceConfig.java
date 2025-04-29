@@ -1,0 +1,31 @@
+package com.lmg.crawler_qa_tester.config;
+
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
+import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
+
+import javax.sql.DataSource;
+
+@Configuration
+@RequiredArgsConstructor
+public class DatasourceConfig {
+    private final Environment environment;
+
+    @Bean
+    public DataSource dataSource() {
+
+        HikariConfig config = new HikariConfig();
+        config.setDriverClassName(environment.getProperty("spring.datasource.driverClassName"));
+        config.setJdbcUrl(environment.getProperty("spring.datasource.url"));
+        config.setUsername(environment.getProperty("spring.datasource.username"));
+        config.setPassword(environment.getProperty("spring.datasource.password"));
+        config.setMinimumIdle(5);
+        config.setMaximumPoolSize(20);
+        config.setIdleTimeout(10000);
+        return new HikariDataSource(config);
+    }
+
+}

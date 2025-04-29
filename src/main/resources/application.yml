@@ -1,0 +1,18 @@
+spring:
+  application:
+    name: web-link-validator
+  datasource:
+    driverClassName: org.postgresql.Driver
+    username: admin
+    password: password
+    url: jdbc:postgresql://localhost:5432/com_lmg_linkvalidator
+
+env:
+  prod:
+    base-url: https://www.centrepointstores.com/kw/en
+    web-driver:
+      headless: false
+  pre_prod:
+    base-url: https://blc.centrepointstores.com/kw/en
+    web-driver:
+      headless: false
