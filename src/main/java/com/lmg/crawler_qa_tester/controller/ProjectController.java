@@ -3,7 +3,7 @@ package com.lmg.crawler_qa_tester.controller;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-public class ProcessController {
+public class ProjectController {
     // Status of Crawler and Report
     @GetMapping()
     public String status() {
