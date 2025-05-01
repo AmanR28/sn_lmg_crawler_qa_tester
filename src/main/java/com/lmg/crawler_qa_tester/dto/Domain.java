@@ -1,4 +1,4 @@
-package com.lmg.crawler_qa_tester.model;
+package com.lmg.crawler_qa_tester.dto;
 
 import lombok.Builder;
 import lombok.Data;
