@@ -1,25 +1,28 @@
 package com.lmg.crawler_qa_tester.repository.entity;
 
 import com.lmg.crawler_qa_tester.constants.LinkStatus;
-import com.lmg.crawler_qa_tester.repository.entity.id.LinkEntityId;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
-import jakarta.persistence.IdClass;
+import jakarta.persistence.Table;
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.Setter;
 
-@Entity
-@IdClass(LinkEntityId.class)
 @Getter
 @Setter
+@Entity
+@Table(name = "links")
 public class LinkEntity {
     @Id
+    private Integer id;
+    @NonNull
     private Integer projectId;
-    @Id
+    @NonNull
+    private String baseUrl;
+    @NonNull
     private String url;
-    private LinkStatus prodStatus = LinkStatus.NEW;
-    private LinkStatus preProdStatus = LinkStatus.NEW;
-    private String prodProcessedFlag = "N";
-    private String preProdProcessedFlag = "N";
-
+    @NonNull
+    private String processFlag = "N";
+    @NonNull
+    private LinkStatus linkStatus = LinkStatus.NEW;
 }
