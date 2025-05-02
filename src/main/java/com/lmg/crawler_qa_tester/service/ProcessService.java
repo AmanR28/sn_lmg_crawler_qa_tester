@@ -2,12 +2,14 @@ package com.lmg.crawler_qa_tester.service;
 
 import com.lmg.crawler_qa_tester.constants.ConsumerStatusEnum;
 import com.lmg.crawler_qa_tester.constants.EnvironmentEnum;
+import com.lmg.crawler_qa_tester.constants.LinkStatus;
 import com.lmg.crawler_qa_tester.dto.Link;
 import com.lmg.crawler_qa_tester.dto.Process;
 import com.lmg.crawler_qa_tester.mapper.CrawlDetailEntityMapper;
 import com.lmg.crawler_qa_tester.mapper.CrawlHeaderEntityMapper;
 import com.lmg.crawler_qa_tester.repository.CrawlDetailRepository;
 import com.lmg.crawler_qa_tester.repository.CrawlHeaderRepository;
+import com.lmg.crawler_qa_tester.repository.entity.CrawlDetailEntity;
 import com.lmg.crawler_qa_tester.repository.entity.CrawlHeaderEntity;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,8 +36,10 @@ public class ProcessService {
         Integer processId =
             crawlHeaderRepository.save(new CrawlHeaderEntityMapper().fromProcess(process)).getId();
 
-        Link link = Link.builder().env(EnvironmentEnum.PROD.getValue())
-            .baseUrl("https://www.centrepointstores.com/kw/en").crawlHeaderId(processId).path("/").build();
+        Link link = Link.builder().env(EnvironmentEnum.PROD)
+            .baseUrl("https://www.centrepointstores.com/kw/en").crawlHeaderId(processId).path("/").processFlag(
+                LinkStatus.NOT_PROCESSED)
+            .build();
         crawlDetailRepository.save(new CrawlDetailEntityMapper().fromLink(link));
 
         log.info("Created project with id {}", processId);

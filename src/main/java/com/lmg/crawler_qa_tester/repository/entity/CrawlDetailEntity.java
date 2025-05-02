@@ -9,7 +9,9 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
-@Table(name = "crawl_detail")
+@Table(name = "crawl_detail",
+    uniqueConstraints = @UniqueConstraint(columnNames = {"project_id", "env", "base_url", "path"}),
+    indexes = @Index(name = "idx_process_flag", columnList = "process_flag"))
 public class CrawlDetailEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -38,4 +40,5 @@ public class CrawlDetailEntity {
 
     @Column(name = "error_message")
     private String errorMessage;
+
 }

@@ -1,5 +1,6 @@
 package com.lmg.crawler_qa_tester.dto;
 
+import com.lmg.crawler_qa_tester.constants.EnvironmentEnum;
 import com.lmg.crawler_qa_tester.constants.LinkStatus;
 import lombok.Builder;
 import lombok.Data;
@@ -9,7 +10,7 @@ import lombok.Data;
 public class Link {
     private Integer id;
     private Integer crawlHeaderId;
-    private String env;
+    private EnvironmentEnum env;
     private String baseUrl;
     private String path;
     private LinkStatus processFlag;

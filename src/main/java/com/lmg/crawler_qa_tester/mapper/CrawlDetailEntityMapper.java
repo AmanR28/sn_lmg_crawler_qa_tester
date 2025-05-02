@@ -1,5 +1,6 @@
 package com.lmg.crawler_qa_tester.mapper;
 
+import com.lmg.crawler_qa_tester.constants.EnvironmentEnum;
 import com.lmg.crawler_qa_tester.constants.LinkStatus;
 import com.lmg.crawler_qa_tester.dto.Link;
 import com.lmg.crawler_qa_tester.repository.entity.CrawlDetailEntity;
@@ -19,6 +20,7 @@ public class CrawlDetailEntityMapper implements RowMapper<CrawlDetailEntity> {
         CrawlDetailEntity entity = new CrawlDetailEntity();
         entity.setId(rs.getInt("id"));
         entity.setCrawlHeaderId(rs.getInt("project_id"));
+        entity.setEnv(rs.getString("env"));
         entity.setBaseUrl(rs.getString("base_url"));
         entity.setPath(rs.getString("path"));
         entity.setProcessFlag(rs.getString("process_flag"));
@@ -38,9 +40,8 @@ public class CrawlDetailEntityMapper implements RowMapper<CrawlDetailEntity> {
             .crawlHeaderId(entity.getCrawlHeaderId())
             .baseUrl(entity.getBaseUrl())
             .path(entity.getPath())
-            .processFlag(entity.getProcessFlag() != null
-                ? LinkStatus.valueOf(entity.getProcessFlag())
-                : LinkStatus.NOT_PROCESSED)
+            .env(EnvironmentEnum.valueOf(entity.getEnv()))
+            .processFlag(LinkStatus.NOT_PROCESSED)
             .errorMessage(entity.getErrorMessage())
             .build();
     }
@@ -55,6 +56,7 @@ public class CrawlDetailEntityMapper implements RowMapper<CrawlDetailEntity> {
         entity.setId(link.getId());
         entity.setCrawlHeaderId(link.getCrawlHeaderId());
         entity.setBaseUrl(link.getBaseUrl());
+        entity.setEnv(link.getEnv().getValue());
         entity.setPath(link.getPath());
         entity.setProcessFlag(link.getProcessFlag() != null
             ? link.getProcessFlag().getValue()

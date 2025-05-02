@@ -1,15 +1,15 @@
 package com.lmg.crawler_qa_tester.config;
 
+import com.lmg.crawler_qa_tester.constants.EnvironmentEnum;
 import com.lmg.crawler_qa_tester.constants.LinkStatus;
+import com.lmg.crawler_qa_tester.dto.Link;
 import com.lmg.crawler_qa_tester.mapper.CrawlDetailEntityMapper;
 import com.lmg.crawler_qa_tester.repository.entity.CrawlDetailEntity;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.integration.annotation.InboundChannelAdapter;
-import org.springframework.integration.annotation.Poller;
-import org.springframework.integration.annotation.Splitter;
+import org.springframework.integration.annotation.*;
 import org.springframework.integration.channel.PublishSubscribeChannel;
 import org.springframework.integration.core.MessageSource;
 import org.springframework.integration.jdbc.JdbcPollingChannelAdapter;
@@ -37,7 +37,25 @@ public class IntegrationConfig {
     }
 
     @Bean
+    public PublishSubscribeChannel transformChannel() {
+
+        return new PublishSubscribeChannel();
+    }
+
+    @Bean
+    public PublishSubscribeChannel routerChannel() {
+
+        return new PublishSubscribeChannel();
+    }
+
+    @Bean
     public PublishSubscribeChannel prodChannel() {
+
+        return createChannel();
+    }
+
+    @Bean
+    public PublishSubscribeChannel preProdChannel() {
 
         return createChannel();
     }
@@ -55,12 +73,29 @@ public class IntegrationConfig {
         return jdbcPollingChannelAdapter;
     }
 
-    @Splitter(inputChannel = "pollerChannel", outputChannel = "prodChannel")
-    public List<Message<List<CrawlDetailEntity>>> split(List<CrawlDetailEntity> links) {
+    @Splitter(inputChannel = "pollerChannel", outputChannel = "transformChannel")
+    public List<Message<CrawlDetailEntity>> split(List<CrawlDetailEntity> links) {
 
-        return links.stream()
-            .map(link -> MessageBuilder.withPayload(List.of(link)).build())
+        return links.stream().map(link -> MessageBuilder.withPayload(link).build())
             .collect(Collectors.toList());
+    }
+
+    @Transformer(inputChannel = "transformChannel", outputChannel = "routerChannel")
+    public Link transformToLinks(CrawlDetailEntity entity) {
+
+        return new CrawlDetailEntityMapper().toLink(entity);
+    }
+
+    @Router(inputChannel = "routerChannel")
+    public String routeByEnvironment(Link link) {
+
+        if (EnvironmentEnum.PROD.equals(link.getEnv())) {
+            return "prodChannel";
+        } else
+            if (EnvironmentEnum.PRE_PROD.equals(link.getEnv())) {
+                return "preProdChannel";
+            }
+        return null;
     }
 
     private PublishSubscribeChannel createChannel() {
