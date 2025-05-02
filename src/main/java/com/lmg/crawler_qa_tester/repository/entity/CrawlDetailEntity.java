@@ -34,9 +34,8 @@ public class CrawlDetailEntity {
 
     @NonNull
     @Column(name = "process_flag")
-    private LinkStatus processFlag = LinkStatus.NEW;
+    private String processFlag = LinkStatus.NOT_PROCESSED.getValue();
 
-    @NonNull
     @Column(name = "error_message")
     private String errorMessage;
 }

@@ -1,6 +1,6 @@
 package com.lmg.crawler_qa_tester.service;
 
-import com.lmg.crawler_qa_tester.repository.LinkRepository;
+import com.lmg.crawler_qa_tester.repository.CrawlDetailRepository;
 import com.lmg.crawler_qa_tester.repository.entity.CrawlDetailEntity;
 import com.lmg.crawler_qa_tester.util.WebDriverFactory;
 import lombok.extern.slf4j.Slf4j;
@@ -18,7 +18,7 @@ public class ConsumerService {
     @Autowired
     private PageService pageService;
     @Autowired
-    private LinkRepository linkRepository;
+    private CrawlDetailRepository crawlDetailRepository;
 
     @ServiceActivator(inputChannel = "prodChannel")
     public void consumeProd(Message<List<CrawlDetailEntity>> message) {
@@ -41,7 +41,7 @@ public class ConsumerService {
             return crawlDetailEntity;
         }).toList();
         log.info("Cur links size: {}", links.size());
-        linkRepository.saveAll(links);
+        crawlDetailRepository.saveAll(links);
 
         driver.quit();
     }

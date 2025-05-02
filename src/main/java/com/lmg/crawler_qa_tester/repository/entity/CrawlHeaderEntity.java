@@ -23,12 +23,13 @@ public class CrawlHeaderEntity {
     @NonNull
     @Column(name = "prod_base_url")
     private String prodBaseUrl;
+
     @NonNull
     @Column(name = "pre_prod_base_url")
     private String preProdBaseUrl;
 
     @Column(name = "status")
-    private ConsumerStatusEnum status = ConsumerStatusEnum.INIT;
+    private String status = ConsumerStatusEnum.INIT.getValue();
 
     @CreationTimestamp
     @Column(name = "created_time")

@@ -1,0 +1,67 @@
+package com.lmg.crawler_qa_tester.mapper;
+
+import com.lmg.crawler_qa_tester.constants.LinkStatus;
+import com.lmg.crawler_qa_tester.dto.Link;
+import com.lmg.crawler_qa_tester.repository.entity.CrawlDetailEntity;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.jdbc.core.RowMapper;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+@Slf4j
+public class CrawlDetailEntityMapper implements RowMapper<CrawlDetailEntity> {
+
+    @Override
+    public CrawlDetailEntity mapRow(ResultSet rs, int rowNum) throws SQLException {
+
+        log.info("Mapping row {} from database", rowNum);
+        CrawlDetailEntity entity = new CrawlDetailEntity();
+        entity.setId(rs.getInt("id"));
+        entity.setCrawlHeaderId(rs.getInt("project_id"));
+        entity.setBaseUrl(rs.getString("base_url"));
+        entity.setPath(rs.getString("path"));
+        entity.setProcessFlag(rs.getString("process_flag"));
+        log.info("Mapped Link: id={}, baseUrl={}, url={}", entity.getId(), entity.getBaseUrl(),
+            entity.getPath());
+        return entity;
+    }
+
+    public Link toLink(CrawlDetailEntity entity) {
+
+        if (entity == null) {
+            return null;
+        }
+
+        return Link.builder()
+            .id(entity.getId())
+            .crawlHeaderId(entity.getCrawlHeaderId())
+            .baseUrl(entity.getBaseUrl())
+            .path(entity.getPath())
+            .processFlag(entity.getProcessFlag() != null
+                ? LinkStatus.valueOf(entity.getProcessFlag())
+                : LinkStatus.NOT_PROCESSED)
+            .errorMessage(entity.getErrorMessage())
+            .build();
+    }
+
+    public CrawlDetailEntity fromLink(Link link) {
+
+        if (link == null) {
+            return null;
+        }
+
+        CrawlDetailEntity entity = new CrawlDetailEntity();
+        entity.setId(link.getId());
+        entity.setCrawlHeaderId(link.getCrawlHeaderId());
+        entity.setBaseUrl(link.getBaseUrl());
+        entity.setPath(link.getPath());
+        entity.setProcessFlag(link.getProcessFlag() != null
+            ? link.getProcessFlag().getValue()
+            : LinkStatus.NOT_PROCESSED.getValue());
+        entity.setErrorMessage(link.getErrorMessage());
+        return entity;
+    }
+
+}
+

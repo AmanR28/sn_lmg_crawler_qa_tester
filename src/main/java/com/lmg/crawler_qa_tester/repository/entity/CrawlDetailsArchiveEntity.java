@@ -34,7 +34,7 @@ public class CrawlDetailsArchiveEntity {
 
     @NonNull
     @Column(name = "process_flag")
-    private LinkStatus processFlag = LinkStatus.NEW;
+    private LinkStatus processFlag = LinkStatus.NOT_PROCESSED;
 
     @NonNull
     @Column(name = "error_message")

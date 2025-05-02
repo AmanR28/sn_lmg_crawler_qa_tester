@@ -13,7 +13,7 @@ public class ProcessController {
     @GetMapping()
     public String status() {
 
-        return "OK";
+        return processService.getStatus();
     }
 
     @PostMapping()
@@ -26,18 +26,6 @@ public class ProcessController {
     public void start() {
 
         processService.startProject();
-    }
-
-    @PutMapping("/stop")
-    public String stop() {
-        processService.stopProject();
-        return "OK";
-    }
-
-    @DeleteMapping()
-    public String cancel() {
-        processService.cancelProject();
-        return "OK";
     }
 
 }

@@ -1,8 +1,7 @@
 package com.lmg.crawler_qa_tester.config;
 
-import com.lmg.crawler_qa_tester.constants.AppConstant;
-import com.lmg.crawler_qa_tester.dto.Domain;
-import com.lmg.crawler_qa_tester.mapper.LinkEntityMapper;
+import com.lmg.crawler_qa_tester.constants.LinkStatus;
+import com.lmg.crawler_qa_tester.mapper.CrawlDetailEntityMapper;
 import com.lmg.crawler_qa_tester.repository.entity.CrawlDetailEntity;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,8 +24,9 @@ import java.util.stream.Collectors;
 @Configuration
 @Slf4j
 public class IntegrationConfig {
-    @Autowired
-    private Domain prodDomain;
+    private final int CONSUMER_THREAD =
+        Integer.parseInt(System.getProperty("env.app.consumerThread", "1"));
+
     @Autowired
     private DataSource dataSource;
 
@@ -39,31 +39,23 @@ public class IntegrationConfig {
     @Bean
     public PublishSubscribeChannel prodChannel() {
 
-        return createChannel(prodDomain);
-    }
-
-    @Bean
-    public PublishSubscribeChannel preProdChannel() {
-
-        return createChannel(prodDomain);
+        return createChannel();
     }
 
     @Bean
     @InboundChannelAdapter(value = "pollerChannel",
         poller = @Poller(fixedRate = "${env.app.pollerRate}"), autoStartup = "false")
-    public MessageSource<?> prodMessagePoller() {
-
-        log.error("AR Prod Poller Working sql : {} ", getSelectSql(prodDomain));
+    public MessageSource<?> messagePoller() {
 
         JdbcPollingChannelAdapter jdbcPollingChannelAdapter =
-            new JdbcPollingChannelAdapter(dataSource, getSelectSql(prodDomain));
-        jdbcPollingChannelAdapter.setMaxRows(prodDomain.getConsumerThread());
-        jdbcPollingChannelAdapter.setRowMapper(new LinkEntityMapper());
-        jdbcPollingChannelAdapter.setUpdateSql(getUpdateSql(prodDomain.getName()));
+            new JdbcPollingChannelAdapter(dataSource, getSelectSql());
+        jdbcPollingChannelAdapter.setMaxRows(CONSUMER_THREAD);
+        jdbcPollingChannelAdapter.setRowMapper(new CrawlDetailEntityMapper());
+        jdbcPollingChannelAdapter.setUpdateSql(getUpdateSql());
         return jdbcPollingChannelAdapter;
     }
 
-    @Splitter(inputChannel = "prodPollerChannel", outputChannel = "prodChannel")
+    @Splitter(inputChannel = "pollerChannel", outputChannel = "prodChannel")
     public List<Message<List<CrawlDetailEntity>>> split(List<CrawlDetailEntity> links) {
 
         return links.stream()
@@ -71,32 +63,26 @@ public class IntegrationConfig {
             .collect(Collectors.toList());
     }
 
-    private PublishSubscribeChannel createChannel(Domain domain) {
+    private PublishSubscribeChannel createChannel() {
 
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-        executor.setCorePoolSize(domain.getConsumerThread());
-        executor.setMaxPoolSize(domain.getConsumerThread());
-        executor.setThreadNamePrefix("TP_" + domain.getName());
+        executor.setCorePoolSize(CONSUMER_THREAD);
+        executor.setMaxPoolSize(CONSUMER_THREAD);
+        executor.setThreadNamePrefix("TP");
         executor.initialize();
         return new PublishSubscribeChannel(executor);
     }
 
-    private String getSelectSql(Domain domain) {
+    private String getSelectSql() {
 
-        if (AppConstant.PROD.equals(domain.getName())) {
-            return
-                "SELECT * from link where process_flag='N' and type = '"
-                    + domain.getName() + "' limit " + domain.getConsumerThread().toString();
-        }
-        return null;
+        return "SELECT * from crawl_detail where process_flag='" + LinkStatus.NOT_PROCESSED
+            + "' limit " + String.valueOf(CONSUMER_THREAD);
     }
 
-    private String getUpdateSql(String type) {
+    private String getUpdateSql() {
 
-        if (AppConstant.PROD.equals(type)) {
-            return "UPDATE link SET process_flag='Y' WHERE id = :id";
-        }
-        return null;
+        return "UPDATE crawl_detail SET process_flag='" + LinkStatus.IN_PROGRESS
+            + "' WHERE id = :id";
     }
 
 }

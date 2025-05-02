@@ -1,16 +1,13 @@
 package com.lmg.crawler_qa_tester.constants;
 
-public enum ConsumerStatusEnum {
-    INIT("INIT"),
-    RUNNING("RUNNING"),
-    COMPLETED("COMPLETED"),
-    STOPPED("STOPPED"),
-    CANCELLED("CANCELLED");
+public enum EnvironmentEnum {
+    PROD("PROD"),
+    PRE_PROD("PRE_PROD");
 
     private final String value;
 
-    ConsumerStatusEnum(String status) {
-        this.value = status;
+    EnvironmentEnum(String env) {
+        this.value = env;
     }
 
     public String getValue() {
