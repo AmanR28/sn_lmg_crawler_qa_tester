@@ -4,6 +4,7 @@ import com.lmg.crawler_qa_tester.constants.ConsumerStatusEnum;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
@@ -12,9 +13,10 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import java.sql.Timestamp;
 
-@Entity
 @Getter
 @Setter
+@Entity
+@Table(name = "projects")
 public class ProjectEntity {
     @Id
     @GeneratedValue

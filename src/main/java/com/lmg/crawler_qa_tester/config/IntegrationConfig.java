@@ -43,12 +43,11 @@ public class IntegrationConfig {
 
     @Bean
     @InboundChannelAdapter(value = "prodPollerChannel",
-        poller = @Poller(fixedRate = "${env.prod.pollerRate}"), autoStartup = "false")
+        poller = @Poller(fixedRate = "${env.prod.pollerRate}"), autoStartup = "true")
     public MessageSource<?> prodMessagePoller() {
 
         JdbcPollingChannelAdapter jdbcPollingChannelAdapter =
-            new JdbcPollingChannelAdapter(dataSource,
-                getSelectSql(prodDomain.getName(), prodDomain.getConsumerThread()));
+            new JdbcPollingChannelAdapter(dataSource, getSelectSql(prodDomain));
         jdbcPollingChannelAdapter.setMaxRows(prodDomain.getConsumerThread());
         jdbcPollingChannelAdapter.setRowMapper(new LinkEntityMapper());
         jdbcPollingChannelAdapter.setUpdateSql(getUpdateSql(prodDomain.getName()));
@@ -73,12 +72,12 @@ public class IntegrationConfig {
         return new PublishSubscribeChannel(executor);
     }
 
-    private String getSelectSql(String type, Integer consumerThread) {
+    private String getSelectSql(Domain domain) {
 
-        if (AppConstant.PROD.equals(type)) {
+        if (AppConstant.PROD.equals(domain.getName())) {
             return
-                "SELECT * from links where processed='N' and type = '"
-                    + type + "' limit " + consumerThread.toString();
+                "SELECT * from links where process_flag='N' and base_url = '"
+                    + domain.getBaseUrl() + "' limit " + domain.getConsumerThread().toString();
         }
         return null;
     }
@@ -86,7 +85,7 @@ public class IntegrationConfig {
     private String getUpdateSql(String type) {
 
         if (AppConstant.PROD.equals(type)) {
-            return "UPDATE links SET processed='Y' WHERE id = :id";
+            return "UPDATE links SET process_flag='Y' WHERE id = :id";
         }
         return null;
     }

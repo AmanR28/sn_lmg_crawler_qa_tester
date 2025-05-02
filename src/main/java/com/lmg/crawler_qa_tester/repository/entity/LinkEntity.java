@@ -1,9 +1,7 @@
 package com.lmg.crawler_qa_tester.repository.entity;
 
 import com.lmg.crawler_qa_tester.constants.LinkStatus;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
@@ -14,6 +12,7 @@ import lombok.Setter;
 @Table(name = "links")
 public class LinkEntity {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     @NonNull
     private Integer projectId;

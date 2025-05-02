@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
+@RequestMapping("/projects")
 public class ProjectController {
     @Autowired
     private ProjectService projectService;
@@ -21,21 +22,21 @@ public class ProjectController {
         return projectService.createProject();
     }
 
-    @PutMapping()
+    @PutMapping("/start")
     public void start() {
 
         projectService.startProject();
     }
 
-    @PutMapping()
+    @PutMapping("/stop")
     public String stop() {
-
+        projectService.stopProject();
         return "OK";
     }
 
     @DeleteMapping()
     public String cancel() {
-
+        projectService.cancelProject();
         return "OK";
     }
 
