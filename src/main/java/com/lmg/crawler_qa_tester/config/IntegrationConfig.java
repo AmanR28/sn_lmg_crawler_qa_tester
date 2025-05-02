@@ -3,7 +3,8 @@ package com.lmg.crawler_qa_tester.config;
 import com.lmg.crawler_qa_tester.constants.AppConstant;
 import com.lmg.crawler_qa_tester.dto.Domain;
 import com.lmg.crawler_qa_tester.mapper.LinkEntityMapper;
-import com.lmg.crawler_qa_tester.repository.entity.LinkEntity;
+import com.lmg.crawler_qa_tester.repository.entity.CrawlDetailEntity;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -11,7 +12,6 @@ import org.springframework.integration.annotation.InboundChannelAdapter;
 import org.springframework.integration.annotation.Poller;
 import org.springframework.integration.annotation.Splitter;
 import org.springframework.integration.channel.PublishSubscribeChannel;
-import org.springframework.integration.channel.QueueChannel;
 import org.springframework.integration.core.MessageSource;
 import org.springframework.integration.jdbc.JdbcPollingChannelAdapter;
 import org.springframework.integration.support.MessageBuilder;
@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Configuration
+@Slf4j
 public class IntegrationConfig {
     @Autowired
     private Domain prodDomain;
@@ -30,9 +31,9 @@ public class IntegrationConfig {
     private DataSource dataSource;
 
     @Bean
-    public QueueChannel prodPollerChannel() {
+    public PublishSubscribeChannel pollerChannel() {
 
-        return new QueueChannel();
+        return new PublishSubscribeChannel();
     }
 
     @Bean
@@ -42,9 +43,17 @@ public class IntegrationConfig {
     }
 
     @Bean
-    @InboundChannelAdapter(value = "prodPollerChannel",
-        poller = @Poller(fixedRate = "${env.prod.pollerRate}"), autoStartup = "true")
+    public PublishSubscribeChannel preProdChannel() {
+
+        return createChannel(prodDomain);
+    }
+
+    @Bean
+    @InboundChannelAdapter(value = "pollerChannel",
+        poller = @Poller(fixedRate = "${env.app.pollerRate}"), autoStartup = "false")
     public MessageSource<?> prodMessagePoller() {
+
+        log.error("AR Prod Poller Working sql : {} ", getSelectSql(prodDomain));
 
         JdbcPollingChannelAdapter jdbcPollingChannelAdapter =
             new JdbcPollingChannelAdapter(dataSource, getSelectSql(prodDomain));
@@ -55,7 +64,7 @@ public class IntegrationConfig {
     }
 
     @Splitter(inputChannel = "prodPollerChannel", outputChannel = "prodChannel")
-    public List<Message<List<LinkEntity>>> split(List<LinkEntity> links) {
+    public List<Message<List<CrawlDetailEntity>>> split(List<CrawlDetailEntity> links) {
 
         return links.stream()
             .map(link -> MessageBuilder.withPayload(List.of(link)).build())
@@ -76,8 +85,8 @@ public class IntegrationConfig {
 
         if (AppConstant.PROD.equals(domain.getName())) {
             return
-                "SELECT * from links where process_flag='N' and base_url = '"
-                    + domain.getBaseUrl() + "' limit " + domain.getConsumerThread().toString();
+                "SELECT * from link where process_flag='N' and type = '"
+                    + domain.getName() + "' limit " + domain.getConsumerThread().toString();
         }
         return null;
     }
@@ -85,7 +94,7 @@ public class IntegrationConfig {
     private String getUpdateSql(String type) {
 
         if (AppConstant.PROD.equals(type)) {
-            return "UPDATE links SET process_flag='Y' WHERE id = :id";
+            return "UPDATE link SET process_flag='Y' WHERE id = :id";
         }
         return null;
     }

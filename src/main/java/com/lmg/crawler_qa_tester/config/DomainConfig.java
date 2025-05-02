@@ -28,3 +28,5 @@ public class DomainConfig {
     }
 
 }
+
+// DOMAIN = ENV + COUNTRY + LANGUAGE

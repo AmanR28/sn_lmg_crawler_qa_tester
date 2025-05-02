@@ -8,7 +8,7 @@ spring:
     url: ${DB_URL:jdbc:postgresql://localhost:5432/com_lmg_linkvalidator}
   jpa:
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: update
 env:
   prod:
     browserHeadless: true

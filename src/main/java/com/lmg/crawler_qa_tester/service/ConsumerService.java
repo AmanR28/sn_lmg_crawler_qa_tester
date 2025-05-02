@@ -1,7 +1,7 @@
 package com.lmg.crawler_qa_tester.service;
 
 import com.lmg.crawler_qa_tester.repository.LinkRepository;
-import com.lmg.crawler_qa_tester.repository.entity.LinkEntity;
+import com.lmg.crawler_qa_tester.repository.entity.CrawlDetailEntity;
 import com.lmg.crawler_qa_tester.util.WebDriverFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.openqa.selenium.WebDriver;
@@ -21,10 +21,10 @@ public class ConsumerService {
     private LinkRepository linkRepository;
 
     @ServiceActivator(inputChannel = "prodChannel")
-    public void consumeProd(Message<List<LinkEntity>> message) {
+    public void consumeProd(Message<List<CrawlDetailEntity>> message) {
 
-        LinkEntity link = message.getPayload().get(0);
-        String linkUrl = link.getBaseUrl() + link.getUrl();
+        CrawlDetailEntity link = message.getPayload().get(0);
+        String linkUrl = link.getBaseUrl() + link.getPath();
         log.info("Processing Link: {}", linkUrl);
 
         WebDriver driver = WebDriverFactory.getProdWebDriver(linkUrl);
@@ -33,12 +33,12 @@ public class ConsumerService {
 
         List<String> urls = pageService.processPage(driver);
 
-        List<LinkEntity> links = urls.stream().map(url -> {
-            LinkEntity linkEntity = new LinkEntity();
-            linkEntity.setProjectId(link.getProjectId());
-            linkEntity.setBaseUrl(link.getBaseUrl());
-            linkEntity.setUrl(url);
-            return linkEntity;
+        List<CrawlDetailEntity> links = urls.stream().map(url -> {
+            CrawlDetailEntity crawlDetailEntity = new CrawlDetailEntity();
+            crawlDetailEntity.setCrawlHeaderId(link.getCrawlHeaderId());
+            crawlDetailEntity.setBaseUrl(link.getBaseUrl());
+            crawlDetailEntity.setPath(url);
+            return crawlDetailEntity;
         }).toList();
         log.info("Cur links size: {}", links.size());
         linkRepository.saveAll(links);

@@ -1,10 +1,7 @@
 package com.lmg.crawler_qa_tester.repository.entity;
 
 import com.lmg.crawler_qa_tester.constants.ConsumerStatusEnum;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
@@ -16,23 +13,28 @@ import java.sql.Timestamp;
 @Getter
 @Setter
 @Entity
-@Table(name = "projects")
-public class ProjectEntity {
+@Table(name = "crawl_header")
+public class CrawlHeaderEntity {
     @Id
     @GeneratedValue
+    @Column(name = "id")
     private Integer id;
 
-    @CreationTimestamp
-    private Timestamp createdTime;
-    @UpdateTimestamp
-    private Timestamp updatedTime;
-
     @NonNull
+    @Column(name = "prod_base_url")
     private String prodBaseUrl;
     @NonNull
+    @Column(name = "pre_prod_base_url")
     private String preProdBaseUrl;
 
-    private ConsumerStatusEnum prodProcessStatus = ConsumerStatusEnum.INIT;
-    private ConsumerStatusEnum preProdProcessStatus = ConsumerStatusEnum.INIT;
+    @Column(name = "status")
+    private ConsumerStatusEnum status = ConsumerStatusEnum.INIT;
 
+    @CreationTimestamp
+    @Column(name = "created_time")
+    private Timestamp createdTime;
+
+    @UpdateTimestamp
+    @Column(name = "updated_time")
+    private Timestamp updatedTime;
 }
