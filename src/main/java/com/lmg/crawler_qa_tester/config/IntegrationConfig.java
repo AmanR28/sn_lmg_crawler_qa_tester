@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 import javax.sql.DataSource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.integration.annotation.*;
@@ -23,100 +24,102 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 @Configuration
 @Slf4j
 public class IntegrationConfig {
-    private final int CONSUMER_THREAD =
-        Integer.parseInt(System.getProperty("env.app.consumerThread", "1"));
+  @Value("${env.app.consumerThread}")
+  private int CONSUMER_THREAD;
 
-    @Autowired
-    private DataSource dataSource;
+  @Autowired private DataSource dataSource;
 
-    @Bean
-    public PublishSubscribeChannel pollerChannel() {
+  @Bean
+  public PublishSubscribeChannel pollerChannel() {
 
-        return new PublishSubscribeChannel();
+    return new PublishSubscribeChannel();
+  }
+
+  @Bean
+  public PublishSubscribeChannel transformChannel() {
+
+    return new PublishSubscribeChannel();
+  }
+
+  @Bean
+  public PublishSubscribeChannel routerChannel() {
+
+    return new PublishSubscribeChannel();
+  }
+
+  @Bean
+  public PublishSubscribeChannel prodChannel() {
+
+    return createChannel(EnvironmentEnum.PROD.getValue());
+  }
+
+  @Bean
+  public PublishSubscribeChannel preProdChannel() {
+
+    return createChannel(EnvironmentEnum.PRE_PROD.getValue());
+  }
+
+  @Bean
+  @InboundChannelAdapter(
+      value = "pollerChannel",
+      poller = @Poller(fixedRate = "${env.app.pollerRate}"),
+      autoStartup = "false")
+  public MessageSource<?> messagePoller() {
+    JdbcPollingChannelAdapter jdbcPollingChannelAdapter =
+        new JdbcPollingChannelAdapter(dataSource, getSelectSql());
+    jdbcPollingChannelAdapter.setMaxRows(CONSUMER_THREAD);
+    jdbcPollingChannelAdapter.setRowMapper(new CrawlDetailEntityMapper());
+    jdbcPollingChannelAdapter.setUpdateSql(getUpdateSql());
+    return jdbcPollingChannelAdapter;
+  }
+
+  @Splitter(inputChannel = "pollerChannel", outputChannel = "transformChannel")
+  public List<Message<CrawlDetailEntity>> split(List<CrawlDetailEntity> links) {
+
+    return links.stream()
+        .map(link -> MessageBuilder.withPayload(link).build())
+        .collect(Collectors.toList());
+  }
+
+  @Transformer(inputChannel = "transformChannel", outputChannel = "routerChannel")
+  public Link transformToLinks(CrawlDetailEntity entity) {
+
+    return new CrawlDetailEntityMapper().toLink(entity);
+  }
+
+  @Router(inputChannel = "routerChannel")
+  public String routeByEnvironment(Link link) {
+
+    if (EnvironmentEnum.PROD.equals(link.getEnv())) {
+      return "prodChannel";
+    } else if (EnvironmentEnum.PRE_PROD.equals(link.getEnv())) {
+      return "preProdChannel";
     }
+    return null;
+  }
 
-    @Bean
-    public PublishSubscribeChannel transformChannel() {
+  private PublishSubscribeChannel createChannel(String name) {
 
-        return new PublishSubscribeChannel();
-    }
+    ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+    executor.setCorePoolSize(CONSUMER_THREAD);
+    executor.setMaxPoolSize(CONSUMER_THREAD);
+    executor.setThreadNamePrefix("TP_" + name);
+    executor.initialize();
+    return new PublishSubscribeChannel(executor);
+  }
 
-    @Bean
-    public PublishSubscribeChannel routerChannel() {
+  private String getSelectSql() {
 
-        return new PublishSubscribeChannel();
-    }
+    return "SELECT * from crawl_detail where process_flag='"
+        + LinkStatus.NOT_PROCESSED
+        + "' limit "
+        + CONSUMER_THREAD;
+  }
 
-    @Bean
-    public PublishSubscribeChannel prodChannel() {
+  private String getUpdateSql() {
 
-        return createChannel(EnvironmentEnum.PROD.getValue());
-    }
-
-    @Bean
-    public PublishSubscribeChannel preProdChannel() {
-
-        return createChannel(EnvironmentEnum.PRE_PROD.getValue());
-    }
-
-    @Bean
-    @InboundChannelAdapter(value = "pollerChannel",
-        poller = @Poller(fixedRate = "${env.app.pollerRate}"), autoStartup = "false")
-    public MessageSource<?> messagePoller() {
-
-        JdbcPollingChannelAdapter jdbcPollingChannelAdapter =
-            new JdbcPollingChannelAdapter(dataSource, getSelectSql());
-        jdbcPollingChannelAdapter.setMaxRows(CONSUMER_THREAD);
-        jdbcPollingChannelAdapter.setRowMapper(new CrawlDetailEntityMapper());
-        jdbcPollingChannelAdapter.setUpdateSql(getUpdateSql());
-        return jdbcPollingChannelAdapter;
-    }
-
-    @Splitter(inputChannel = "pollerChannel", outputChannel = "transformChannel")
-    public List<Message<CrawlDetailEntity>> split(List<CrawlDetailEntity> links) {
-
-        return links.stream().map(link -> MessageBuilder.withPayload(link).build())
-            .collect(Collectors.toList());
-    }
-
-    @Transformer(inputChannel = "transformChannel", outputChannel = "routerChannel")
-    public Link transformToLinks(CrawlDetailEntity entity) {
-
-        return new CrawlDetailEntityMapper().toLink(entity);
-    }
-
-    @Router(inputChannel = "routerChannel")
-    public String routeByEnvironment(Link link) {
-
-        if (EnvironmentEnum.PROD.equals(link.getEnv())) {
-            return "prodChannel";
-        } else
-            if (EnvironmentEnum.PRE_PROD.equals(link.getEnv())) {
-                return "preProdChannel";
-            }
-        return null;
-    }
-
-    private PublishSubscribeChannel createChannel(String name) {
-
-        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-        executor.setCorePoolSize(CONSUMER_THREAD);
-        executor.setMaxPoolSize(CONSUMER_THREAD);
-        executor.setThreadNamePrefix("TP_" + name);
-        executor.initialize();
-        return new PublishSubscribeChannel(executor);
-    }
-
-    private String getSelectSql() {
-
-        return "SELECT * from crawl_detail where process_flag='" + LinkStatus.NOT_PROCESSED
-            + "' limit " + CONSUMER_THREAD;
-    }
-
-    private String getUpdateSql() {
-
-        return "UPDATE crawl_detail SET process_flag='" + LinkStatus.IN_PROGRESS
-            + "' WHERE id = :id";
-    }
-
+    return "UPDATE crawl_detail SET process_flag='"
+        + LinkStatus.IN_PROGRESS
+        + "' WHERE id in (:id)";
+  }
 }
