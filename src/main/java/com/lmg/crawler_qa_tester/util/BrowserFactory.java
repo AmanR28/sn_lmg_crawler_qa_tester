@@ -2,15 +2,12 @@ package com.lmg.crawler_qa_tester.util;
 
 import com.microsoft.playwright.*;
 import com.microsoft.playwright.options.Cookie;
+import java.util.Arrays;
+import java.util.List;
 import lombok.extern.slf4j.Slf4j;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.chrome.ChromeOptions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
-
-import java.util.Arrays;
-import java.util.List;
 
 @Slf4j
 @Component
@@ -19,11 +16,9 @@ public class BrowserFactory {
     private Environment environment;
 
     public List<String> getOptions() {
-        return Arrays.asList(new String[]{
-                "--disable-blink-features=AutomationControlled",
+        return Arrays.asList("--disable-blink-features=AutomationControlled",
                 "--no-sandbox",
-                "--disable-dev-shm-usage"
-        });
+                "--disable-dev-shm-usage");
     }
 
     public Browser getProdWebDriver() {

@@ -6,17 +6,12 @@ import com.lmg.crawler_qa_tester.mapper.CrawlDetailEntityMapper;
 import com.lmg.crawler_qa_tester.repository.CrawlDetailRepository;
 import com.lmg.crawler_qa_tester.repository.entity.CrawlDetailEntity;
 import com.microsoft.playwright.*;
-import jakarta.transaction.Transactional;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.extern.slf4j.Slf4j;
-import org.openqa.selenium.By;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Slf4j
 @Service

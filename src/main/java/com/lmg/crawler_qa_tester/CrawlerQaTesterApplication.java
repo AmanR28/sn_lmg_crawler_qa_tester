@@ -8,9 +8,8 @@ import org.springframework.integration.config.EnableIntegration;
 @EnableIntegration
 public class CrawlerQaTesterApplication {
 
-    public static void main(String[] args) {
+  public static void main(String[] args) {
 
-        SpringApplication.run(CrawlerQaTesterApplication.class, args);
-    }
-
+    SpringApplication.run(CrawlerQaTesterApplication.class, args);
+  }
 }

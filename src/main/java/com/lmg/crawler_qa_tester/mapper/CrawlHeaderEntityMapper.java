@@ -3,10 +3,9 @@ package com.lmg.crawler_qa_tester.mapper;
 import com.lmg.crawler_qa_tester.constants.ConsumerStatusEnum;
 import com.lmg.crawler_qa_tester.dto.Process;
 import com.lmg.crawler_qa_tester.repository.entity.CrawlHeaderEntity;
-import org.springframework.jdbc.core.RowMapper;
-
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import org.springframework.jdbc.core.RowMapper;
 
 public class CrawlHeaderEntityMapper implements RowMapper<CrawlHeaderEntity> {
 

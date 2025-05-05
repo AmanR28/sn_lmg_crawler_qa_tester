@@ -8,26 +8,23 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/projects")
 public class ProcessController {
-    @Autowired
-    private ProcessService processService;
+  @Autowired private ProcessService processService;
 
-    @GetMapping()
-    public String status() {
+  @GetMapping()
+  public String status() {
 
-        return processService.getStatus();
-    }
+    return processService.getStatus();
+  }
 
-    @PostMapping()
-    public Integer create(@RequestBody ProjectRequest request) {
+  @PostMapping()
+  public Integer create(@RequestBody ProjectRequest request) {
 
-        return processService.createProject(request.getProdBaseUrl(), request.getPreProdBaseUrl());
-    }
+    return processService.createProject(request.getProdBaseUrl(), request.getPreProdBaseUrl());
+  }
 
-    @PutMapping("/start/{projectId}")
-    public void start(@PathVariable Integer projectId) {
+  @PutMapping("/start/{projectId}")
+  public void start(@PathVariable Integer projectId) {
 
-        processService.startProject(projectId);
-    }
-
+    processService.startProject(projectId);
+  }
 }
-

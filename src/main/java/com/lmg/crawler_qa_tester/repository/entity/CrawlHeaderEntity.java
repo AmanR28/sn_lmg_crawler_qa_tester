@@ -15,27 +15,27 @@ import java.sql.Timestamp;
 @Entity
 @Table(name = "crawl_header")
 public class CrawlHeaderEntity {
-    @Id
-    @GeneratedValue
-    @Column(name = "id")
-    private Integer id;
+  @Id
+  @GeneratedValue
+  @Column(name = "id")
+  private Integer id;
 
-    @NonNull
-    @Column(name = "prod_base_url")
-    private String prodBaseUrl;
+  @NonNull
+  @Column(name = "prod_base_url")
+  private String prodBaseUrl;
 
-    @NonNull
-    @Column(name = "pre_prod_base_url")
-    private String preProdBaseUrl;
+  @NonNull
+  @Column(name = "pre_prod_base_url")
+  private String preProdBaseUrl;
 
-    @Column(name = "status")
-    private String status = ConsumerStatusEnum.INIT.getValue();
+  @Column(name = "status")
+  private String status = ConsumerStatusEnum.INIT.getValue();
 
-    @CreationTimestamp
-    @Column(name = "created_time")
-    private Timestamp createdTime;
+  @CreationTimestamp
+  @Column(name = "created_time")
+  private Timestamp createdTime;
 
-    @UpdateTimestamp
-    @Column(name = "updated_time")
-    private Timestamp updatedTime;
+  @UpdateTimestamp
+  @Column(name = "updated_time")
+  private Timestamp updatedTime;
 }

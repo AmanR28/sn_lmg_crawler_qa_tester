@@ -4,11 +4,10 @@ import com.lmg.crawler_qa_tester.constants.EnvironmentEnum;
 import com.lmg.crawler_qa_tester.constants.LinkStatus;
 import com.lmg.crawler_qa_tester.dto.Link;
 import com.lmg.crawler_qa_tester.repository.entity.CrawlDetailEntity;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.jdbc.core.RowMapper;
-
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.jdbc.core.RowMapper;
 
 @Slf4j
 public class CrawlDetailEntityMapper implements RowMapper<CrawlDetailEntity> {

@@ -1,10 +1,9 @@
 package com.lmg.crawler_qa_tester.dto;
 
 import com.lmg.crawler_qa_tester.constants.ConsumerStatusEnum;
+import java.sql.Timestamp;
 import lombok.Builder;
 import lombok.Data;
-
-import java.sql.Timestamp;
 
 @Data
 @Builder

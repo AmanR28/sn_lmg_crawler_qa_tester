@@ -5,6 +5,9 @@ import com.lmg.crawler_qa_tester.constants.LinkStatus;
 import com.lmg.crawler_qa_tester.dto.Link;
 import com.lmg.crawler_qa_tester.mapper.CrawlDetailEntityMapper;
 import com.lmg.crawler_qa_tester.repository.entity.CrawlDetailEntity;
+import java.util.List;
+import java.util.stream.Collectors;
+import javax.sql.DataSource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -16,10 +19,6 @@ import org.springframework.integration.jdbc.JdbcPollingChannelAdapter;
 import org.springframework.integration.support.MessageBuilder;
 import org.springframework.messaging.Message;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
-
-import javax.sql.DataSource;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Configuration
 @Slf4j
@@ -111,7 +110,7 @@ public class IntegrationConfig {
     private String getSelectSql() {
 
         return "SELECT * from crawl_detail where process_flag='" + LinkStatus.NOT_PROCESSED
-            + "' limit " + String.valueOf(CONSUMER_THREAD);
+            + "' limit " + CONSUMER_THREAD;
     }
 
     private String getUpdateSql() {

@@ -13,35 +13,32 @@ import org.springframework.stereotype.Service;
 @Slf4j
 @Service
 public class ConsumerService {
-    @Autowired
-    private PageService pageService;
-    @Autowired
-    private BrowserFactory browserFactory;
+  @Autowired private PageService pageService;
+  @Autowired private BrowserFactory browserFactory;
 
-    @ServiceActivator(inputChannel = "prodChannel")
-    public void consumeProd(Message<Link> message) {
+  @ServiceActivator(inputChannel = "prodChannel")
+  public void consumeProd(Message<Link> message) {
 
-        Link link = message.getPayload();
-        log.info("Processing Prod Link: {}", link);
+    Link link = message.getPayload();
+    log.info("Processing Prod Link: {}", link);
 
-        Browser browser = browserFactory.getProdWebDriver();
-        Page page = browserFactory.getProdBrowserPage(browser);
-        pageService.processPage(link, page);
+    Browser browser = browserFactory.getProdWebDriver();
+    Page page = browserFactory.getProdBrowserPage(browser);
+    pageService.processPage(link, page);
 
-        browser.close();
-    }
+    browser.close();
+  }
 
-    @ServiceActivator(inputChannel = "preProdChannel")
-    public void consumePreProd(Message<Link> message) {
+  @ServiceActivator(inputChannel = "preProdChannel")
+  public void consumePreProd(Message<Link> message) {
 
-        Link link = message.getPayload();
-        log.info("Processing PreProd Link: {}", link);
+    Link link = message.getPayload();
+    log.info("Processing PreProd Link: {}", link);
 
-        Browser browser = browserFactory.getPreProdWebDriver();
-        Page page = browserFactory.getPreProdBrowserPage(browser);
-        pageService.processPage(link, page);
+    Browser browser = browserFactory.getPreProdWebDriver();
+    Page page = browserFactory.getPreProdBrowserPage(browser);
+    pageService.processPage(link, page);
 
-        browser.close();
-    }
-
+    browser.close();
+  }
 }

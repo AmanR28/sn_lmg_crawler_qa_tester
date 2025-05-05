@@ -8,12 +8,11 @@ import lombok.Data;
 @Data
 @Builder
 public class Link {
-    private Integer id;
-    private Integer crawlHeaderId;
-    private EnvironmentEnum env;
-    private String baseUrl;
-    private String path;
-    private LinkStatus processFlag;
-    private String errorMessage;
-
+  private Integer id;
+  private Integer crawlHeaderId;
+  private EnvironmentEnum env;
+  private String baseUrl;
+  private String path;
+  private LinkStatus processFlag;
+  private String errorMessage;
 }
