@@ -11,7 +11,7 @@ import lombok.Setter;
 @Entity
 @Table(
     name = "crawl_detail",
-    uniqueConstraints = @UniqueConstraint(columnNames = {"project_id", "env", "base_url", "path"}),
+    uniqueConstraints = @UniqueConstraint(name = "unique_link", columnNames = {"crawl_header_id", "env", "base_url", "path"}),
     indexes = @Index(name = "idx_process_flag", columnList = "process_flag"))
 public class CrawlDetailEntity {
   @Id
@@ -20,7 +20,7 @@ public class CrawlDetailEntity {
   private Integer id;
 
   @NonNull
-  @Column(name = "project_id")
+  @Column(name = "crawl_header_id")
   private Integer crawlHeaderId;
 
   @NonNull

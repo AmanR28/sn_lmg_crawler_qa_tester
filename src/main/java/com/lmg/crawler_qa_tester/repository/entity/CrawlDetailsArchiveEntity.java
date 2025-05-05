@@ -17,7 +17,7 @@ public class CrawlDetailsArchiveEntity {
   private Integer id;
 
   @NonNull
-  @Column(name = "project_id")
+  @Column(name = "crawl_header_id")
   private Integer crawlHeaderId;
 
   @NonNull

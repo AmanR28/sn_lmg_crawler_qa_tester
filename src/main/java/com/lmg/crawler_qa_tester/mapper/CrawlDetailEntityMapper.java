@@ -18,7 +18,7 @@ public class CrawlDetailEntityMapper implements RowMapper<CrawlDetailEntity> {
         log.info("Mapping row {} from database", rowNum);
         CrawlDetailEntity entity = new CrawlDetailEntity();
         entity.setId(rs.getInt("id"));
-        entity.setCrawlHeaderId(rs.getInt("project_id"));
+        entity.setCrawlHeaderId(rs.getInt("crawl_header_id"));
         entity.setEnv(rs.getString("env"));
         entity.setBaseUrl(rs.getString("base_url"));
         entity.setPath(rs.getString("path"));

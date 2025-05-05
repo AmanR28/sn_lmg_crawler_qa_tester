@@ -11,7 +11,6 @@ import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.asynchttpclient.uri.Uri;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 @Slf4j
@@ -64,13 +63,7 @@ public class PageService {
                                 .build()))
             .toList();
     log.info("Cur links size: {}", links.size());
-
-    try {
-      crawlDetailRepository.saveAll(links);
-    } catch (DataIntegrityViolationException ignored) {
-    } catch (Exception e) {
-      log.error("Error saving links", e);
-    }
+    crawlDetailRepository.saveNewLinks(links);
   }
 
   List<String> getPageUrls(Page page) {
