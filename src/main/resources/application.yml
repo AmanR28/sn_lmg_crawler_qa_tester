@@ -17,3 +17,9 @@ env:
     browserHeadless: true
   preprod:
     browserHeadless: true
+
+# https://www.centrepointstores.com/kw/en
+# https://blc.centrepointstores.com/kw/en
+
+# curl -X POST http://localhost:8080/projects -H "Content-Type: application/json"  -d '{ "prodBaseUrl": "https://www.centrepointstores.com/kw/en", "preProdBaseUrl": "https://blc.centrepointstores.com/kw/en" }' | jq
+# curl -X PUT http://localhost:8080/projects/start/1 | jq

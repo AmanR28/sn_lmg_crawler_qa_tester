@@ -7,6 +7,9 @@ import com.lmg.crawler_qa_tester.repository.CrawlDetailRepository;
 import com.lmg.crawler_qa_tester.repository.entity.CrawlDetailEntity;
 import com.lmg.crawler_qa_tester.util.BrowserFactory;
 import com.microsoft.playwright.Browser;
+import com.microsoft.playwright.BrowserContext;
+import com.microsoft.playwright.Page;
+import com.microsoft.playwright.options.Cookie;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -14,7 +17,10 @@ import org.springframework.integration.annotation.ServiceActivator;
 import org.springframework.messaging.Message;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @Slf4j
@@ -28,18 +34,43 @@ public class ConsumerService {
     public void consumeProd(Message<Link> message) {
 
         Link link = message.getPayload();
+        log.info("Processing Prod Link: {}", link);
 
+        Browser browser = BrowserFactory.getProdWebDriver();
+
+        processPage(link, browser);
+    }
+
+    @ServiceActivator(inputChannel = "preProdChannel")
+    public void consumePreProd(Message<Link> message) {
+
+        Link link = message.getPayload();
+        log.info("Processing PreProd Link: {}", link);
+
+        Browser browser = BrowserFactory.getPreProdWebDriver();
+
+        processPage(link, browser);
+    }
+
+    private void processPage(Link link, Browser browser) {
         String linkUrl = link.getBaseUrl() + link.getPath();
-        log.info("Processing Link: {}", linkUrl);
 
-        Browser browser = BrowserFactory.getProdWebDriver(linkUrl);
+        Page page = BrowserFactory.getBrowserContext(browser).newPage();
+        page.navigate(linkUrl);
+        page.waitForTimeout(3000);
 
-        //TODO Page Status Validate
+        boolean isValidPage = pageService.validatePageStatus(page);
+        if (!isValidPage) {
+            link.setProcessFlag(LinkStatus.NOT_FOUND);
+            crawlDetailRepository.save(new CrawlDetailEntityMapper().fromLink(link));
+            browser.close();
+            return;
+        }
 
         List<String> urls = null;
 
         try {
-            urls = pageService.processPage(browser, linkUrl);
+            urls = pageService.processPage(page);
             link.setProcessFlag(LinkStatus.SUCCESS);
             crawlDetailRepository.save(new CrawlDetailEntityMapper().fromLink(link));
         } catch (Exception e) {
@@ -70,11 +101,4 @@ public class ConsumerService {
 
         browser.close();
     }
-
-    // TODO PRE PROD CONSUMER
-    @ServiceActivator()
-    public void consumePreProd() {
-
-    }
-
 }

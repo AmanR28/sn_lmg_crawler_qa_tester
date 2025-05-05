@@ -27,38 +27,45 @@ public class ProcessService {
     @Autowired
     private CrawlDetailRepository crawlDetailRepository;
 
-    public Integer createProject() {
+    public Integer createProject(String prodBaseUrl, String preProdBaseUrl) {
 
-        log.info("Create project");
+        log.info("Create project with prodBaseUrl: {} and preProdBaseUrl: {}", prodBaseUrl, preProdBaseUrl);
 
-        Process process = Process.builder().prodBaseUrl("https://www.centrepointstores.com/kw/en")
-            .preProdBaseUrl("https://blc.centrepointstores.com/kw/en").build();
+        Process process = Process.builder()
+                .prodBaseUrl(prodBaseUrl)
+                .preProdBaseUrl(preProdBaseUrl)
+                .build();
         Integer processId =
-            crawlHeaderRepository.save(new CrawlHeaderEntityMapper().fromProcess(process)).getId();
+                crawlHeaderRepository.save(new CrawlHeaderEntityMapper().fromProcess(process)).getId();
 
-        Link link = Link.builder().env(EnvironmentEnum.PROD)
-            .baseUrl("https://www.centrepointstores.com/kw/en").crawlHeaderId(processId).path("/").processFlag(
-                LinkStatus.NOT_PROCESSED)
-            .build();
-        crawlDetailRepository.save(new CrawlDetailEntityMapper().fromLink(link));
+        Link prodlink = Link.builder().env(EnvironmentEnum.PROD)
+                .baseUrl(prodBaseUrl).crawlHeaderId(processId).path("/").processFlag(
+                        LinkStatus.NOT_PROCESSED)
+                .build();
+        crawlDetailRepository.save(new CrawlDetailEntityMapper().fromLink(prodlink));
+
+        Link preProdlink = Link.builder().env(EnvironmentEnum.PRE_PROD)
+                .baseUrl(preProdBaseUrl).crawlHeaderId(processId).path("/").processFlag(
+                        LinkStatus.NOT_PROCESSED)
+                .build();
+        crawlDetailRepository.save(new CrawlDetailEntityMapper().fromLink(preProdlink));
 
         log.info("Created project with id {}", processId);
-
         return processId;
     }
 
-    public void startProject() {
+    public void startProject(Integer projectId) {
 
-        log.info("Start project");
+        log.info("Start project with id: {}", projectId);
 
         Process process =
-            new CrawlHeaderEntityMapper().toProcess(crawlHeaderRepository.getReferenceById(1));
+                new CrawlHeaderEntityMapper().toProcess(crawlHeaderRepository.getReferenceById(projectId));
         process.setStatus(ConsumerStatusEnum.RUNNING);
         crawlHeaderRepository.save(new CrawlHeaderEntityMapper().fromProcess(process));
 
         AbstractPollingEndpoint endpoint =
-            applicationContext.getBean("messagePoller.inboundChannelAdapter",
-                AbstractPollingEndpoint.class);
+                applicationContext.getBean("messagePoller.inboundChannelAdapter",
+                        AbstractPollingEndpoint.class);
         endpoint.start();
         log.info("Started prod message poller");
     }
