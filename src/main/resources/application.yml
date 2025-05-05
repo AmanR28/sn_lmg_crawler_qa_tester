@@ -15,4 +15,5 @@ env:
     pollerRate: 2000
   prod:
     browserHeadless: true
-    browserType: CHROME
+  preprod:
+    browserHeadless: true

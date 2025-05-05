@@ -5,7 +5,7 @@ import com.lmg.crawler_qa_tester.dto.Link;
 import com.lmg.crawler_qa_tester.mapper.CrawlDetailEntityMapper;
 import com.lmg.crawler_qa_tester.repository.CrawlDetailRepository;
 import com.lmg.crawler_qa_tester.repository.entity.CrawlDetailEntity;
-import com.lmg.crawler_qa_tester.util.WebDriverFactory;
+import com.lmg.crawler_qa_tester.util.BrowserFactory;
 import com.microsoft.playwright.Browser;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,7 +32,7 @@ public class ConsumerService {
         String linkUrl = link.getBaseUrl() + link.getPath();
         log.info("Processing Link: {}", linkUrl);
 
-        Browser browser = WebDriverFactory.getProdWebDriver(linkUrl);
+        Browser browser = BrowserFactory.getProdWebDriver(linkUrl);
 
         //TODO Page Status Validate
 
