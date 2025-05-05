@@ -12,5 +12,6 @@ import java.util.List;
 public interface CrawlDetailRepository
     extends JpaRepository<CrawlDetailEntity, Integer>, CrawlerDetailRepositoryCustom {
   void saveNewLinks(List<CrawlDetailEntity> crawlDetailEntityList);
-    List<CrawlDetailEntity> findByCrawlHeaderId(Integer crawlHeaderId);
+
+  List<CrawlDetailEntity> findAllByCrawlHeaderId(Integer crawlHeaderId);
 }

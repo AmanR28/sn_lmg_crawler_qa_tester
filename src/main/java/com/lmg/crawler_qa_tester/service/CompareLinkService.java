@@ -23,7 +23,7 @@ public class CompareLinkService {
     private CrawlDetailRepository crawlDetailRepository;
     public byte[]  getCompareReports(Integer id)
     {
-      List<CrawlDetailEntity> crawlDetailEntityList =   crawlDetailRepository.findByCrawlHeaderId(id);
+      List<CrawlDetailEntity> crawlDetailEntityList =   crawlDetailRepository.findAllByCrawlHeaderId(id);
       List<CrawlDetailEntity> prodList = new ArrayList<>();
       List<CrawlDetailEntity> preProdList = new ArrayList<>();
         List<CrawlDetailEntity> prodListNotFound = new ArrayList<>();
