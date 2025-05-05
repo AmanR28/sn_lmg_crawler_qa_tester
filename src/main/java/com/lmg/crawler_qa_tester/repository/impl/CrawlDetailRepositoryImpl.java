@@ -13,15 +13,14 @@ import java.util.List;
 public class CrawlDetailRepositoryImpl implements CrawlerDetailRepositoryCustom {
   @Autowired private JdbcTemplate jdbcTemplate;
 
-
   @Override
   public void saveNewLinks(List<CrawlDetailEntity> list) {
     if (list.isEmpty()) return;
 
     String sql =
         """
-            INSERT INTO crawl_detail (crawl_header_id, env, base_url, path, process_flag, error_message)
-            VALUES (?, ?, ?, ?, ?, ?)
+            INSERT INTO crawl_detail (crawl_header_id, env, base_url, path, process_flag, error_message, depth)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
             ON CONFLICT ON CONSTRAINT unique_link DO NOTHING
         """;
 
@@ -35,7 +34,8 @@ public class CrawlDetailRepositoryImpl implements CrawlerDetailRepositoryCustom 
                       e.getBaseUrl(),
                       e.getPath(),
                       e.getProcessFlag(),
-                      e.getErrorMessage()
+                      e.getErrorMessage(),
+                            e.getDepth()
                     })
             .toList();
 

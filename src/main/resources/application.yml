@@ -11,6 +11,7 @@ spring:
       ddl-auto: create-drop
 env:
   app:
+    maxDepth: 1
     consumerThread: 2
     pollerRate: 2000
   prod:

@@ -27,6 +27,9 @@ public class IntegrationConfig {
   @Value("${env.app.consumerThread}")
   private int CONSUMER_THREAD;
 
+  @Value("${env.app.maxDepth}")
+  private int MAX_DEPTH;
+
   @Autowired private DataSource dataSource;
 
   @Bean
@@ -75,7 +78,6 @@ public class IntegrationConfig {
 
   @Splitter(inputChannel = "pollerChannel", outputChannel = "transformChannel")
   public List<Message<CrawlDetailEntity>> split(List<CrawlDetailEntity> links) {
-
     return links.stream()
         .map(link -> MessageBuilder.withPayload(link).build())
         .collect(Collectors.toList());
@@ -112,7 +114,9 @@ public class IntegrationConfig {
 
     return "SELECT * from crawl_detail where process_flag='"
         + LinkStatus.NOT_PROCESSED
-        + "' limit "
+        + "' and depth < "
+        + MAX_DEPTH
+        + " limit "
         + CONSUMER_THREAD;
   }
 

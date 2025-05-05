@@ -23,6 +23,7 @@ public class CrawlDetailEntityMapper implements RowMapper<CrawlDetailEntity> {
         entity.setBaseUrl(rs.getString("base_url"));
         entity.setPath(rs.getString("path"));
         entity.setProcessFlag(rs.getString("process_flag"));
+        entity.setDepth(rs.getInt("depth"));
         log.info("Mapped Link: id={}, baseUrl={}, url={}", entity.getId(), entity.getBaseUrl(),
             entity.getPath());
         return entity;
@@ -39,6 +40,7 @@ public class CrawlDetailEntityMapper implements RowMapper<CrawlDetailEntity> {
             .crawlHeaderId(entity.getCrawlHeaderId())
             .baseUrl(entity.getBaseUrl())
             .path(entity.getPath())
+                .depth(entity.getDepth())
             .env(EnvironmentEnum.valueOf(entity.getEnv()))
             .processFlag(LinkStatus.NOT_PROCESSED)
             .errorMessage(entity.getErrorMessage())
@@ -57,6 +59,7 @@ public class CrawlDetailEntityMapper implements RowMapper<CrawlDetailEntity> {
         entity.setBaseUrl(link.getBaseUrl());
         entity.setEnv(link.getEnv().getValue());
         entity.setPath(link.getPath());
+        entity.setDepth(link.getDepth());
         entity.setProcessFlag(link.getProcessFlag() != null
             ? link.getProcessFlag().getValue()
             : LinkStatus.NOT_PROCESSED.getValue());

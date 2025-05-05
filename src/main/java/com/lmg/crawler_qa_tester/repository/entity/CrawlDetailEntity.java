@@ -32,7 +32,7 @@ public class CrawlDetailEntity {
   private String baseUrl;
 
   @NonNull
-  @Column(name = "path")
+  @Column(name = "path", columnDefinition = "TEXT")
   private String path;
 
   @NonNull
@@ -41,4 +41,7 @@ public class CrawlDetailEntity {
 
   @Column(name = "error_message")
   private String errorMessage;
+
+  @Column(name = "depth")
+  private int depth = 0;
 }

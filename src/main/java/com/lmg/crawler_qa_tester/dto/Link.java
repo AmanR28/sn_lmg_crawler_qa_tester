@@ -15,4 +15,5 @@ public class Link {
   private String path;
   private LinkStatus processFlag;
   private String errorMessage;
+  private int depth;
 }

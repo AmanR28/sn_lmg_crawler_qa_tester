@@ -49,7 +49,6 @@ public class PageService {
         urls.stream()
             .filter(
                 url -> (url.startsWith(startPath) && !url.substring(startPath.length()).isEmpty()))
-            .limit(3)
             .map(
                 url ->
                     new CrawlDetailEntityMapper()
@@ -58,6 +57,7 @@ public class PageService {
                                 .crawlHeaderId(link.getCrawlHeaderId())
                                 .env(link.getEnv())
                                 .baseUrl(link.getBaseUrl())
+                                    .depth(link.getDepth() + 1)
                                 .path(url.substring(startPath.length()))
                                 .processFlag(LinkStatus.NOT_PROCESSED)
                                 .build()))
