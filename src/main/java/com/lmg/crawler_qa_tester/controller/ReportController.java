@@ -1,8 +1,6 @@
 package com.lmg.crawler_qa_tester.controller;
 
-import com.lmg.crawler_qa_tester.service.CompareLinkService;
-import jakarta.websocket.server.PathParam;
-import org.apache.poi.ss.formula.functions.T;
+import com.lmg.crawler_qa_tester.service.ReportService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -12,22 +10,21 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/reports")
 public class ReportController {
-  @Autowired
-  private CompareLinkService compareLinkService;
+  @Autowired ReportService reportService;
 
-  @GetMapping("/{id}")
-  public ResponseEntity<Object> getReport(@PathVariable("id") Integer id) {
-    try{
-      byte[] comparisonReport = compareLinkService.getCompareReports(id);
+  @PostMapping("/{process_id}")
+  public ResponseEntity<Object> generateComparisonReport(@PathVariable("process_id") Integer processId) {
+    try {
+      byte[] comparisonReport = reportService.generateComparisonReport(processId);
       HttpHeaders headers = new HttpHeaders();
-      headers.add("Content-Disposition", "attachment; filename=comparison_link" + id + ".csv");
+      headers.add(
+          "Content-Disposition", "attachment; filename=comparison_report_" + processId + ".csv");
       headers.add("Content-Type", "text/csv");
 
       return new ResponseEntity<>(comparisonReport, headers, HttpStatus.OK);
-    }
-    catch (Exception e)
-    {
-      return new ResponseEntity<>("Error generating CSV: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+    } catch (Exception e) {
+      return new ResponseEntity<>(
+          "Error generating CSV: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 }

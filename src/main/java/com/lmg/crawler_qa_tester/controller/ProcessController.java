@@ -10,21 +10,9 @@ import org.springframework.web.bind.annotation.*;
 public class ProcessController {
   @Autowired private ProcessService processService;
 
-  @GetMapping()
-  public String status() {
-
-    return processService.getStatus();
-  }
-
   @PostMapping()
   public Integer create(@RequestBody ProjectRequest request) {
 
     return processService.createProject(request.getProdBaseUrl(), request.getPreProdBaseUrl());
-  }
-
-  @PutMapping("/start/{projectId}")
-  public void start(@PathVariable Integer projectId) {
-
-    processService.startProject(projectId);
   }
 }

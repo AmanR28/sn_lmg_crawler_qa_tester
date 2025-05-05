@@ -8,7 +8,7 @@ spring:
     url: ${DB_URL:jdbc:postgresql://localhost:5432/com_lmg_linkvalidator}
   jpa:
     hibernate:
-      ddl-auto: create
+      ddl-auto: create-drop
 env:
   app:
     maxDepth: 1
@@ -23,4 +23,4 @@ env:
 # https://blc.centrepointstores.com/kw/en
 
 # curl -X POST http://localhost:8080/projects -H "Content-Type: application/json"  -d '{ "prodBaseUrl": "https://www.centrepointstores.com/kw/en", "preProdBaseUrl": "https://blc.centrepointstores.com/kw/en" }' | jq
-# curl -X PUT http://localhost:8080/projects/start/1 | jq
+# curl -X POST http://localhost:8080/reports/1 | jq

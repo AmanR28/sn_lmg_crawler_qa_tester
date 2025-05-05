@@ -9,6 +9,8 @@ import com.lmg.crawler_qa_tester.mapper.CrawlDetailEntityMapper;
 import com.lmg.crawler_qa_tester.mapper.CrawlHeaderEntityMapper;
 import com.lmg.crawler_qa_tester.repository.CrawlDetailRepository;
 import com.lmg.crawler_qa_tester.repository.CrawlHeaderRepository;
+import jakarta.transaction.Transactional;
+import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -22,15 +24,22 @@ public class ProcessService {
   @Autowired private CrawlHeaderRepository crawlHeaderRepository;
   @Autowired private CrawlDetailRepository crawlDetailRepository;
 
+  @Transactional
   public Integer createProject(String prodBaseUrl, String preProdBaseUrl) {
-    if(prodBaseUrl.endsWith("/")) prodBaseUrl = prodBaseUrl.substring(0, prodBaseUrl.length() - 1);
-    if(preProdBaseUrl.endsWith("/")) preProdBaseUrl = preProdBaseUrl.substring(0, preProdBaseUrl.length() - 1);
-
+    if (crawlHeaderRepository.hasActiveProcess())
+      throw new RuntimeException("One Process is already running");
+    if (prodBaseUrl.endsWith("/")) prodBaseUrl = prodBaseUrl.substring(0, prodBaseUrl.length() - 1);
+    if (preProdBaseUrl.endsWith("/"))
+      preProdBaseUrl = preProdBaseUrl.substring(0, preProdBaseUrl.length() - 1);
     log.info(
         "Create project with prodBaseUrl: {} and preProdBaseUrl: {}", prodBaseUrl, preProdBaseUrl);
 
     Process process =
-        Process.builder().prodBaseUrl(prodBaseUrl).preProdBaseUrl(preProdBaseUrl).build();
+        Process.builder()
+            .prodBaseUrl(prodBaseUrl)
+            .preProdBaseUrl(preProdBaseUrl)
+            .status(ConsumerStatusEnum.RUNNING)
+            .build();
     Integer processId =
         crawlHeaderRepository.save(new CrawlHeaderEntityMapper().fromProcess(process)).getId();
 
@@ -42,8 +51,6 @@ public class ProcessService {
             .path("/")
             .processFlag(LinkStatus.NOT_PROCESSED)
             .build();
-    crawlDetailRepository.save(new CrawlDetailEntityMapper().fromLink(prodlink));
-
     Link preProdlink =
         Link.builder()
             .env(EnvironmentEnum.PRE_PROD)
@@ -52,30 +59,18 @@ public class ProcessService {
             .path("/")
             .processFlag(LinkStatus.NOT_PROCESSED)
             .build();
-    crawlDetailRepository.save(new CrawlDetailEntityMapper().fromLink(preProdlink));
-
+    crawlDetailRepository.saveAll(
+        List.of(
+            new CrawlDetailEntityMapper().fromLink(prodlink),
+            new CrawlDetailEntityMapper().fromLink(preProdlink)));
     log.info("Created project with id {}", processId);
-    return processId;
-  }
-
-  public void startProject(Integer projectId) {
-
-    log.info("Start project with id: {}", projectId);
-
-    Process process =
-        new CrawlHeaderEntityMapper().toProcess(crawlHeaderRepository.getReferenceById(projectId));
-    process.setStatus(ConsumerStatusEnum.RUNNING);
-    crawlHeaderRepository.save(new CrawlHeaderEntityMapper().fromProcess(process));
 
     AbstractPollingEndpoint endpoint =
         applicationContext.getBean(
             "messagePoller.inboundChannelAdapter", AbstractPollingEndpoint.class);
     endpoint.start();
     log.info("Started prod message poller");
-  }
 
-  public String getStatus() {
-
-    return "OK";
+    return processId;
   }
 }
