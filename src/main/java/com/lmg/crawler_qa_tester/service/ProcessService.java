@@ -23,6 +23,8 @@ public class ProcessService {
   @Autowired private CrawlDetailRepository crawlDetailRepository;
 
   public Integer createProject(String prodBaseUrl, String preProdBaseUrl) {
+    if(prodBaseUrl.endsWith("/")) prodBaseUrl = prodBaseUrl.substring(0, prodBaseUrl.length() - 1);
+    if(preProdBaseUrl.endsWith("/")) preProdBaseUrl = preProdBaseUrl.substring(0, preProdBaseUrl.length() - 1);
 
     log.info(
         "Create project with prodBaseUrl: {} and preProdBaseUrl: {}", prodBaseUrl, preProdBaseUrl);

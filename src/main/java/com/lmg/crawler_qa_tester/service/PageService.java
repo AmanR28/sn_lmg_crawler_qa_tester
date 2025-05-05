@@ -9,6 +9,7 @@ import com.microsoft.playwright.*;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
+import org.asynchttpclient.uri.Uri;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -25,7 +26,9 @@ public class PageService {
     try {
       validatePage(response, page, link);
     } catch (RuntimeException e) {
+      log.error("ProcessPage Error Link : {} ", link);
       log.error("Error processing page", e);
+      return;
     }
 
     List<String> urls = null;
@@ -41,9 +44,12 @@ public class PageService {
       return;
     }
 
+    String startPath = Uri.create(link.getBaseUrl()).getPath();
+
     List<CrawlDetailEntity> links =
         urls.stream()
-            .filter(url -> (url.startsWith("/kw/en/")))
+            .filter(
+                url -> (url.startsWith(startPath) && !url.substring(startPath.length()).isEmpty()))
             .limit(3)
             .map(
                 url ->
@@ -53,7 +59,7 @@ public class PageService {
                                 .crawlHeaderId(link.getCrawlHeaderId())
                                 .env(link.getEnv())
                                 .baseUrl(link.getBaseUrl())
-                                .path(url)
+                                .path(url.substring(startPath.length()))
                                 .processFlag(LinkStatus.NOT_PROCESSED)
                                 .build()))
             .toList();
