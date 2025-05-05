@@ -1,8 +1,14 @@
 package com.lmg.crawler_qa_tester.util;
 
+import com.microsoft.playwright.Browser;
+import com.microsoft.playwright.BrowserContext;
+import com.microsoft.playwright.BrowserType;
+import com.microsoft.playwright.Playwright;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
+
+import java.util.Arrays;
 
 public class WebDriverFactory {
     public static ChromeOptions getChromeOptions() {
@@ -15,11 +21,21 @@ public class WebDriverFactory {
         return chromeOptions;
     }
 
-    public static WebDriver getProdWebDriver(String url) {
-        ChromeOptions chromeOptions = getChromeOptions();
-        WebDriver driver = new ChromeDriver(chromeOptions);
-        driver.get(url);
-        return driver;
+    public static Browser getProdWebDriver(String url) {
+        Playwright playwright = Playwright.create();
+        BrowserType.LaunchOptions launchOptions = new BrowserType.LaunchOptions()
+                .setHeadless(true)
+                .setArgs(Arrays.asList(new String[]{
+                        "--disable-blink-features=AutomationControlled",
+                        "--no-sandbox",
+                        "--disable-dev-shm-usage"
+                }));
+
+        Browser browser = playwright.chromium().launch(launchOptions);
+
+
+        return browser;
+
     }
 
     public static WebDriver getPreProdWebDriver(String url) {
