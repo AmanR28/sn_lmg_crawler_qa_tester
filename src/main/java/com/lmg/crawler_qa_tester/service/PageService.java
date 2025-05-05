@@ -1,34 +1,103 @@
 package com.lmg.crawler_qa_tester.service;
 
-import com.microsoft.playwright.Browser;
-import com.microsoft.playwright.BrowserContext;
-import com.microsoft.playwright.ElementHandle;
-import com.microsoft.playwright.Page;
+import com.lmg.crawler_qa_tester.constants.LinkStatus;
+import com.lmg.crawler_qa_tester.dto.Link;
+import com.lmg.crawler_qa_tester.mapper.CrawlDetailEntityMapper;
+import com.lmg.crawler_qa_tester.repository.CrawlDetailRepository;
+import com.lmg.crawler_qa_tester.repository.entity.CrawlDetailEntity;
+import com.microsoft.playwright.*;
+import jakarta.transaction.Transactional;
+import lombok.extern.slf4j.Slf4j;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 @Service
 public class PageService {
-    public Boolean validatePageStatus(Page page) {
-        return true;
+  @Autowired private CrawlDetailRepository crawlDetailRepository;
+
+  public void processPage(Link link, Page page) {
+    Response response = page.navigate(link.getBaseUrl() + link.getPath());
+    page.waitForTimeout(3000);
+
+    try {
+      validatePage(response, page, link);
+    } catch (RuntimeException e) {
+      log.error("Error processing page", e);
     }
 
-    public List<String> processPage(Page page) {
+    List<String> urls = null;
 
-        List<ElementHandle> linkElements = page.querySelectorAll("a");
-
-        List<String> pageLinks = new ArrayList<>();
-        for (ElementHandle link : linkElements) {
-            String href = link.getAttribute("href");
-            if (href != null && !href.trim().isEmpty()) {
-                pageLinks.add(href);
-            }
-        }
-        return pageLinks;
+    try {
+      urls = getPageUrls(page);
+      link.setProcessFlag(LinkStatus.SUCCESS);
+      crawlDetailRepository.save(new CrawlDetailEntityMapper().fromLink(link));
+    } catch (Exception e) {
+      log.error("Error processing page", e);
+      link.setProcessFlag(LinkStatus.FATAL);
+      crawlDetailRepository.save(new CrawlDetailEntityMapper().fromLink(link));
+      return;
     }
+
+    List<CrawlDetailEntity> links =
+        urls.stream()
+            .filter(url -> (url.startsWith("/kw/en/")))
+            .limit(3)
+            .map(
+                url ->
+                    new CrawlDetailEntityMapper()
+                        .fromLink(
+                            Link.builder()
+                                .crawlHeaderId(link.getCrawlHeaderId())
+                                .env(link.getEnv())
+                                .baseUrl(link.getBaseUrl())
+                                .path(url)
+                                .processFlag(LinkStatus.NOT_PROCESSED)
+                                .build()))
+            .toList();
+    log.info("Cur links size: {}", links.size());
+
+    try {
+      crawlDetailRepository.saveAll(links);
+    } catch (DataIntegrityViolationException ignored) {
+    } catch (Exception e) {
+      log.error("Error saving links", e);
+    }
+  }
+
+  List<String> getPageUrls(Page page) {
+
+    List<ElementHandle> linkElements = page.querySelectorAll("a");
+
+    List<String> pageLinks = new ArrayList<>();
+    for (ElementHandle link : linkElements) {
+      String href = link.getAttribute("href");
+      if (href != null && !href.trim().isEmpty()) {
+        pageLinks.add(href);
+      }
+    }
+    return pageLinks;
+  }
+
+  void validatePage(Response response, Page page, Link link) {
+    int status = response.status();
+    if (status >= 200 && status < 300) {
+      link.setProcessFlag(LinkStatus.SUCCESS);
+    } else if (status >= 400 && status < 500) {
+      link.setProcessFlag(LinkStatus.NOT_FOUND);
+    } else if (status >= 500 && status < 600) {
+      link.setProcessFlag(LinkStatus.FATAL);
+    }
+    crawlDetailRepository.save(new CrawlDetailEntityMapper().fromLink(link));
+    if (link.getProcessFlag() != LinkStatus.SUCCESS) {
+      throw new RuntimeException("Error processing page");
+    }
+  }
 }

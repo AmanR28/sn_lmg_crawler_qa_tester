@@ -51,13 +51,13 @@ public class IntegrationConfig {
     @Bean
     public PublishSubscribeChannel prodChannel() {
 
-        return createChannel();
+        return createChannel(EnvironmentEnum.PROD.getValue());
     }
 
     @Bean
     public PublishSubscribeChannel preProdChannel() {
 
-        return createChannel();
+        return createChannel(EnvironmentEnum.PRE_PROD.getValue());
     }
 
     @Bean
@@ -98,12 +98,12 @@ public class IntegrationConfig {
         return null;
     }
 
-    private PublishSubscribeChannel createChannel() {
+    private PublishSubscribeChannel createChannel(String name) {
 
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
         executor.setCorePoolSize(CONSUMER_THREAD);
         executor.setMaxPoolSize(CONSUMER_THREAD);
-        executor.setThreadNamePrefix("TP");
+        executor.setThreadNamePrefix("TP_" + name);
         executor.initialize();
         return new PublishSubscribeChannel(executor);
     }
