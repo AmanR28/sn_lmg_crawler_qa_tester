@@ -61,7 +61,7 @@ public class IntegrationConfig {
 
     @Bean
     @InboundChannelAdapter(value = "pollerChannel",
-        poller = @Poller(fixedRate = "${env.app.pollerRate}"), autoStartup = "false")
+        poller = @Poller(fixedRate = "${  return new ResponseEntity<>(\"Error generating CSV: \" + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);}"), autoStartup = "false")
     public MessageSource<?> messagePoller() {
 
         JdbcPollingChannelAdapter jdbcPollingChannelAdapter =
@@ -87,11 +87,11 @@ public class IntegrationConfig {
 
     @Router(inputChannel = "routerChannel")
     public String routeByEnvironment(Link link) {
-
-        if (EnvironmentEnum.PROD.equals(link.getEnv())) {
+         EnvironmentEnum env = link.getEnv();
+        if (EnvironmentEnum.PROD.equals(env)) {
             return "prodChannel";
         } else
-            if (EnvironmentEnum.PRE_PROD.equals(link.getEnv())) {
+            if (EnvironmentEnum.PRE_PROD.equals(env)) {
                 return "preProdChannel";
             }
         return null;
