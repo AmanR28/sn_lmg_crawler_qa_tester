@@ -17,8 +17,8 @@ public class CrawlDetailsArchiveEntity {
   private Integer id;
 
   @NonNull
-  @Column(name = "crawl_header_id")
-  private Integer crawl_header_id;
+  @Column(name = "project_id")
+  private Integer crawlHeaderId;
 
   @NonNull
   @Column(name = "env")
@@ -29,14 +29,13 @@ public class CrawlDetailsArchiveEntity {
   private String baseUrl;
 
   @NonNull
-  @Column(name = "url")
+  @Column(name = "path")
   private String path;
 
   @NonNull
   @Column(name = "process_flag")
-  private LinkStatus processFlag = LinkStatus.NOT_PROCESSED;
+  private String processFlag = LinkStatus.NOT_PROCESSED.getValue();
 
-  @NonNull
   @Column(name = "error_message")
   private String errorMessage;
 }
