@@ -1,5 +1,6 @@
 package com.lmg.crawler_qa_tester.controller;
 
+import com.lmg.crawler_qa_tester.constants.EnvironmentEnum;
 import com.lmg.crawler_qa_tester.service.CompareLinkService;
 import jakarta.websocket.server.PathParam;
 import org.apache.poi.ss.formula.functions.T;
@@ -16,11 +17,11 @@ public class ReportController {
   private CompareLinkService compareLinkService;
 
   @GetMapping("/{id}")
-  public ResponseEntity<Object> getReport(@PathVariable("id") Integer id) {
+  public ResponseEntity<Object> getComparisonReport(@PathVariable("id") Integer id) {
     try{
       byte[] comparisonReport = compareLinkService.getCompareReports(id);
       HttpHeaders headers = new HttpHeaders();
-      headers.add("Content-Disposition", "attachment; filename=comparison_link" + id + ".csv");
+      headers.add("Content-Disposition", "attachment; filename=comparison_report_of_id_" + id + ".csv");
       headers.add("Content-Type", "text/csv");
 
       return new ResponseEntity<>(comparisonReport, headers, HttpStatus.OK);

@@ -17,14 +17,13 @@ public class WriteToCSV {
             List<CrawlDetailEntity> prodListSuccess, List<CrawlDetailEntity> preProdListSuccess,
             List<CrawlDetailEntity> prodListInProgress, List<CrawlDetailEntity> preProdListInProgress,
             List<CrawlDetailEntity> prodListFatal, List<CrawlDetailEntity> preProdListFatal,
-            List<CrawlDetailEntity> prodListNotProceed, List<CrawlDetailEntity> preProdListNotProceed,
-            List<CrawlDetailEntity> prodNotInPreProd,  List<CrawlDetailEntity> preProdNotInProd ) throws IOException {
+            List<CrawlDetailEntity> prodListNotProceed, List<CrawlDetailEntity> preProdListNotProceed) throws IOException {
 
         // Create a ByteArrayOutputStream to hold the CSV content
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         try (CSVWriter writer = new CSVWriter(new OutputStreamWriter(outputStream))) {
             // Write the header row
-            String[] header = {"Env", "ID", "CrawlHeaderId", "ProcessFlag", "ErrorMessage"};
+            String[] header = {"Path", "Env", "Status"};
             writer.writeNext(header);
 
             // Write details to CSV for each list
@@ -38,8 +37,8 @@ public class WriteToCSV {
             writeDetailsToCsv(preProdListFatal, writer, EnvironmentEnum.PRE_PROD);
             writeDetailsToCsv(prodListNotProceed, writer, EnvironmentEnum.PROD);
             writeDetailsToCsv(preProdListNotProceed, writer, EnvironmentEnum.PRE_PROD);
-            writeDetailsToCsv(prodNotInPreProd, writer, EnvironmentEnum.PROD);
-            writeDetailsToCsv(preProdNotInProd, writer, EnvironmentEnum.PRE_PROD);
+//            writeDetailsToCsv(prodNotInPreProd, writer, EnvironmentEnum.PROD);
+//            writeDetailsToCsv(preProdNotInProd, writer, EnvironmentEnum.PRE_PROD);
 
         } catch (IOException e) {
             throw new IOException("Error while writing to CSV byte array: " + e.getMessage(), e);
@@ -52,13 +51,13 @@ public class WriteToCSV {
     private static void writeDetailsToCsv(List<CrawlDetailEntity> list, CSVWriter writer, EnvironmentEnum environment) throws IOException {
         for (CrawlDetailEntity detail : list) {
             String[] record = {
-                    environment.getValue(),
-                    String.valueOf(detail.getId()),
-                    String.valueOf(detail.getCrawlHeaderId()),
-                    detail.getProcessFlag(),
-                    detail.getErrorMessage() != null ? detail.getErrorMessage() : ""
+
+                    String.valueOf(detail.getPath()),
+                    String.valueOf(detail.getEnv()),
+                    detail.getProcessFlag()
             };
             writer.writeNext(record);
         }
     }
+
 }
