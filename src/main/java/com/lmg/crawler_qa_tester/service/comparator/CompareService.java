@@ -49,8 +49,8 @@ public class CompareService {
 
                     Row header = sheet.createRow(0);
                     header.createCell(0).setCellValue(SHEET_COLUMN1);
-                    header.createCell(1).setCellValue(req.firstEnv + SHEET_COLUMN2);
-                    header.createCell(2).setCellValue(req.secondEnv + SHEET_COLUMN3);
+                    header.createCell(1).setCellValue(req.firstEnv + "-(" + SHEET_COLUMN2 + ")");
+                    header.createCell(2).setCellValue(req.secondEnv + "-(" + SHEET_COLUMN3 + ")");
                     header.createCell(3).setCellValue(SHEET_COLUMN4);
 
                     int[] rowNum = {1};
