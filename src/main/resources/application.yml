@@ -13,7 +13,7 @@ env:
   app:
     maxDepth: 1
     consumerThread: 2
-    pollerRate: 2000
+    pollerRate: 5000
   prod:
     browserHeadless: true
   preprod:
