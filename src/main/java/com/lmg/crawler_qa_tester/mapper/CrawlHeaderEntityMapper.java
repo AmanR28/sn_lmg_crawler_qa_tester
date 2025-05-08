@@ -1,6 +1,6 @@
 package com.lmg.crawler_qa_tester.mapper;
 
-import com.lmg.crawler_qa_tester.constants.ConsumerStatusEnum;
+import com.lmg.crawler_qa_tester.constants.ProcessStatusEnum;
 import com.lmg.crawler_qa_tester.dto.Process;
 import com.lmg.crawler_qa_tester.repository.entity.CrawlHeaderEntity;
 import java.sql.ResultSet;
@@ -30,7 +30,7 @@ public class CrawlHeaderEntityMapper implements RowMapper<CrawlHeaderEntity> {
             .id(entity.getId())
             .prodBaseUrl(entity.getProdBaseUrl())
             .preProdBaseUrl(entity.getPreProdBaseUrl())
-            .status(entity.getStatus() != null ? ConsumerStatusEnum.valueOf(entity.getStatus()) : ConsumerStatusEnum.INIT)
+            .status(entity.getStatus() != null ? ProcessStatusEnum.valueOf(entity.getStatus()) : ProcessStatusEnum.INIT)
             .createdTime(entity.getCreatedTime())
             .updatedTime(entity.getUpdatedTime())
             .build();
@@ -45,7 +45,7 @@ public class CrawlHeaderEntityMapper implements RowMapper<CrawlHeaderEntity> {
         entity.setId(process.getId());
         entity.setProdBaseUrl(process.getProdBaseUrl());
         entity.setPreProdBaseUrl(process.getPreProdBaseUrl());
-        entity.setStatus(process.getStatus() != null ? process.getStatus().getValue() : ConsumerStatusEnum.INIT.getValue());
+        entity.setStatus(process.getStatus() != null ? process.getStatus().getValue() : ProcessStatusEnum.INIT.getValue());
         return entity;
     }
 }

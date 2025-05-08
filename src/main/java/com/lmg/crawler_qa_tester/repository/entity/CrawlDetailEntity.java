@@ -1,6 +1,6 @@
 package com.lmg.crawler_qa_tester.repository.entity;
 
-import com.lmg.crawler_qa_tester.constants.LinkStatus;
+import com.lmg.crawler_qa_tester.constants.LinkStatusEnum;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NonNull;
@@ -37,7 +37,7 @@ public class CrawlDetailEntity {
 
   @NonNull
   @Column(name = "process_flag")
-  private String processFlag = LinkStatus.NOT_PROCESSED.getValue();
+  private String processFlag = LinkStatusEnum.NOT_PROCESSED.getValue();
 
   @Column(name = "error_message")
   private String errorMessage;

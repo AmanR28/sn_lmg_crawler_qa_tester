@@ -1,7 +1,7 @@
 package com.lmg.crawler_qa_tester.config;
 
 import com.lmg.crawler_qa_tester.constants.EnvironmentEnum;
-import com.lmg.crawler_qa_tester.constants.LinkStatus;
+import com.lmg.crawler_qa_tester.constants.LinkStatusEnum;
 import com.lmg.crawler_qa_tester.dto.Link;
 import com.lmg.crawler_qa_tester.mapper.CrawlDetailEntityMapper;
 import com.lmg.crawler_qa_tester.repository.entity.CrawlDetailEntity;
@@ -113,7 +113,7 @@ public class IntegrationConfig {
   private String getSelectSql() {
 
     return "SELECT * from crawl_detail where process_flag='"
-        + LinkStatus.NOT_PROCESSED
+        + LinkStatusEnum.NOT_PROCESSED
         + "' and depth < "
         + MAX_DEPTH
         + " limit "
@@ -123,7 +123,7 @@ public class IntegrationConfig {
   private String getUpdateSql() {
 
     return "UPDATE crawl_detail SET process_flag='"
-        + LinkStatus.IN_PROGRESS
+        + LinkStatusEnum.IN_PROGRESS
         + "' WHERE id in (:id)";
   }
 }

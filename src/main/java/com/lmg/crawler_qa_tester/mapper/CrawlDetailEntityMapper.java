@@ -1,7 +1,7 @@
 package com.lmg.crawler_qa_tester.mapper;
 
 import com.lmg.crawler_qa_tester.constants.EnvironmentEnum;
-import com.lmg.crawler_qa_tester.constants.LinkStatus;
+import com.lmg.crawler_qa_tester.constants.LinkStatusEnum;
 import com.lmg.crawler_qa_tester.dto.Link;
 import com.lmg.crawler_qa_tester.repository.entity.CrawlDetailEntity;
 import java.sql.ResultSet;
@@ -42,7 +42,7 @@ public class CrawlDetailEntityMapper implements RowMapper<CrawlDetailEntity> {
             .path(entity.getPath())
                 .depth(entity.getDepth())
             .env(EnvironmentEnum.valueOf(entity.getEnv()))
-            .processFlag(LinkStatus.NOT_PROCESSED)
+            .processFlag(LinkStatusEnum.NOT_PROCESSED)
             .errorMessage(entity.getErrorMessage())
             .build();
     }
@@ -62,7 +62,7 @@ public class CrawlDetailEntityMapper implements RowMapper<CrawlDetailEntity> {
         entity.setDepth(link.getDepth());
         entity.setProcessFlag(link.getProcessFlag() != null
             ? link.getProcessFlag().getValue()
-            : LinkStatus.NOT_PROCESSED.getValue());
+            : LinkStatusEnum.NOT_PROCESSED.getValue());
         entity.setErrorMessage(link.getErrorMessage());
         return entity;
     }

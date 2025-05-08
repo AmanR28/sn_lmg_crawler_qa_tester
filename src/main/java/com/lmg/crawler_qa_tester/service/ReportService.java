@@ -1,7 +1,7 @@
 package com.lmg.crawler_qa_tester.service;
 
 import com.lmg.crawler_qa_tester.constants.EnvironmentEnum;
-import com.lmg.crawler_qa_tester.constants.LinkStatus;
+import com.lmg.crawler_qa_tester.constants.LinkStatusEnum;
 import com.lmg.crawler_qa_tester.repository.CrawlDetailRepository;
 import com.lmg.crawler_qa_tester.repository.entity.CrawlDetailEntity;
 import com.lmg.crawler_qa_tester.util.CsvFactory;
@@ -45,10 +45,10 @@ public class ReportService {
             path,
             prodMap.get(path) != null
                 ? prodMap.get(path).getProcessFlag()
-                : LinkStatus.MISSING.getValue(),
+                : LinkStatusEnum.MISSING.getValue(),
             preProdMap.get(path) != null
                 ? preProdMap.get(path).getProcessFlag()
-                : LinkStatus.MISSING.getValue()
+                : LinkStatusEnum.MISSING.getValue()
           });
     }
 

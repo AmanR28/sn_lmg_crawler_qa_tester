@@ -1,6 +1,6 @@
 package com.lmg.crawler_qa_tester.service;
 
-import com.lmg.crawler_qa_tester.constants.LinkStatus;
+import com.lmg.crawler_qa_tester.constants.LinkStatusEnum;
 import com.lmg.crawler_qa_tester.dto.Link;
 import com.lmg.crawler_qa_tester.mapper.CrawlDetailEntityMapper;
 import com.lmg.crawler_qa_tester.repository.CrawlDetailRepository;
@@ -34,11 +34,11 @@ public class PageService {
 
     try {
       urls = getPageUrls(page);
-      link.setProcessFlag(LinkStatus.SUCCESS);
+      link.setProcessFlag(LinkStatusEnum.SUCCESS);
       crawlDetailRepository.save(new CrawlDetailEntityMapper().fromLink(link));
     } catch (Exception e) {
       log.error("Error processing page", e);
-      link.setProcessFlag(LinkStatus.FATAL);
+      link.setProcessFlag(LinkStatusEnum.FATAL);
       crawlDetailRepository.save(new CrawlDetailEntityMapper().fromLink(link));
       return;
     }
@@ -59,7 +59,7 @@ public class PageService {
                                 .baseUrl(link.getBaseUrl())
                                     .depth(link.getDepth() + 1)
                                 .path(url.substring(startPath.length()))
-                                .processFlag(LinkStatus.NOT_PROCESSED)
+                                .processFlag(LinkStatusEnum.NOT_PROCESSED)
                                 .build()))
             .toList();
     log.info("Cur links size: {}", links.size());
@@ -83,14 +83,14 @@ public class PageService {
   void validatePage(Response response, Page page, Link link) {
     int status = response.status();
     if (status >= 200 && status < 300) {
-      link.setProcessFlag(LinkStatus.SUCCESS);
+      link.setProcessFlag(LinkStatusEnum.SUCCESS);
     } else if (status >= 400 && status < 500) {
-      link.setProcessFlag(LinkStatus.NOT_FOUND);
+      link.setProcessFlag(LinkStatusEnum.NOT_FOUND);
     } else if (status >= 500 && status < 600) {
-      link.setProcessFlag(LinkStatus.FATAL);
+      link.setProcessFlag(LinkStatusEnum.FATAL);
     }
     crawlDetailRepository.save(new CrawlDetailEntityMapper().fromLink(link));
-    if (link.getProcessFlag() != LinkStatus.SUCCESS) {
+    if (link.getProcessFlag() != LinkStatusEnum.SUCCESS) {
       throw new RuntimeException("Error processing page");
     }
   }

@@ -1,14 +1,13 @@
 package com.lmg.crawler_qa_tester.repository.entity;
 
-import com.lmg.crawler_qa_tester.constants.ConsumerStatusEnum;
+import com.lmg.crawler_qa_tester.constants.ProcessStatusEnum;
 import jakarta.persistence.*;
+import java.sql.Timestamp;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
-
-import java.sql.Timestamp;
 
 @Getter
 @Setter
@@ -21,15 +20,31 @@ public class CrawlHeaderEntity {
   private Integer id;
 
   @NonNull
-  @Column(name = "prod_base_url")
-  private String prodBaseUrl;
+  @Column(name = "compareFromUrl")
+  private String compareFrom;
 
   @NonNull
-  @Column(name = "pre_prod_base_url")
-  private String preProdBaseUrl;
+  @Column(name = "compareToUrl")
+  private String compareTo;
 
   @Column(name = "status")
-  private String status = ConsumerStatusEnum.INIT.getValue();
+  private String status = ProcessStatusEnum.INIT.getValue();
+
+  @NonNull
+  @Column(name = "host_name")
+  private String hostName;
+
+  @NonNull
+  @Column(name = "country")
+  private String country;
+
+  @NonNull
+  @Column(name = "locale")
+  private String locale;
+
+  @NonNull
+  @Column(name = "department")
+  private String department;
 
   @CreationTimestamp
   @Column(name = "created_time")
@@ -38,4 +53,10 @@ public class CrawlHeaderEntity {
   @UpdateTimestamp
   @Column(name = "updated_time")
   private Timestamp updatedTime;
+
+  @Column(name = "consumer_thread")
+  private int consumerThread;
+
+  @Column(name = "page_count")
+  private int pageCount;
 }

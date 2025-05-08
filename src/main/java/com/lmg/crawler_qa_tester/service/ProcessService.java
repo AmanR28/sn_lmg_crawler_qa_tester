@@ -1,8 +1,8 @@
 package com.lmg.crawler_qa_tester.service;
 
-import com.lmg.crawler_qa_tester.constants.ConsumerStatusEnum;
+import com.lmg.crawler_qa_tester.constants.ProcessStatusEnum;
 import com.lmg.crawler_qa_tester.constants.EnvironmentEnum;
-import com.lmg.crawler_qa_tester.constants.LinkStatus;
+import com.lmg.crawler_qa_tester.constants.LinkStatusEnum;
 import com.lmg.crawler_qa_tester.dto.Link;
 import com.lmg.crawler_qa_tester.dto.Process;
 import com.lmg.crawler_qa_tester.mapper.CrawlDetailEntityMapper;
@@ -38,7 +38,7 @@ public class ProcessService {
         Process.builder()
             .prodBaseUrl(prodBaseUrl)
             .preProdBaseUrl(preProdBaseUrl)
-            .status(ConsumerStatusEnum.RUNNING)
+            .status(ProcessStatusEnum.RUNNING)
             .build();
     Integer processId =
         crawlHeaderRepository.save(new CrawlHeaderEntityMapper().fromProcess(process)).getId();
@@ -49,7 +49,7 @@ public class ProcessService {
             .baseUrl(prodBaseUrl)
             .crawlHeaderId(processId)
             .path("/")
-            .processFlag(LinkStatus.NOT_PROCESSED)
+            .processFlag(LinkStatusEnum.NOT_PROCESSED)
             .build();
     Link preProdlink =
         Link.builder()
@@ -57,7 +57,7 @@ public class ProcessService {
             .baseUrl(preProdBaseUrl)
             .crawlHeaderId(processId)
             .path("/")
-            .processFlag(LinkStatus.NOT_PROCESSED)
+            .processFlag(LinkStatusEnum.NOT_PROCESSED)
             .build();
     crawlDetailRepository.saveAll(
         List.of(
