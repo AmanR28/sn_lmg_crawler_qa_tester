@@ -13,9 +13,12 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.List;
 import static com.lmg.crawler_qa_tester.util.ComparatorConstants.*;
 
@@ -26,7 +29,7 @@ public class CompareService {
     @Autowired
     private ApiService apiService;
 
-    public void compare(CompareRequest req) throws Exception {
+    public ResponseEntity<String> compare(CompareRequest req) {
         try {
             List<ApiEntry> apiEntries = List.of(
                     new ApiEntry(HEADER_STRIP_API_NAME, req.concept, req.country),
@@ -49,8 +52,8 @@ public class CompareService {
 
                     Row header = sheet.createRow(0);
                     header.createCell(0).setCellValue(SHEET_COLUMN1);
-                    header.createCell(1).setCellValue(req.firstEnv + "-(" + SHEET_COLUMN2 + ")");
-                    header.createCell(2).setCellValue(req.secondEnv + "-(" + SHEET_COLUMN3 + ")");
+                    header.createCell(1).setCellValue(req.firstEnv);
+                    header.createCell(2).setCellValue(req.secondEnv);
                     header.createCell(3).setCellValue(SHEET_COLUMN4);
 
                     int[] rowNum = {1};
@@ -67,41 +70,49 @@ public class CompareService {
             wb.close();
 
             log.info("Comparison written to {}", fileName);
-        } catch (Exception e) {
-            log.info("Exception - {}", e.getMessage());
-            throw new ComparatorException("comparator exception", e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>("Excel sheet generated, fileName - " + fileName, HttpStatus.OK);
+        } catch (ComparatorException e) {
+            log.info("ComparatorException - {}", e.getMessage());
+            throw new ComparatorException(e.getErrorName(), e.getErrorMessage(), e.getHttpStatusCode());
+        } catch (InterruptedException | IOException e) {
+            throw new ComparatorException(e.getCause().toString(), e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     private void compareJson(JsonNode node1, JsonNode node2, String parentPath, Sheet sheet, int[] rowNum) {
-        if (node1 == null || !node1.isArray() || node2 == null || !node2.isArray()) return;
-
-        int max = Math.max(node1.size(), node2.size());
+        int max = Math.max(
+                (node1 != null && node1.isArray()) ? node1.size() : 0,
+                (node2 != null && node2.isArray()) ? node2.size() : 0
+        );
 
         for (int i = 0; i < max; i++) {
-            JsonNode child1 = i < node1.size() ? node1.get(i) : null;
-            JsonNode child2 = i < node2.size() ? node2.get(i) : null;
+            JsonNode child1 = (node1 != null && i < node1.size()) ? node1.get(i) : null;
+            JsonNode child2 = (node2 != null && i < node2.size()) ? node2.get(i) : null;
 
-            JsonNode content1 = child1 != null ? child1.path("content") : null;
-            JsonNode content2 = child2 != null ? child2.path("content") : null;
+            JsonNode content1 = (child1 != null) ? child1.path("content") : null;
+            JsonNode content2 = (child2 != null) ? child2.path("content") : null;
 
-            String name = content1 != null ? safeText(content1.path("name")) : "null";
-            String order = content1 != null ? safeText(content1.path("displayOrder")) : "null";
-            String url1 = content1 != null ? safeText(content1.path("url")) : "null";
-            String url2 = content2 != null ? safeText(content2.path("url")) : "null";
+            String name = content1 != null && content1.has("name") ? safeText(content1.path("name")) :
+                    content2 != null && content2.has("name") ? safeText(content2.path("name")) : "null";
+            String order = content1 != null && content1.has("displayOrder") ? safeText(content1.path("displayOrder")) :
+                    content2 != null && content2.has("displayOrder") ? safeText(content2.path("displayOrder")) : "null";
+
+            String url1 = (content1 != null && content1.has("url")) ? safeText(content1.path("url")) : "null";
+            String url2 = (content2 != null && content2.has("url")) ? safeText(content2.path("url")) : "null";
 
             String currentPath = buildPath(parentPath, name, order);
             boolean match = url1.equals(url2);
 
             writeRow(sheet, rowNum, currentPath, url1, url2, match);
 
-            JsonNode children1 = content1 != null ? content1.path("children") : null;
-            JsonNode children2 = content2 != null ? content2.path("children") : null;
+            JsonNode children1 = (content1 != null) ? content1.path("children") : null;
+            JsonNode children2 = (content2 != null) ? content2.path("children") : null;
 
-            if ((children1 != null && children1.isArray()) || (children2 != null && children2.isArray())) {
+            if ((children1 != null && children1.isArray() && children1.size() > 0) ||
+                    (children2 != null && children2.isArray() && children2.size() > 0)) {
                 compareJson(
-                        children1 != null ? children1 : new ObjectMapper().createArrayNode(),
-                        children2 != null ? children2 : new ObjectMapper().createArrayNode(),
+                        (children1 != null && children1.isArray()) ? children1 : new ObjectMapper().createArrayNode(),
+                        (children2 != null && children2.isArray()) ? children2 : new ObjectMapper().createArrayNode(),
                         currentPath,
                         sheet,
                         rowNum
@@ -109,6 +120,7 @@ public class CompareService {
             }
         }
     }
+
     private String safeText(JsonNode node) {
         return (node == null || node.isNull()) ? "null" : node.asText();
     }

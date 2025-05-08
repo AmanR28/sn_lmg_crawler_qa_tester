@@ -19,7 +19,6 @@ public class CompareController {
 
     @PostMapping
     public ResponseEntity<String> compare(@RequestBody @Validated CompareRequest request) throws Exception {
-        compareService.compare(request);
-        return ResponseEntity.ok("Comparison completed. Excel generated.");
+        return compareService.compare(request);
     }
 }

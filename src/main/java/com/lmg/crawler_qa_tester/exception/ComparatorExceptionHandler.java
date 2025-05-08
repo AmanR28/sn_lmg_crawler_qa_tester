@@ -16,9 +16,20 @@ public class ComparatorExceptionHandler extends ResponseEntityExceptionHandler {
         log.info(ex.getMessage(), ex);
         var errorDetails = ErrorDetails.builder()
                 .errorMessage(ex.errorMessage)
-                .errorCode(ex.errorName)
+                .errorName(ex.errorName)
                 .errorCode(String.valueOf(ex.httpStatusCode))
                 .build();
         return ResponseEntity.status(ex.httpStatusCode).body(errorDetails);
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<Object> handleException(Exception ex) {
+        log.info(ex.getMessage(), ex);
+        var errorDetails = ErrorDetails.builder()
+                .errorMessage(ex.getMessage())
+                .errorName("Exception")
+                .errorCode("999")
+                .build();
+        return ResponseEntity.status(500).body(errorDetails);
     }
 }

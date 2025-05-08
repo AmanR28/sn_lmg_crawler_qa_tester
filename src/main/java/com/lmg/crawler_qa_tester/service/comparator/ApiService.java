@@ -26,13 +26,12 @@ public class ApiService {
     }
 
     public String getApiUrl(String env, String country, String concept, String lang, String apiType) {
-        JsonNode envData = config.path("envConfig").path(env.toUpperCase());
-
+        JsonNode envData = config.path("envConfig").path(env.toLowerCase());
         if (envData.isMissingNode()) {
             throw new ComparatorException("envConfig", "Environment " + env + " not found in the config.", HttpStatus.NOT_FOUND);
         }
         log.info("Resolved environment: {}", env);
-
+        String subDomain = envData.path("subdomain").asText();
         JsonNode countryData = envData.path(country.toLowerCase());
         if (countryData.isMissingNode()) {
             throw new ComparatorException("Country", "Country " + country + " not found in the config.", HttpStatus.NOT_FOUND);
@@ -51,14 +50,14 @@ public class ApiService {
 
         String endpoint = switch (apiType) {
             case HEADER_STRIP_API_NAME -> HEADER_STRIP_API_URL_SUFFIX;
-            case HEADER_NAV_API_NAME -> HEADER_STRIP_API_URL_SUFFIX;
-            case FOOTER_STRIP_API_NAME -> HEADER_STRIP_API_URL_SUFFIX;
+            case HEADER_NAV_API_NAME -> HEADER_NAV_API_URL_SUFFIX;
+            case FOOTER_STRIP_API_NAME -> FOOTER_API_URL_SUFFIX;
             default -> throw new ComparatorException("API", "Unknown API type: " + apiType, HttpStatus.NOT_FOUND);
         };
 
         String url = String.format(
                 "https://%s.%s%s?id=%s&app=%s&l=%s",
-                env.toLowerCase(), domainSuffix, endpoint, fetchId, app, lang.toLowerCase()
+                subDomain.toLowerCase(), domainSuffix, endpoint, fetchId, app, lang.toLowerCase()
         );
 
         log.info("Generated API URL: {}", url);
@@ -66,9 +65,22 @@ public class ApiService {
     }
 
     public JsonNode callApi(String url) throws IOException, InterruptedException {
-        HttpClient client = HttpClient.newHttpClient();
-        HttpRequest request = HttpRequest.newBuilder().uri(URI.create(url)).build();
+        HttpClient client = HttpClient.newBuilder()
+                .version(HttpClient.Version.HTTP_1_1)
+                .build();
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(url))
+                .GET()
+                .build();
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        if (response == null) {
+            log.info("Http Response Null");
+            throw new ComparatorException("NULL", "Http Response Null for -" + url, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        if (response.statusCode() != HttpStatus.OK.value()) {
+            log.info("Http status - {}", response.statusCode());
+            throw new ComparatorException("Http status:"+ response.statusCode() +" for - " + url, response.body(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
         return mapper.readTree(response.body());
     }
 }
