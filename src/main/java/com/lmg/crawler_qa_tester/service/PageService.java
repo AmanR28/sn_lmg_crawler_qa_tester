@@ -2,8 +2,8 @@ package com.lmg.crawler_qa_tester.service;
 
 import com.lmg.crawler_qa_tester.constants.LinkStatusEnum;
 import com.lmg.crawler_qa_tester.dto.Link;
-import com.lmg.crawler_qa_tester.mapper.CrawlDetailEntityMapper;
-import com.lmg.crawler_qa_tester.repository.CrawlDetailRepository;
+import com.lmg.crawler_qa_tester.repository.mapper.CrawlDetailEntityMapper;
+import com.lmg.crawler_qa_tester.repository.internal.CrawlDetailRepository;
 import com.lmg.crawler_qa_tester.repository.entity.CrawlDetailEntity;
 import com.microsoft.playwright.*;
 import java.util.ArrayList;

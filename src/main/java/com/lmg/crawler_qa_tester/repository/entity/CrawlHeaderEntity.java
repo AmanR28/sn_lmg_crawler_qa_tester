@@ -20,19 +20,19 @@ public class CrawlHeaderEntity {
   private Integer id;
 
   @NonNull
-  @Column(name = "compareFromUrl")
-  private String compareFrom;
+  @Column(name = "compare_from_base_url")
+  private String compareFromBaseUrl;
 
   @NonNull
-  @Column(name = "compareToUrl")
-  private String compareTo;
+  @Column(name = "compare_to_base_url")
+  private String compareToBaseUrl;
 
   @Column(name = "status")
-  private String status = ProcessStatusEnum.INIT.getValue();
+  private String status = ProcessStatusEnum.NEW.getValue();
 
   @NonNull
-  @Column(name = "host_name")
-  private String hostName;
+  @Column(name = "domain")
+  private String domain;
 
   @NonNull
   @Column(name = "country")
@@ -58,5 +58,5 @@ public class CrawlHeaderEntity {
   private int consumerThread;
 
   @Column(name = "page_count")
-  private int pageCount;
+  private int pageCount = 1;
 }

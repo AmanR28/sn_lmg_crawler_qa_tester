@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.util.List;
 
-public class CsvFactory {
+public class CsvUtil {
   public static byte[] getCsvData(List<String> headers, List<String[]> data) {
     ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 

@@ -12,7 +12,7 @@ spring:
 env:
   app:
     maxDepth: 2
-    consumerThread: 3
+    consumerThread: 2
     pollerRate: 3000
   prod:
     browserHeadless: true
@@ -24,10 +24,3 @@ env:
 
 # curl -X POST http://localhost:8080/projects -H "Content-Type: application/json"  -d '{ "prodBaseUrl": "https://www.centrepointstores.com/kw/en", "preProdBaseUrl": "https://blc.centrepointstores.com/kw/en" }' | jq
 # curl -X POST http://localhost:8080/reports/1 > data.csv
-
-
-CURL REQUEST
-  {
-    COMPARE FROM
-    COMPARE TO
-  }

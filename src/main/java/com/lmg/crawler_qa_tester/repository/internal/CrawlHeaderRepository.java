@@ -1,4 +1,4 @@
-package com.lmg.crawler_qa_tester.repository;
+package com.lmg.crawler_qa_tester.repository.internal;
 
 import com.lmg.crawler_qa_tester.constants.ProcessStatusEnum;
 import com.lmg.crawler_qa_tester.repository.entity.CrawlHeaderEntity;
@@ -10,7 +10,7 @@ public interface CrawlHeaderRepository extends JpaRepository<CrawlHeaderEntity, 
   int countByStatus(String status);
 
   default boolean hasActiveProcess() {
-    return (this.countByStatus(ProcessStatusEnum.INIT.getValue()) > 0
+    return (this.countByStatus(ProcessStatusEnum.NEW.getValue()) > 0
         || this.countByStatus(ProcessStatusEnum.RUNNING.getValue()) > 0);
   }
 }

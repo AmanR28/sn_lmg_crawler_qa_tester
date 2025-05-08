@@ -3,8 +3,8 @@ package com.lmg.crawler_qa_tester.config;
 import com.lmg.crawler_qa_tester.constants.EnvironmentEnum;
 import com.lmg.crawler_qa_tester.constants.LinkStatusEnum;
 import com.lmg.crawler_qa_tester.dto.Link;
-import com.lmg.crawler_qa_tester.mapper.CrawlDetailEntityMapper;
 import com.lmg.crawler_qa_tester.repository.entity.CrawlDetailEntity;
+import com.lmg.crawler_qa_tester.repository.mapper.CrawlDetailEntityMapper;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.sql.DataSource;
@@ -23,7 +23,7 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 @Configuration
 @Slf4j
-public class IntegrationConfig {
+public class LinkIntegrationConfig {
   @Value("${env.app.consumerThread}")
   private int CONSUMER_THREAD;
 
@@ -33,41 +33,29 @@ public class IntegrationConfig {
   @Autowired private DataSource dataSource;
 
   @Bean
-  public PublishSubscribeChannel pollerChannel() {
+  public PublishSubscribeChannel linkPollerChannel() {
 
     return new PublishSubscribeChannel();
   }
 
   @Bean
-  public PublishSubscribeChannel transformChannel() {
+  public PublishSubscribeChannel linkTransformChannel() {
 
     return new PublishSubscribeChannel();
   }
 
   @Bean
-  public PublishSubscribeChannel routerChannel() {
+  public PublishSubscribeChannel linkConsumerChannel() {
 
-    return new PublishSubscribeChannel();
-  }
-
-  @Bean
-  public PublishSubscribeChannel prodChannel() {
-
-    return createChannel(EnvironmentEnum.PROD.getValue());
-  }
-
-  @Bean
-  public PublishSubscribeChannel preProdChannel() {
-
-    return createChannel(EnvironmentEnum.PRE_PROD.getValue());
+    return createChannel(EnvironmentEnum.FROM_ENV.getValue());
   }
 
   @Bean
   @InboundChannelAdapter(
-      value = "pollerChannel",
+      value = "linkPollerChannel",
       poller = @Poller(fixedRate = "${env.app.pollerRate}"),
       autoStartup = "false")
-  public MessageSource<?> messagePoller() {
+  public MessageSource<?> linkMessagePoller() {
     JdbcPollingChannelAdapter jdbcPollingChannelAdapter =
         new JdbcPollingChannelAdapter(dataSource, getSelectSql());
     jdbcPollingChannelAdapter.setMaxRows(CONSUMER_THREAD);
@@ -76,28 +64,17 @@ public class IntegrationConfig {
     return jdbcPollingChannelAdapter;
   }
 
-  @Splitter(inputChannel = "pollerChannel", outputChannel = "transformChannel")
+  @Splitter(inputChannel = "linkPollerChannel", outputChannel = "linkTransformChannel")
   public List<Message<CrawlDetailEntity>> split(List<CrawlDetailEntity> links) {
     return links.stream()
         .map(link -> MessageBuilder.withPayload(link).build())
         .collect(Collectors.toList());
   }
 
-  @Transformer(inputChannel = "transformChannel", outputChannel = "routerChannel")
+  @Transformer(inputChannel = "linkTransformChannel", outputChannel = "linkConsumerChannel")
   public Link transformToLinks(CrawlDetailEntity entity) {
 
     return new CrawlDetailEntityMapper().toLink(entity);
-  }
-
-  @Router(inputChannel = "routerChannel")
-  public String routeByEnvironment(Link link) {
-
-    if (EnvironmentEnum.PROD.equals(link.getEnv())) {
-      return "prodChannel";
-    } else if (EnvironmentEnum.PRE_PROD.equals(link.getEnv())) {
-      return "preProdChannel";
-    }
-    return null;
   }
 
   private PublishSubscribeChannel createChannel(String name) {

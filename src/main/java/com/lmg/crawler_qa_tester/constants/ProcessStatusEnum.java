@@ -1,11 +1,10 @@
 package com.lmg.crawler_qa_tester.constants;
 
 public enum ProcessStatusEnum {
-  INIT("INIT"),
+  NEW("NEW"),
   RUNNING("RUNNING"),
   COMPLETED("COMPLETED"),
-  STOPPED("STOPPED"),
-  CANCELLED("CANCELLED");
+  FATAL("FATAL");
 
   private final String value;
 

@@ -9,10 +9,13 @@ import lombok.Data;
 @Builder
 public class Process {
     private Integer id;
-    private String prodBaseUrl;
-    private String preProdBaseUrl;
+    private String compareFromBaseUrl;
+    private String compareToBaseUrl;
     private ProcessStatusEnum status;
-    private Timestamp createdTime;
-    private Timestamp updatedTime;
-
+    private String domain;
+    private String country;
+    private String locale;
+    private String department;
+    private Integer consumerThread;
+    private int pageCount;
 }

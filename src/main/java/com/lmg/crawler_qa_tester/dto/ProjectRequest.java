@@ -4,6 +4,6 @@ import lombok.Data;
 
 @Data
 public class ProjectRequest {
-  private String prodBaseUrl;
-  private String preProdBaseUrl;
+  private String compareToBaseUrl;
+  private String compareFromBaseUrl;
 }

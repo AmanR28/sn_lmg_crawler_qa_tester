@@ -2,6 +2,7 @@ package com.lmg.crawler_qa_tester.service;
 
 import com.lmg.crawler_qa_tester.dto.Link;
 import com.lmg.crawler_qa_tester.util.BrowserFactory;
+import com.lmg.crawler_qa_tester.util.UrlUtil;
 import com.microsoft.playwright.Browser;
 import com.microsoft.playwright.Page;
 import lombok.extern.slf4j.Slf4j;
@@ -16,27 +17,14 @@ public class ConsumerService {
   @Autowired private PageService pageService;
   @Autowired private BrowserFactory browserFactory;
 
-  @ServiceActivator(inputChannel = "prodChannel")
+  @ServiceActivator(inputChannel = "linkConsumerChannel")
   public void consumeProd(Message<Link> message) {
 
     Link link = message.getPayload();
     log.info("Processing Prod Link: {}", link);
 
-    Browser browser = browserFactory.getProdWebDriver();
-    Page page = browserFactory.getProdBrowserPage(browser);
-    pageService.processPage(link, page);
-
-    browser.close();
-  }
-
-  @ServiceActivator(inputChannel = "preProdChannel")
-  public void consumePreProd(Message<Link> message) {
-
-    Link link = message.getPayload();
-    log.info("Processing PreProd Link: {}", link);
-
-    Browser browser = browserFactory.getPreProdWebDriver();
-    Page page = browserFactory.getPreProdBrowserPage(browser);
+    Browser browser = browserFactory.getBrowser();
+    Page page = browserFactory.getPage(browser, UrlUtil.getDomain(link.getBaseUrl()));
     pageService.processPage(link, page);
 
     browser.close();

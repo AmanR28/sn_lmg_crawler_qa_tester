@@ -1,8 +1,8 @@
 package com.lmg.crawler_qa_tester.constants;
 
 public enum EnvironmentEnum {
-  PROD("PROD"),
-  PRE_PROD("PRE_PROD");
+  FROM_ENV("FROM_ENV"),
+  TO_ENV("TO_ENV");
 
   private final String value;
 
