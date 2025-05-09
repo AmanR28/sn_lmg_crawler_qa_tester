@@ -5,7 +5,13 @@
       "egy": {
         "countryName": "egypt",
         "max": {
-          "headerStrip":{
+          "leftHeaderStrip":{
+            "id": "1997a018-6a19-4ecb-b9b0-99aeeda49e8e",
+            "depth": "all",
+            "format": "inlined",
+            "domainSuffix": "cdn.content.amplience.net"
+          },
+          "rightHeaderStrip":{
             "id": "3d673840-fdb4-420c-bc29-a7d590c0c1cb",
             "app": "max",
             "conceptName": "max",
@@ -295,7 +301,13 @@
       "egy": {
         "countryName": "egypt",
         "max": {
-          "headerStrip":{
+          "leftHeaderStrip":{
+            "id": "1997a018-6a19-4ecb-b9b0-99aeeda49e8e",
+            "depth": "all",
+            "format": "inlined",
+            "domainSuffix": "cdn.content.amplience.net"
+          },
+          "rightHeaderStrip":{
             "id": "cf71da81-147a-4f0d-96f0-26f43b242994",
             "app": "max",
             "conceptName": "max",

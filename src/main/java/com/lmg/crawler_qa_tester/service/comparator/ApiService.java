@@ -13,74 +13,114 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.Objects;
+
 import static com.lmg.crawler_qa_tester.util.ComparatorConstants.*;
 
 @Service
 @Log4j2
 public class ApiService {
+    private static final HttpClient HTTP_CLIENT = HttpClient.newHttpClient();
     private final ObjectMapper mapper = new ObjectMapper();
     private final JsonNode config;
 
     public ApiService() throws IOException {
-        config = mapper.readTree(new File("config.json"));
+        this.config = mapper.readTree(new File("config.json"));
     }
 
     public String getApiUrl(String env, String country, String concept, String lang, String apiType) {
-        JsonNode envData = config.path("envConfig").path(env.toLowerCase());
-        if (envData.isMissingNode()) {
-            throw new ComparatorException("envConfig", "Environment " + env + " not found in the config.", HttpStatus.NOT_FOUND);
-        }
-        log.info("Resolved environment: {}", env);
-        String subDomain = envData.path("subdomain").asText();
-        JsonNode countryData = envData.path(country.toLowerCase());
-        if (countryData.isMissingNode()) {
-            throw new ComparatorException("Country", "Country " + country + " not found in the config.", HttpStatus.NOT_FOUND);
-        }
-        log.info("Resolved country: {}", country);
+        Objects.requireNonNull(env, "Environment cannot be null");
+        Objects.requireNonNull(country, "Country cannot be null");
+        Objects.requireNonNull(concept, "Concept cannot be null");
+        Objects.requireNonNull(apiType, "API type cannot be null");
 
-        JsonNode conceptData = countryData.path(concept.toLowerCase());
-        if (conceptData.isMissingNode()) {
-            throw new ComparatorException("Concept", "Concept " + concept + " not found in the config.", HttpStatus.NOT_FOUND);
-        }
-        log.info("Resolved concept: {}", concept);
-        JsonNode api = conceptData.path(apiType);
-        String fetchId = api.path("id").asText();
-        String app = api.path("app").asText();
-        String domainSuffix = api.path("domainSuffix").asText().toLowerCase();
+        final var envLower = env.toLowerCase();
+        final var countryLower = country.toLowerCase();
+        final var conceptLower = concept.toLowerCase();
 
-        String endpoint = switch (apiType) {
-            case HEADER_STRIP_API_NAME -> HEADER_STRIP_API_URL_SUFFIX;
-            case HEADER_NAV_API_NAME -> HEADER_NAV_API_URL_SUFFIX;
-            case FOOTER_STRIP_API_NAME -> FOOTER_API_URL_SUFFIX;
-            default -> throw new ComparatorException("API", "Unknown API type: " + apiType, HttpStatus.NOT_FOUND);
+        // Get configuration nodes with validation
+        final var envData = getConfigNode(config.path("envConfig"), envLower, "Environment");
+        final var countryData = getConfigNode(envData, countryLower, "Country");
+        final var conceptData = getConfigNode(countryData, conceptLower, "Concept");
+        final var apiConfig = getConfigNode(conceptData, apiType, "API");
+
+        log.info("Resolved configuration - Env: {}, Country: {}, Concept: {}, API: {}",
+                env, country, concept, apiType);
+
+        return switch (apiType) {
+            case LEFT_HEADER_STRIP_API_NAME -> buildLeftHeaderStripUrl(apiConfig, conceptLower);
+            default -> buildStandardApiUrl(envData.path("subdomain").asText(),
+                    apiConfig,
+                    lang != null ? lang.toLowerCase() : LANG_EN_CODE,
+                    apiType);
         };
+    }
 
-        String url = String.format(
-                "https://%s.%s%s?id=%s&app=%s&l=%s",
-                subDomain.toLowerCase(), domainSuffix, endpoint, fetchId, app, lang.toLowerCase()
+    private JsonNode getConfigNode(JsonNode parentNode, String key, String nodeType) {
+        final var node = parentNode.path(key);
+        if (node.isMissingNode()) {
+            throw new ComparatorException(nodeType, "%s %s not found in config".formatted(nodeType, key),
+                    HttpStatus.NOT_FOUND);
+        }
+        return node;
+    }
+
+    private String buildLeftHeaderStripUrl(JsonNode apiConfig, String conceptLower) {
+        final var url = "https://%slive.%s%s%s?depth=%s&format=%s".formatted(
+                conceptLower,
+                apiConfig.path("domainSuffix").asText().toLowerCase(),
+                LEFT_HEADER_STRIP_API_URL_SUFFIX,
+                apiConfig.path("id").asText(),
+                apiConfig.path("depth").asText(),
+                apiConfig.path("format").asText()
         );
 
-        log.info("Generated API URL: {}", url);
+        log.debug("Built Left Header Strip URL: {}", url);
+        return url;
+    }
+
+    private String buildStandardApiUrl(String subdomain, JsonNode apiConfig, String lang, String apiType) {
+        final var endpoint = switch (apiType) {
+            case RIGHT_HEADER_STRIP_API_NAME -> RIGHT_HEADER_STRIP_API_URL_SUFFIX;
+            case HEADER_NAV_API_NAME -> HEADER_NAV_API_URL_SUFFIX;
+            case FOOTER_STRIP_API_NAME -> FOOTER_API_URL_SUFFIX;
+            default -> throw new ComparatorException("API", "Unsupported API type: " + apiType,
+                    HttpStatus.BAD_REQUEST);
+        };
+
+        final var url = "https://%s.%s%s?id=%s&app=%s&l=%s".formatted(
+                subdomain.toLowerCase(),
+                apiConfig.path("domainSuffix").asText().toLowerCase(),
+                endpoint,
+                apiConfig.path("id").asText(),
+                apiConfig.path("app").asText(),
+                lang
+        );
+
+        log.debug("Built Standard API URL for {}: {}", apiType, url);
         return url;
     }
 
     public JsonNode callApi(String url) throws IOException, InterruptedException {
-        HttpClient client = HttpClient.newBuilder()
-                .version(HttpClient.Version.HTTP_1_1)
-                .build();
-        HttpRequest request = HttpRequest.newBuilder()
+        Objects.requireNonNull(url, "URL cannot be null");
+
+        final var request = HttpRequest.newBuilder()
                 .uri(URI.create(url))
                 .GET()
                 .build();
-        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-        if (response == null) {
-            log.info("Http Response Null");
-            throw new ComparatorException("NULL", "Http Response Null for -" + url, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+
+        final var response = HTTP_CLIENT.send(request, HttpResponse.BodyHandlers.ofString());
+
         if (response.statusCode() != HttpStatus.OK.value()) {
-            log.info("Http status - {}", response.statusCode());
-            throw new ComparatorException("Http status:"+ response.statusCode() +" for - " + url, response.body(), HttpStatus.INTERNAL_SERVER_ERROR);
+            log.error("API call failed - Status: {}, URL: {}, Response: {}",
+                    response.statusCode(), url, response.body());
+            throw new ComparatorException(
+                    "API call failed with status %d".formatted(response.statusCode()),
+                    response.body(),
+                    HttpStatus.valueOf(response.statusCode())
+            );
         }
+
         return mapper.readTree(response.body());
     }
 }

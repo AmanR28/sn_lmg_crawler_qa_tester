@@ -1,3 +1,6 @@
 package com.lmg.crawler_qa_tester.dto.comparator;
 
-public record ApiEntry(String name, String concept, String country) {}
+import lombok.Builder;
+
+@Builder
+public record ApiEntry(String name, String concept, String country, String sheetName) {}
