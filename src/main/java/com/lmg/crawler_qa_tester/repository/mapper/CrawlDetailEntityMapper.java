@@ -14,6 +14,7 @@ public class CrawlDetailEntityMapper implements RowMapper<CrawlDetailEntity> {
 
   @Override
   public CrawlDetailEntity mapRow(ResultSet rs, int rowNum) throws SQLException {
+    log.debug("Mapping DetailEntity {}", rs.getInt("id"));
 
     CrawlDetailEntity entity = new CrawlDetailEntity();
     entity.setId(rs.getInt("id"));

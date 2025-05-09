@@ -5,12 +5,17 @@ import com.lmg.crawler_qa_tester.dto.Process;
 import com.lmg.crawler_qa_tester.repository.entity.CrawlHeaderEntity;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.RowMapper;
 
+@Slf4j
 public class CrawlHeaderEntityMapper implements RowMapper<CrawlHeaderEntity> {
 
   @Override
   public CrawlHeaderEntity mapRow(ResultSet rs, int rowNum) throws SQLException {
+    log.debug("Mapping DetailEntity {}", rs.getInt("id"));
+
     CrawlHeaderEntity entity = new CrawlHeaderEntity();
     entity.setId(rs.getInt("id"));
     entity.setCompareFromBaseUrl(rs.getString("compare_from_base_url"));

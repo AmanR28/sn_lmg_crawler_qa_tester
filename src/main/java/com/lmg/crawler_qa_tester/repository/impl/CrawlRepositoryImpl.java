@@ -65,10 +65,10 @@ public class CrawlRepositoryImpl implements CrawlRepository {
                 e ->
                     new Object[] {
                       e.getCrawlHeaderId(),
-                      e.getEnv(),
+                      e.getEnv().getValue(),
                       e.getBaseUrl(),
                       e.getPath(),
-                      e.getProcessFlag(),
+                      e.getProcessFlag().getValue(),
                       e.getErrorMessage(),
                       e.getDepth()
                     })

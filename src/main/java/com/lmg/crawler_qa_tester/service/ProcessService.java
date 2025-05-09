@@ -73,12 +73,6 @@ public class ProcessService {
             .toList();
     crawlRepository.saveAllProcesses(processes);
     log.info("Created project");
-
-    AbstractPollingEndpoint endpoint =
-        applicationContext.getBean(
-            "messagePoller.inboundChannelAdapter", AbstractPollingEndpoint.class);
-    endpoint.start();
-    log.info("Started prod message poller");
   }
 
   @Transactional

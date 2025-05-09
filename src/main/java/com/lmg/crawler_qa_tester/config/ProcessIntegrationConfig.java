@@ -1,10 +1,14 @@
 package com.lmg.crawler_qa_tester.config;
 
-import com.lmg.crawler_qa_tester.constants.LinkStatusEnum;
+import com.lmg.crawler_qa_tester.constants.ProcessStatusEnum;
 import com.lmg.crawler_qa_tester.dto.Link;
+import com.lmg.crawler_qa_tester.dto.Process;
 import com.lmg.crawler_qa_tester.repository.entity.CrawlDetailEntity;
+import com.lmg.crawler_qa_tester.repository.entity.CrawlHeaderEntity;
 import com.lmg.crawler_qa_tester.repository.mapper.CrawlDetailEntityMapper;
 import javax.sql.DataSource;
+
+import com.lmg.crawler_qa_tester.repository.mapper.CrawlHeaderEntityMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -15,7 +19,6 @@ import org.springframework.integration.annotation.Transformer;
 import org.springframework.integration.channel.PublishSubscribeChannel;
 import org.springframework.integration.core.MessageSource;
 import org.springframework.integration.jdbc.JdbcPollingChannelAdapter;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 @Configuration
 public class ProcessIntegrationConfig {
@@ -36,51 +39,29 @@ public class ProcessIntegrationConfig {
   @Bean
   public PublishSubscribeChannel processConsumerChannel() {
 
-    return createChannel();
+    return new PublishSubscribeChannel();
   }
 
   @Bean
-  @InboundChannelAdapter(
-      value = "processPollerChannel",
-      poller = @Poller(fixedRate = "10000"),
-      autoStartup = "false")
+  @InboundChannelAdapter(value = "processPollerChannel", poller = @Poller(fixedRate = "1000"))
   public MessageSource<?> processMessagePoller() {
     JdbcPollingChannelAdapter jdbcPollingChannelAdapter =
         new JdbcPollingChannelAdapter(dataSource, getSelectSql());
-    jdbcPollingChannelAdapter.setRowMapper(new CrawlDetailEntityMapper());
+    jdbcPollingChannelAdapter.setRowMapper(new CrawlHeaderEntityMapper());
     return jdbcPollingChannelAdapter;
   }
 
   @Transformer(inputChannel = "processPollerChannel", outputChannel = "processConsumerChannel")
-  public Link transformToLinks(CrawlDetailEntity entity) {
+  public Process transformToLinks(CrawlHeaderEntity entity) {
 
-    return new CrawlDetailEntityMapper().toLink(entity);
-  }
-
-  private PublishSubscribeChannel createChannel() {
-
-    ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-    executor.setCorePoolSize(CONSUMER_THREAD);
-    executor.setMaxPoolSize(CONSUMER_THREAD);
-    executor.setThreadNamePrefix("TP_PROCESS");
-    executor.initialize();
-    return new PublishSubscribeChannel(executor);
+    return new CrawlHeaderEntityMapper().toProcess(entity);
   }
 
   private String getSelectSql() {
-
-    return "SELECT * from crawl_detail where process_flag='"
-        + LinkStatusEnum.NOT_PROCESSED
-        + "' and depth < "
-        + MAX_DEPTH
-        + " limit "
-        + CONSUMER_THREAD;
-  }
-
-  private String getUpdateSql() {
-
-    return "UPDATE crawl_detail SET process_flag='"
-        + LinkStatusEnum.IN_PROGRESS
-        + "' WHERE id in (:id)";
+    return " SELECT * FROM crawl_header WHERE status = '"
+        + ProcessStatusEnum.NEW
+        + "' AND NOT EXISTS ( SELECT 1 FROM crawl_header p2 WHERE p2.status = '"
+        + ProcessStatusEnum.RUNNING
+        + "' ) LIMIT 1";
   }
 }
