@@ -3,9 +3,11 @@ package com.lmg.crawler_qa_tester.repository.impl;
 import com.lmg.crawler_qa_tester.dto.Link;
 import com.lmg.crawler_qa_tester.dto.Process;
 import com.lmg.crawler_qa_tester.repository.CrawlRepository;
+import com.lmg.crawler_qa_tester.repository.entity.CrawlDetailEntity;
 import com.lmg.crawler_qa_tester.repository.entity.CrawlHeaderEntity;
 import com.lmg.crawler_qa_tester.repository.internal.CrawlDetailRepository;
 import com.lmg.crawler_qa_tester.repository.internal.CrawlHeaderRepository;
+import com.lmg.crawler_qa_tester.repository.mapper.CrawlDetailEntityMapper;
 import com.lmg.crawler_qa_tester.repository.mapper.CrawlHeaderEntityMapper;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,8 +27,25 @@ public class CrawlRepositoryImpl implements CrawlRepository {
   }
 
   @Override
-  public void saveNewProcesses(List<Process> processes) {
+  public void saveProcess(Process process) {
+    crawlHeaderRepository.save(toCrawlHeaderEntity(process));
+  }
+
+  @Override
+  public void saveAllProcesses(List<Process> processes) {
     crawlHeaderRepository.saveAll(processes.stream().map(this::toCrawlHeaderEntity).toList());
+  }
+
+  @Override
+  public void saveLink(Link link) {
+    crawlDetailRepository.save(toCrawlDetailEntity(link));
+  }
+
+  @Override
+  public List<Link> getLinksByProcessId(Integer processId) {
+    return crawlDetailRepository.getCrawlDetailEntitiesByCrawlHeaderId(processId).stream()
+        .map(this::toLink)
+        .toList();
   }
 
   @Override
@@ -58,12 +77,19 @@ public class CrawlRepositoryImpl implements CrawlRepository {
     jdbcTemplate.batchUpdate(sql, args);
   }
 
-  @Override
-  public void updateProcess(Process process) {
-    crawlHeaderRepository.save(toCrawlHeaderEntity(process));
-  }
-
   private CrawlHeaderEntity toCrawlHeaderEntity(Process process) {
     return new CrawlHeaderEntityMapper().fromProcess(process);
+  }
+
+  private CrawlDetailEntity toCrawlDetailEntity(Link link) {
+    return new CrawlDetailEntityMapper().fromLink(link);
+  }
+
+  private Process toProcess(CrawlHeaderEntity crawlHeaderEntity) {
+    return new CrawlHeaderEntityMapper().toProcess(crawlHeaderEntity);
+  }
+
+  private Link toLink(CrawlDetailEntity entity) {
+    return new CrawlDetailEntityMapper().toLink(entity);
   }
 }

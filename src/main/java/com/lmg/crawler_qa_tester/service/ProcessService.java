@@ -71,7 +71,7 @@ public class ProcessService {
                         .consumerThread(CONSUMER_THREAD)
                         .build())
             .toList();
-    crawlRepository.saveNewProcesses(processes);
+    crawlRepository.saveAllProcesses(processes);
     log.info("Created project");
 
     AbstractPollingEndpoint endpoint =
@@ -105,6 +105,6 @@ public class ProcessService {
             .build();
     process.setStatus(ProcessStatusEnum.RUNNING);
     crawlRepository.saveNewLinks(List.of(fromlink, tolink));
-    crawlRepository.updateProcess(process);
+    crawlRepository.saveProcess(process);
   }
 }

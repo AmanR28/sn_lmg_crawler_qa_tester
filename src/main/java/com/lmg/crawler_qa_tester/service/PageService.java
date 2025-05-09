@@ -2,9 +2,7 @@ package com.lmg.crawler_qa_tester.service;
 
 import com.lmg.crawler_qa_tester.constants.LinkStatusEnum;
 import com.lmg.crawler_qa_tester.dto.Link;
-import com.lmg.crawler_qa_tester.repository.mapper.CrawlDetailEntityMapper;
-import com.lmg.crawler_qa_tester.repository.internal.CrawlDetailRepository;
-import com.lmg.crawler_qa_tester.repository.entity.CrawlDetailEntity;
+import com.lmg.crawler_qa_tester.repository.CrawlRepository;
 import com.microsoft.playwright.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -16,7 +14,7 @@ import org.springframework.stereotype.Service;
 @Slf4j
 @Service
 public class PageService {
-  @Autowired private CrawlDetailRepository crawlDetailRepository;
+  @Autowired private CrawlRepository crawlRepository;
 
   public void processPage(Link link, Page page) {
     Response response = page.navigate(link.getBaseUrl() + link.getPath());
@@ -35,35 +33,33 @@ public class PageService {
     try {
       urls = getPageUrls(page);
       link.setProcessFlag(LinkStatusEnum.SUCCESS);
-      crawlDetailRepository.save(new CrawlDetailEntityMapper().fromLink(link));
+      crawlRepository.saveLink(link);
     } catch (Exception e) {
       log.error("Error processing page", e);
       link.setProcessFlag(LinkStatusEnum.FATAL);
-      crawlDetailRepository.save(new CrawlDetailEntityMapper().fromLink(link));
+      crawlRepository.saveLink(link);
       return;
     }
 
     String startPath = Uri.create(link.getBaseUrl()).getPath();
 
-    List<CrawlDetailEntity> links =
+    List<Link> links =
         urls.stream()
             .filter(
                 url -> (url.startsWith(startPath) && !url.substring(startPath.length()).isEmpty()))
             .map(
                 url ->
-                    new CrawlDetailEntityMapper()
-                        .fromLink(
-                            Link.builder()
-                                .crawlHeaderId(link.getCrawlHeaderId())
-                                .env(link.getEnv())
-                                .baseUrl(link.getBaseUrl())
-                                    .depth(link.getDepth() + 1)
-                                .path(url.substring(startPath.length()))
-                                .processFlag(LinkStatusEnum.NOT_PROCESSED)
-                                .build()))
+                    Link.builder()
+                        .crawlHeaderId(link.getCrawlHeaderId())
+                        .env(link.getEnv())
+                        .baseUrl(link.getBaseUrl())
+                        .depth(link.getDepth() + 1)
+                        .path(url.substring(startPath.length()))
+                        .processFlag(LinkStatusEnum.NOT_PROCESSED)
+                        .build())
             .toList();
     log.info("Cur links size: {}", links.size());
-    crawlDetailRepository.saveNewLinks(links);
+    crawlRepository.saveNewLinks(links);
   }
 
   List<String> getPageUrls(Page page) {
@@ -89,7 +85,7 @@ public class PageService {
     } else if (status >= 500 && status < 600) {
       link.setProcessFlag(LinkStatusEnum.FATAL);
     }
-    crawlDetailRepository.save(new CrawlDetailEntityMapper().fromLink(link));
+    crawlRepository.saveLink(link);
     if (link.getProcessFlag() != LinkStatusEnum.SUCCESS) {
       throw new RuntimeException("Error processing page");
     }
