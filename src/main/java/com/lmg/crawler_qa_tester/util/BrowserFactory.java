@@ -20,8 +20,7 @@ public class BrowserFactory {
   }
 
   public Browser getBrowser() {
-    boolean isHeadless =
-        environment.getProperty("env.app.browserHeadless", Boolean.class, true);
+    boolean isHeadless = environment.getProperty("env.app.browserHeadless", Boolean.class, true);
     Playwright playwright = Playwright.create();
     BrowserType.LaunchOptions launchOptions =
         new BrowserType.LaunchOptions().setHeadless(isHeadless).setArgs(getOptions());
@@ -36,7 +35,7 @@ public class BrowserFactory {
                     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36")
                 .setViewportSize(1920, 1080));
     Cookie cookie = new Cookie("preprod", "true");
-    cookie.setDomain(domain);
+    cookie.setDomain("." + domain);
     cookie.setPath("/");
     context.addCookies(List.of(cookie));
     return context.newPage();

@@ -1,6 +1,5 @@
 package com.lmg.crawler_qa_tester.config;
 
-import com.lmg.crawler_qa_tester.constants.EnvironmentEnum;
 import com.lmg.crawler_qa_tester.constants.LinkStatusEnum;
 import com.lmg.crawler_qa_tester.dto.Link;
 import com.lmg.crawler_qa_tester.repository.entity.CrawlDetailEntity;
@@ -47,7 +46,7 @@ public class LinkIntegrationConfig {
   @Bean
   public PublishSubscribeChannel linkConsumerChannel() {
 
-    return createChannel(EnvironmentEnum.FROM_ENV.getValue());
+    return createChannel();
   }
 
   @Bean
@@ -77,12 +76,12 @@ public class LinkIntegrationConfig {
     return new CrawlDetailEntityMapper().toLink(entity);
   }
 
-  private PublishSubscribeChannel createChannel(String name) {
+  private PublishSubscribeChannel createChannel() {
 
     ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
     executor.setCorePoolSize(CONSUMER_THREAD);
     executor.setMaxPoolSize(CONSUMER_THREAD);
-    executor.setThreadNamePrefix("TP_" + name);
+    executor.setThreadNamePrefix("TP_LINK_");
     executor.initialize();
     return new PublishSubscribeChannel(executor);
   }
