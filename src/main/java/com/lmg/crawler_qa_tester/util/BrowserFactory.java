@@ -21,7 +21,7 @@ public class BrowserFactory {
 
   public Browser getBrowser() {
     boolean isHeadless =
-        environment.getProperty("env.preprod.browserHeadless", Boolean.class, true);
+        environment.getProperty("env.app.browserHeadless", Boolean.class, true);
     Playwright playwright = Playwright.create();
     BrowserType.LaunchOptions launchOptions =
         new BrowserType.LaunchOptions().setHeadless(isHeadless).setArgs(getOptions());

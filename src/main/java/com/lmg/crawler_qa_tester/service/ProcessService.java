@@ -76,9 +76,9 @@ public class ProcessService {
   }
 
   @Transactional
-  @ServiceActivator(inputChannel = "processConsumerChannel")
-  public void consumeNewProcess(Message<Process> message) {
-    Process process = message.getPayload();
+  @ServiceActivator(inputChannel = "newProcessConsumerChannel")
+  public void consumeNewProcess(Message<List<Process>> message) {
+    Process process = message.getPayload().get(0);
     Link fromlink =
         Link.builder()
             .crawlHeaderId(process.getId())
@@ -100,5 +100,17 @@ public class ProcessService {
     process.setStatus(ProcessStatusEnum.RUNNING);
     crawlRepository.saveNewLinks(List.of(fromlink, tolink));
     crawlRepository.saveProcess(process);
+  }
+
+  @Transactional
+  @ServiceActivator(inputChannel = "runningProcessConsumerChannel")
+  public void consumeRunningProcess(Message<?> message) {
+    AbstractPollingEndpoint endpoint =
+        applicationContext.getBean(
+            "linkMessagePoller.inboundChannelAdapter", AbstractPollingEndpoint.class);
+    if (!endpoint.isRunning()) {
+      endpoint.start();
+      log.info("Started prod message poller");
+    }
   }
 }

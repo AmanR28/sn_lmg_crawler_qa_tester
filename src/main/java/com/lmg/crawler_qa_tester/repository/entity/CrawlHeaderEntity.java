@@ -12,7 +12,9 @@ import org.hibernate.annotations.UpdateTimestamp;
 @Getter
 @Setter
 @Entity
-@Table(name = "crawl_header")
+@Table(
+    name = "crawl_header",
+    indexes = @Index(name = "idx_status", columnList = "status"))
 public class CrawlHeaderEntity {
   @Id
   @GeneratedValue
