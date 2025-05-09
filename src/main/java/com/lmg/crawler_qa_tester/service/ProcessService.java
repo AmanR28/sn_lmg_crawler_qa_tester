@@ -90,7 +90,7 @@ public class ProcessService {
             .crawlHeaderId(process.getId())
             .env(EnvironmentEnum.FROM_ENV)
             .baseUrl(process.getCompareFromBaseUrl())
-            .path("/")
+            .path("/department/" + process.getDepartment())
             .processFlag(LinkStatusEnum.NOT_PROCESSED)
             .depth(0)
             .build();
@@ -99,7 +99,7 @@ public class ProcessService {
             .crawlHeaderId(process.getId())
             .env(EnvironmentEnum.TO_ENV)
             .baseUrl(process.getCompareToBaseUrl())
-            .path("/")
+            .path("/department/" + process.getDepartment())
             .processFlag(LinkStatusEnum.NOT_PROCESSED)
             .depth(0)
             .build();

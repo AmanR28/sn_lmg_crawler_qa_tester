@@ -12,6 +12,6 @@ public class ProcessController {
 
   @PostMapping()
   public void create(@RequestBody ProjectRequest request) {
-    processService.createProject(request.getCompareFromBaseUrl(), request.getCompareToBaseUrl());
+    processService.createProject(request.getCompareFrom(), request.getCompareTo());
   }
 }
