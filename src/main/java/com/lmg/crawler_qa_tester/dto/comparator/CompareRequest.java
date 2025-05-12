@@ -7,11 +7,11 @@ import org.springframework.lang.NonNull;
 @Data
 public class CompareRequest {
     @NonNull
-    @JsonProperty("first_env")
-    public String firstEnv;
+    @JsonProperty("env_from")
+    public String envFrom;
     @NonNull
-    @JsonProperty("second_env")
-    public String secondEnv;
+    @JsonProperty("env_to")
+    public String envTo;
     @NonNull
     @JsonProperty("country")
     public String country;

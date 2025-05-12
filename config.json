@@ -6,42 +6,42 @@
         "countryName": "egypt",
         "max": {
           "headerStrip":{
-            "id": "3d673840-fdb4-420c-bc29-a7d590c0c1cb",
+            "id": "cf71da81-147a-4f0d-96f0-26f43b242994",
             "app": "max",
             "conceptName": "max",
             "domainSuffix": "maxfashion.com"
           },
           "headerNavigation":{
-            "id": "3d673840-fdb4-420c-bc29-a7d590c0c1cb",
+            "id": "8f8e9d4a-a40f-4f2e-a2d9-5734ea54bd5d",
             "app": "max",
             "conceptName": "max",
             "domainSuffix": "maxfashion.com"
           },
           "footer":{
-            "id": "3d673840-fdb4-420c-bc29-a7d590c0c1cb",
+            "id": "e83cf2f3-e858-4f07-97b5-d9d3a5729b76",
             "app": "max",
             "conceptName": "max",
             "domainSuffix": "maxfashion.com"
           }
         },
-        "cp": {
-          "headerStrip": {
-            "id": "cf71da81-147a-4f0d-96f0-26f43b242994",
-            "app": "centerpoint",
-            "conceptName": "centerpoint",
-            "domainSuffix": "centrepointstores.com"
+        "hc": {
+          "headerStrip":{
+            "id": "e8198b7a-5f45-49d8-8ae0-b9acbb0bee2d",
+            "app": "homecentre",
+            "conceptName": "homecentre",
+            "domainSuffix": "homecentre.com"
           },
-          "headerNavigation": {
-            "id": "d87c3d52-13e6-4b77-8d4f-d84d7e5ebab9",
-            "app": "centerpoint",
-            "conceptName": "centerpoint",
-            "domainSuffix": "centrepointstores.com"
+          "headerNavigation":{
+            "id": "2ce92bf3-c22d-4ea4-998d-ed78b8e96452",
+            "app": "max",
+            "conceptName": "homecentre",
+            "domainSuffix": "maxfashion.com"
           },
-          "footer": {
-            "id": "e2ab7b42-c54a-4cc6-b598-8a252e1ac8c6",
-            "app": "centerpoint",
-            "conceptName": "centerpoint",
-            "domainSuffix": "centrepointstores.com"
+          "footer":{
+            "id": "ec824a5a-f223-4932-84c7-1f640812f810",
+            "app": "homecentre",
+            "conceptName": "homecentre",
+            "domainSuffix": "homecentre.com"
           }
         }
       },
@@ -69,22 +69,42 @@
         },
         "cp": {
           "headerStrip":{
-            "id": "3d673840-fdb4-420c-bc29-a7d590c0c1cb",
-            "app": "max",
-            "conceptName": "max",
-            "domainSuffix": "maxfashion.com"
+            "id": "cf71da81-147a-4f0d-96f0-26f43b242994",
+            "app": "centrepoint",
+            "conceptName": "cp",
+            "domainSuffix": "centrepointstores.com"
           },
           "headerNavigation":{
-            "id": "3d673840-fdb4-420c-bc29-a7d590c0c1cb",
+            "id": "9ce13380-c851-4cb3-b8ec-f7c39880e0e3",
+            "app": "centrepoint",
+            "conceptName": "cp",
+            "domainSuffix": "centrepointstores.com"
+          },
+          "footer":{
+            "id": "d3e89017-677d-4c52-b070-46c67a0a89fe",
+            "app": "centrepoint",
+            "conceptName": "cp",
+            "domainSuffix": "centrepointstores.com"
+          }
+        },
+        "hc": {
+          "headerStrip":{
+            "id": "41c631d8-88cb-4b57-a539-bcccadbe17b6",
+            "app": "homecentre",
+            "conceptName": "homecentre",
+            "domainSuffix": "homecentre.com"
+          },
+          "headerNavigation":{
+            "id": "54ab4630-5227-4a52-97ef-26d5d8b77e71",
             "app": "max",
-            "conceptName": "max",
+            "conceptName": "homecentre",
             "domainSuffix": "maxfashion.com"
           },
           "footer":{
-            "id": "3d673840-fdb4-420c-bc29-a7d590c0c1cb",
-            "app": "max",
-            "conceptName": "max",
-            "domainSuffix": "maxfashion.com"
+            "id": "ce2f674d-ae95-4d60-b258-83d44e2d1800",
+            "app": "homecentre",
+            "conceptName": "homecentre",
+            "domainSuffix": "homecentre.com"
           }
         }
       },
@@ -111,29 +131,63 @@
           }
         },
         "cp": {
-          "id": "VALUE",
-          "app": "centrepoint",
-          "conceptName": "centerpoint",
-          "domainSuffix": "centerpointstores.com"
+          "headerStrip":{
+            "id": "cf71da81-147a-4f0d-96f0-26f43b242994",
+            "app": "centrepoint",
+            "conceptName": "cp",
+            "domainSuffix": "centrepointstores.com"
+          },
+          "headerNavigation":{
+            "id": "fc9482e9-1089-40d6-82e9-7b79a566a076",
+            "app": "centrepoint",
+            "conceptName": "cp",
+            "domainSuffix": "centrepointstores.com"
+          },
+          "footer":{
+            "id": "482ceb77-473e-4106-831c-95c287feca86",
+            "app": "centrepoint",
+            "conceptName": "cp",
+            "domainSuffix": "centrepointstores.com"
+          }
+        },
+        "hc": {
+          "headerStrip":{
+            "id": "7752df8f-af87-4433-82ce-53db84830ee1",
+            "app": "homecentre",
+            "conceptName": "homecentre",
+            "domainSuffix": "homecentre.com"
+          },
+          "headerNavigation":{
+            "id": "1e73369b-b04b-4f7f-9ae5-6a8e2f67f521",
+            "app": "max",
+            "conceptName": "homecentre",
+            "domainSuffix": "maxfashion.com"
+          },
+          "footer":{
+            "id": "82e23574-8165-41ca-b01b-c2e9d46cbaea",
+            "app": "homecentre",
+            "conceptName": "homecentre",
+            "domainSuffix": "homecentre.com"
+          }
         }
       },
       "bha": {
         "countryName": "bahrain",
         "max": {
           "headerStrip":{
-            "id": "3d673840-fdb4-420c-bc29-a7d590c0c1cb",
+            "id": "cf71da81-147a-4f0d-96f0-26f43b242994",
             "app": "max",
             "conceptName": "max",
             "domainSuffix": "maxfashion.com"
           },
           "headerNavigation":{
-            "id": "3d673840-fdb4-420c-bc29-a7d590c0c1cb",
+            "id": "de67fb3e-bc12-4e36-81ff-c95406ccd00b",
             "app": "max",
             "conceptName": "max",
             "domainSuffix": "maxfashion.com"
           },
           "footer":{
-            "id": "3d673840-fdb4-420c-bc29-a7d590c0c1cb",
+            "id": "a35e7f80-0b30-40f9-872d-19ccdeda45b6",
             "app": "max",
             "conceptName": "max",
             "domainSuffix": "maxfashion.com"
@@ -158,25 +212,85 @@
             "conceptName": "centerpoint",
             "domainSuffix": "centrepointstores.com"
           }
+        },
+        "hc": {
+          "headerStrip":{
+            "id": "41c631d8-88cb-4b57-a539-bcccadbe17b6",
+            "app": "homecentre",
+            "conceptName": "homecentre",
+            "domainSuffix": "homecentre.com"
+          },
+          "headerNavigation":{
+            "id": "1f761e44-56a3-4924-a8a4-ae3dbc2d41ba",
+            "app": "homecentre",
+            "conceptName": "homecentre",
+            "domainSuffix": "homecentre.com"
+          },
+          "footer":{
+            "id": "385f9c88-65d4-4d5d-a55b-ebb4e7cd294b",
+            "app": "homecentre",
+            "conceptName": "homecentre",
+            "domainSuffix": "homecentre.com"
+          }
+        },
+        "splash": {
+          "headerStrip":{
+            "id": "undefined",
+            "app": "splash",
+            "conceptName": "splashfashions",
+            "domainSuffix": "splashfashions.com"
+          },
+          "headerNavigation":{
+            "id": "6fcbfcfb-fac9-4df2-9398-a41ddff381eb",
+            "app": "splash",
+            "conceptName": "splashfashions",
+            "domainSuffix": "splashfashions.com"
+          },
+          "footer":{
+            "id": "d1c4e084-71a0-4947-8d3c-dc9622187516",
+            "app": "splash",
+            "conceptName": "splashfashions",
+            "domainSuffix": "splashfashions.com"
+          }
+        },
+        "hb": {
+          "headerStrip":{
+            "id": "b81dbedf-e2ef-4f6a-a3e8-af9a62a50f64",
+            "app": "homebox",
+            "conceptName": "homeboxstores",
+            "domainSuffix": "homeboxstores.com"
+          },
+          "headerNavigation":{
+            "id": "fd585506-fbd1-49da-bad1-f5d7af2e5271",
+            "app": "homebox",
+            "conceptName": "homeboxstores",
+            "domainSuffix": "homeboxstores.com"
+          },
+          "footer":{
+            "id": "187e45bc-7210-4aaa-b397-3df21fcd94b2",
+            "app": "homebox",
+            "conceptName": "homeboxstores",
+            "domainSuffix": "homeboxstores.com"
+          }
         }
       },
       "qat": {
         "countryName": "qatar",
         "max": {
           "headerStrip":{
-            "id": "3d673840-fdb4-420c-bc29-a7d590c0c1cb",
+            "id": "35a86544-73fb-45f5-9491-44035c28931b",
             "app": "max",
             "conceptName": "max",
             "domainSuffix": "maxfashion.com"
           },
           "headerNavigation":{
-            "id": "3d673840-fdb4-420c-bc29-a7d590c0c1cb",
+            "id": "a458fa58-c09b-4ce1-8327-8cc4bdb5f8a3",
             "app": "max",
             "conceptName": "max",
             "domainSuffix": "maxfashion.com"
           },
           "footer":{
-            "id": "3d673840-fdb4-420c-bc29-a7d590c0c1cb",
+            "id": "16445360-aad5-4e2a-89a4-aa2435448adf",
             "app": "max",
             "conceptName": "max",
             "domainSuffix": "maxfashion.com"
@@ -184,24 +298,45 @@
         },
         "cp": {
           "headerStrip":{
-            "id": "3d673840-fdb4-420c-bc29-a7d590c0c1cb",
-            "app": "max",
-            "conceptName": "max",
-            "domainSuffix": "maxfashion.com"
+            "id": "cf71da81-147a-4f0d-96f0-26f43b242994",
+            "app": "centerpoint",
+            "conceptName": "centerpoint",
+            "domainSuffix": "centrepointstores.com"
           },
           "headerNavigation":{
-            "id": "3d673840-fdb4-420c-bc29-a7d590c0c1cb",
-            "app": "max",
-            "conceptName": "max",
-            "domainSuffix": "maxfashion.com"
+            "id": "662a1bef-8aee-4b7e-8c36-f613db057e39",
+            "app": "centerpoint",
+            "conceptName": "centerpoint",
+            "domainSuffix": "centrepointstores.com"
           },
           "footer":{
-            "id": "3d673840-fdb4-420c-bc29-a7d590c0c1cb",
-            "app": "max",
-            "conceptName": "max",
-            "domainSuffix": "maxfashion.com"
+            "id": "7f20b293-318f-4666-8a48-bb25ebc8769f",
+            "app": "centerpoint",
+            "conceptName": "centerpoint",
+            "domainSuffix": "centrepointstores.com"
+          }
+        },
+        "hc": {
+          "headerStrip":{
+            "id": "0ad92aea-1cab-4fa7-b73c-35e52babc3e2",
+            "app": "homecentre",
+            "conceptName": "homecentre",
+            "domainSuffix": "homecentre.com"
+          },
+          "headerNavigation":{
+            "id": "8a6c1bcf-4f80-49cb-ae04-053f1317adaf",
+            "app": "homecentre",
+            "conceptName": "homecentre",
+            "domainSuffix": "homecentre.com"
+          },
+          "footer":{
+            "id": "eff09388-372d-4126-afb5-2ae4b9a9eed4",
+            "app": "homecentre",
+            "conceptName": "homecentre",
+            "domainSuffix": "homecentre.com"
           }
         }
+
       },
       "uae": {
         "countryName": "United Arab Emirates",

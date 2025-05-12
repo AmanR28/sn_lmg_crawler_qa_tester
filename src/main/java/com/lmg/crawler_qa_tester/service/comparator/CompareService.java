@@ -16,7 +16,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.List;
@@ -41,8 +40,8 @@ public class CompareService {
 
             for (ApiEntry entry : apiEntries) {
                 for (String lang : LANG_CODES) {
-                    String url1 = apiService.getApiUrl(req.firstEnv, entry.country(), entry.concept(), lang, entry.name());
-                    String url2 = apiService.getApiUrl(req.secondEnv, entry.country(), entry.concept(), lang, entry.name());
+                    String url1 = apiService.getApiUrl(req.envFrom, entry.country(), entry.concept(), lang, entry.name());
+                    String url2 = apiService.getApiUrl(req.envTo, entry.country(), entry.concept(), lang, entry.name());
 
                     JsonNode json1 = apiService.callApi(url1);
                     JsonNode json2 = apiService.callApi(url2);
@@ -52,8 +51,8 @@ public class CompareService {
 
                     Row header = sheet.createRow(0);
                     header.createCell(0).setCellValue(SHEET_COLUMN1);
-                    header.createCell(1).setCellValue(req.firstEnv);
-                    header.createCell(2).setCellValue(req.secondEnv);
+                    header.createCell(1).setCellValue(req.envFrom);
+                    header.createCell(2).setCellValue(req.envTo);
                     header.createCell(3).setCellValue(SHEET_COLUMN4);
 
                     int[] rowNum = {1};
