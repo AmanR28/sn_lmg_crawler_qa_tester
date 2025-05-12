@@ -18,4 +18,5 @@ public class Process {
     private String department;
     private Integer consumerThread;
     private int pageCount;
+    private Timestamp createdTime;
 }

@@ -15,11 +15,11 @@ spring:
   sql.init.mode: always
 env:
   app:
-    maxDepth: 10
-    consumerThread: 10
+    maxDepth: 1
+    consumerThread: 1
     pollerRate: 6000
     pageWait: 5000
-    browserHeadless: false
+    browserHeadless: true
   process:
     pollerRate: 10000
 
@@ -27,6 +27,6 @@ env:
 # https://blc.centrepointstores.com/kw/en
 
 ###
-#  curl -X POST http://localhost:8080/process -H "Content-Type: application/json" -d '{ "compareFrom": "https://www.centrepointstores.com/kw/en", "compareTo": "https://blc.centrepointstores.com/kw/en" }' | jq
+# curl -X POST http://localhost:8080/process -H "Content-Type: application/json" -d '{ "compareFrom": "https://www.centrepointstores.com/kw/en", "compareTo": "https://blc.centrepointstores.com/kw/en" }' | jq
 # curl -X POST http://localhost:8080/reports/1 > data.csv
 ###

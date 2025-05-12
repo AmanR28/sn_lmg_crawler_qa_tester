@@ -5,7 +5,6 @@ import com.lmg.crawler_qa_tester.dto.Process;
 import com.lmg.crawler_qa_tester.repository.entity.CrawlHeaderEntity;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.RowMapper;
 
@@ -50,6 +49,7 @@ public class CrawlHeaderEntityMapper implements RowMapper<CrawlHeaderEntity> {
         .locale(entity.getLocale())
         .department(entity.getDepartment())
         .pageCount(entity.getPageCount())
+        .createdTime(entity.getCreatedTime())
         .build();
   }
 
@@ -70,6 +70,7 @@ public class CrawlHeaderEntityMapper implements RowMapper<CrawlHeaderEntity> {
     entity.setCountry(process.getCountry());
     entity.setLocale(process.getLocale());
     entity.setDepartment(process.getDepartment());
+    entity.setCreatedTime(process.getCreatedTime());
     return entity;
   }
 }
