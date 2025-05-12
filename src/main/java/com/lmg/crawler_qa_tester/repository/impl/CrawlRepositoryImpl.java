@@ -1,5 +1,6 @@
 package com.lmg.crawler_qa_tester.repository.impl;
 
+import com.lmg.crawler_qa_tester.constants.ProcessStatusEnum;
 import com.lmg.crawler_qa_tester.dto.Link;
 import com.lmg.crawler_qa_tester.dto.Process;
 import com.lmg.crawler_qa_tester.repository.CrawlRepository;
@@ -59,22 +60,35 @@ public class CrawlRepositoryImpl implements CrawlRepository {
                     ON CONFLICT ON CONSTRAINT unique_link DO NOTHING
                 """;
 
-    List<Object[]> args =
-        links.stream()
-            .map(
-                e ->
-                    new Object[] {
-                      e.getCrawlHeaderId(),
-                      e.getEnv().getValue(),
-                      e.getBaseUrl(),
-                      e.getPath(),
-                      e.getProcessFlag().getValue(),
-                      e.getErrorMessage(),
-                      e.getDepth()
-                    })
-            .toList();
+    int BATCH_SIZE = 20;
+    for (int i = 0; i < links.size(); i += BATCH_SIZE) {
+      int end = Math.min(i + BATCH_SIZE, links.size());
+      List<Object[]> batch =
+          links.subList(i, end).stream()
+              .map(
+                  e ->
+                      new Object[] {
+                        e.getCrawlHeaderId(),
+                        e.getEnv().getValue(),
+                        e.getBaseUrl(),
+                        e.getPath(),
+                        e.getProcessFlag().getValue(),
+                        e.getErrorMessage(),
+                        e.getDepth()
+                      })
+              .toList();
+      jdbcTemplate.batchUpdate(sql, batch);
+    }
+  }
 
-    jdbcTemplate.batchUpdate(sql, args);
+  @Override
+  public Process getRunningProcess() {
+    return toProcess(crawlHeaderRepository.findByStatus(ProcessStatusEnum.RUNNING.getValue()));
+  }
+
+  @Override
+  public int getLinkCountByProcessId(Integer processId) {
+    return crawlDetailRepository.countCrawlDetailEntitiesByCrawlHeaderId(processId);
   }
 
   private CrawlHeaderEntity toCrawlHeaderEntity(Process process) {

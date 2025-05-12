@@ -39,6 +39,9 @@ public class CrawlDetailEntity {
   @Column(name = "process_flag")
   private String processFlag = LinkStatusEnum.NOT_PROCESSED.getValue();
 
+  @Column(name = "product_count")
+  private Integer productCount;
+
   @Column(name = "error_message")
   private String errorMessage;
 

@@ -59,6 +59,9 @@ public class CrawlHeaderEntity {
   @Column(name = "consumer_thread")
   private int consumerThread;
 
+  @Column(name = "poller_rate")
+  private int pollerRate;
+
   @Column(name = "page_count")
-  private int pageCount = 1;
+  private int pageCount = 0;
 }

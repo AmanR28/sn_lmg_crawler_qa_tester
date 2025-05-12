@@ -1,5 +1,6 @@
 package com.lmg.crawler_qa_tester.config;
 
+import com.lmg.crawler_qa_tester.constants.LinkStatusEnum;
 import com.lmg.crawler_qa_tester.constants.ProcessStatusEnum;
 import com.lmg.crawler_qa_tester.dto.Process;
 import com.lmg.crawler_qa_tester.repository.entity.CrawlHeaderEntity;
@@ -20,9 +21,6 @@ import org.springframework.integration.jdbc.JdbcPollingChannelAdapter;
 
 @Configuration
 public class ProcessIntegrationConfig {
-  @Value("${env.app.consumerThread}")
-  private int CONSUMER_THREAD;
-
   @Value("${env.app.maxDepth}")
   private int MAX_DEPTH;
 
@@ -34,8 +32,32 @@ public class ProcessIntegrationConfig {
   }
 
   @Bean
+  @InboundChannelAdapter(
+      value = "processPollerChannel",
+      poller = @Poller(fixedRate = "${env.app.pollerRate}"))
+  public MessageSource<?> processMessagePoller() {
+    JdbcPollingChannelAdapter jdbcPollingChannelAdapter =
+        new JdbcPollingChannelAdapter(dataSource, getSelectSql());
+    jdbcPollingChannelAdapter.setRowMapper(new CrawlHeaderEntityMapper());
+    return jdbcPollingChannelAdapter;
+  }
+
+  private String getSelectSql() {
+    return "( SELECT * FROM crawl_header WHERE status = '"
+        + ProcessStatusEnum.NEW
+        + "' ORDER BY id LIMIT 1 ) UNION ALL ( SELECT * FROM crawl_header WHERE status = '"
+        + ProcessStatusEnum.RUNNING
+        + "' ORDER BY id LIMIT 1 )";
+  }
+
+  @Bean
   public PublishSubscribeChannel processRouterChannel() {
     return new PublishSubscribeChannel();
+  }
+
+  @Transformer(inputChannel = "processPollerChannel", outputChannel = "processRouterChannel")
+  public List<Process> transformToProcesses(List<CrawlHeaderEntity> entity) {
+    return entity.stream().map(e -> new CrawlHeaderEntityMapper().toProcess(e)).toList();
   }
 
   @Bean
@@ -46,20 +68,6 @@ public class ProcessIntegrationConfig {
   @Bean
   public PublishSubscribeChannel runningProcessConsumerChannel() {
     return new PublishSubscribeChannel();
-  }
-
-  @Bean
-  @InboundChannelAdapter(value = "processPollerChannel", poller = @Poller(fixedRate = "1000"))
-  public MessageSource<?> processMessagePoller() {
-    JdbcPollingChannelAdapter jdbcPollingChannelAdapter =
-        new JdbcPollingChannelAdapter(dataSource, getSelectSql());
-    jdbcPollingChannelAdapter.setRowMapper(new CrawlHeaderEntityMapper());
-    return jdbcPollingChannelAdapter;
-  }
-
-  @Transformer(inputChannel = "processPollerChannel", outputChannel = "processRouterChannel")
-  public List<Process> transformToProcesses(List<CrawlHeaderEntity> entity) {
-    return entity.stream().map(e -> new CrawlHeaderEntityMapper().toProcess(e)).toList();
   }
 
   @Router(inputChannel = "processRouterChannel")
@@ -77,11 +85,32 @@ public class ProcessIntegrationConfig {
     return null;
   }
 
-  private String getSelectSql() {
-    return "( SELECT * FROM crawl_header WHERE status = '"
-        + ProcessStatusEnum.NEW
-        + "' ORDER BY id LIMIT 1 ) UNION ALL ( SELECT * FROM crawl_header WHERE status = '"
-        + ProcessStatusEnum.RUNNING
-        + "' ORDER BY id LIMIT 1 )";
+  @Bean
+  public PublishSubscribeChannel completeProcessPollerChannel() {
+    return new PublishSubscribeChannel();
+  }
+
+  @Bean
+  @InboundChannelAdapter(
+      value = "completeProcessPollerChannel",
+      poller = @Poller(fixedRate = "${env.app.pollerRate}"))
+  public MessageSource<?> completeProcessMessagePoller() {
+    JdbcPollingChannelAdapter jdbcPollingChannelAdapter =
+        new JdbcPollingChannelAdapter(dataSource, getSelectSqlForCompleteProcess());
+    jdbcPollingChannelAdapter.setRowMapper(
+        (rs, rowNum) -> {
+          return rs.getInt(1);
+        });
+    return jdbcPollingChannelAdapter;
+  }
+
+  private String getSelectSqlForCompleteProcess() {
+    return "( SELECT COUNT(*) FROM crawl_detail WHERE (process_flag = '"
+        + LinkStatusEnum.NOT_PROCESSED
+        + "' OR process_flag = '"
+        + LinkStatusEnum.IN_PROGRESS
+        + "') AND depth < "
+        + MAX_DEPTH
+        + " LIMIT 1 )";
   }
 }

@@ -9,6 +9,8 @@ import org.springframework.stereotype.Repository;
 public interface CrawlHeaderRepository extends JpaRepository<CrawlHeaderEntity, Integer> {
   int countByStatus(String status);
 
+  CrawlHeaderEntity findByStatus(String value);
+
   default boolean hasActiveProcess() {
     return (this.countByStatus(ProcessStatusEnum.NEW.getValue()) > 0
         || this.countByStatus(ProcessStatusEnum.RUNNING.getValue()) > 0);

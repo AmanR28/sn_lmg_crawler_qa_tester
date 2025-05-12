@@ -10,4 +10,5 @@ import java.util.List;
 @Repository
 public interface CrawlDetailRepository extends JpaRepository<CrawlDetailEntity, Integer> {
     List<CrawlDetailEntity> getCrawlDetailEntitiesByCrawlHeaderId(Integer processId);
+    int countCrawlDetailEntitiesByCrawlHeaderId(Integer processId);
 }

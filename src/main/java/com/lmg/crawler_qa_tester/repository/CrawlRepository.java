@@ -9,9 +9,13 @@ import org.springframework.stereotype.Repository;
 public interface CrawlRepository {
   boolean hasActiveProcess();
 
+  Process getRunningProcess();
+
   void saveProcess(Process process);
 
   void saveAllProcesses(List<Process> processes);
+
+  int getLinkCountByProcessId(Integer processId);
 
   List<Link> getLinksByProcessId(Integer processId);
 

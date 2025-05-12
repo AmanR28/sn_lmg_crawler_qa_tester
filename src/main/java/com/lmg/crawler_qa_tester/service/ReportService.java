@@ -30,12 +30,12 @@ public class ReportService {
     HashMap<String, Link> prodMap =
         new HashMap<>(
             links.stream()
-                .filter(e -> e.getEnv().equals(EnvironmentEnum.FROM_ENV.getValue()))
+                .filter(e -> e.getEnv().equals(EnvironmentEnum.FROM_ENV))
                 .collect(Collectors.toMap(Link::getPath, e -> e)));
     HashMap<String, Link> preProdMap =
         new HashMap<>(
             links.stream()
-                .filter(e -> e.getEnv().equals(EnvironmentEnum.TO_ENV.getValue()))
+                .filter(e -> e.getEnv().equals(EnvironmentEnum.TO_ENV))
                 .collect(Collectors.toMap(Link::getPath, e -> e)));
 
     for (String path : uniquePaths) {

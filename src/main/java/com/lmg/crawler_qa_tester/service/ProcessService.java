@@ -113,4 +113,18 @@ public class ProcessService {
       log.info("Started prod message poller");
     }
   }
+
+  @Transactional
+  @ServiceActivator(inputChannel = "completeProcessPollerChannel")
+  public void consumeCompleteProcess(Message<Integer> message) {
+    Integer count = message.getPayload();
+    if (count != 0) return;
+
+    Process process = crawlRepository.getRunningProcess();
+    if (process == null) return;
+
+    process.setStatus(ProcessStatusEnum.COMPLETED);
+    process.setPageCount(crawlRepository.getLinkCountByProcessId(process.getId()));
+    crawlRepository.saveProcess(process);
+  }
 }
