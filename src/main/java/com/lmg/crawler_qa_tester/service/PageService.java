@@ -101,7 +101,7 @@ public class PageService {
       else link.setProcessFlag(LinkStatusEnum.INVALID_COUNT);
     } else {
       link.setProcessFlag(LinkStatusEnum.FATAL);
-      link.setErrorMessage("Error processing link @ Regex Failed : "+ matcher.find());
+      link.setErrorMessage("Error processing link @ Product Count : "+ matcher.find());
       log.error("Error processing link @ Product Count : {} | {}", link, matcher.find());
     }
   }
