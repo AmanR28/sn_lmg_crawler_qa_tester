@@ -6,6 +6,7 @@ public enum LinkStatusEnum {
   FATAL("FATAL"),
   SUCCESS("SUCCESS"),
   NOT_FOUND("NOT_FOUND"),
+  INVALID_COUNT("INVALID_COUNT"),
   MISSING("MISSING");
 
   private final String value;

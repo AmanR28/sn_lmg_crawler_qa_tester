@@ -20,4 +20,5 @@ public class Link {
   private LinkStatusEnum processFlag;
   private String errorMessage;
   private int depth;
+  private Integer productCount;
 }

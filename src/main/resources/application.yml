@@ -15,10 +15,10 @@ spring:
   sql.init.mode: always
 env:
   app:
-    maxDepth: 1
-    consumerThread: 1
-    pollerRate: 6000
-    pageWait: 5000
+    maxDepth: 2
+    consumerThread: 4
+    pollerRate: 4000
+    pageWait: 4000
     browserHeadless: true
   process:
     pollerRate: 10000
