@@ -26,7 +26,7 @@ public class PageService {
 
     Response response = page.navigate(link.getBaseUrl() + link.getPath());
     page.waitForTimeout(PAGE_WAIT);
-    String pageText = page.innerText("html");
+    String pageText = page.innerText("body");
     List<String> urls = getPageUrls(page);
 
     getPageStatus(link, page, response);
@@ -46,7 +46,7 @@ public class PageService {
   }
 
   private void getCategoryPageStatus(Link link, String pageText) {
-    String regex = "[1-9][0-9]* Products";
+    String regex = "[1-9][0-9]* Product[s]*";
     Pattern pattern = Pattern.compile(regex);
     Matcher matcher = pattern.matcher(pageText);
 

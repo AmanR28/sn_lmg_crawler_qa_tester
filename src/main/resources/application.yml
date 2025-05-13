@@ -16,9 +16,9 @@ spring:
 env:
   app:
     maxDepth: 2
-    consumerThread: 4
-    pollerRate: 4000
-    pageWait: 4000
+    consumerThread: 6
+    pollerRate: 7000
+    pageWait: 5000
     browserHeadless: true
   process:
     pollerRate: 10000

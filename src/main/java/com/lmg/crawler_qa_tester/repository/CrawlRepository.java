@@ -1,5 +1,6 @@
 package com.lmg.crawler_qa_tester.repository;
 
+import com.lmg.crawler_qa_tester.constants.LinkStatusEnum;
 import com.lmg.crawler_qa_tester.dto.Link;
 import com.lmg.crawler_qa_tester.dto.Process;
 import java.util.List;
@@ -22,4 +23,6 @@ public interface CrawlRepository {
   void saveLink(Link link);
 
   void saveNewLinks(List<Link> links);
+
+  void resetInProgressLinks(Integer id, LinkStatusEnum fromFlag, LinkStatusEnum toFlag);
 }

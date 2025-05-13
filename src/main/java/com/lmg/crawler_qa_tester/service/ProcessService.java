@@ -123,6 +123,9 @@ public class ProcessService {
     Process process = crawlRepository.getRunningProcess();
     if (process == null) return;
 
+    crawlRepository.resetInProgressLinks(
+        process.getId(), LinkStatusEnum.IN_PROGRESS, LinkStatusEnum.NOT_PROCESSED);
+
     process.setStatus(ProcessStatusEnum.COMPLETED);
     process.setPageCount(crawlRepository.getLinkCountByProcessId(process.getId()));
     crawlRepository.saveProcess(process);
