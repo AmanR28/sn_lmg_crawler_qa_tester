@@ -49,7 +49,10 @@ public class ConsumerService {
                           .build())
               .toList());
     } catch (Exception e) {
-      log.error("Error processing link: {}", link, e);
+      link.setProcessFlag(LinkStatusEnum.FATAL);
+      link.setErrorMessage("Error processing link @ Browser : " + e.getMessage());
+      crawlRepository.saveLink(link);
+      log.error("Error processing link @ Browser : {} | {}", link, e);
     }
   }
 }

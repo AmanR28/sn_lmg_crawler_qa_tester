@@ -73,12 +73,16 @@ public class PageService {
       link.setProcessFlag(LinkStatusEnum.NOT_FOUND);
     } else if (status >= 500 && status < 600) {
       link.setProcessFlag(LinkStatusEnum.FATAL);
+      link.setErrorMessage("Status Error : " + status);
+      log.error("Error processing link @ Status : {} | {}", link, status);
     }
   }
 
-  private void getErrorPageStatus(Link link, Page page){
+  private void getErrorPageStatus(Link link, Page page) {
     if (!(link.getBaseUrl() + link.getPath()).equals(page.url())) {
       link.setProcessFlag(LinkStatusEnum.NOT_FOUND);
+      link.setErrorMessage("Redirection Error : " + page.url());
+      log.error("Error processing link @ Redirection : {} | {}", link, page.url());
     } else {
       link.setProcessFlag(LinkStatusEnum.SUCCESS);
     }
@@ -97,6 +101,8 @@ public class PageService {
       else link.setProcessFlag(LinkStatusEnum.INVALID_COUNT);
     } else {
       link.setProcessFlag(LinkStatusEnum.FATAL);
+      link.setErrorMessage("Error processing link @ Regex Failed : "+ matcher.find());
+      log.error("Error processing link @ Product Count : {} | {}", link, matcher.find());
     }
   }
 
