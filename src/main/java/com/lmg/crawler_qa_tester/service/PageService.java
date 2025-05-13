@@ -30,6 +30,11 @@ public class PageService {
     List<String> urls = getPageUrls(page);
 
     getPageStatus(link, page, response);
+    if (!link.getProcessFlag().equals(LinkStatusEnum.SUCCESS)) return null;
+
+    getErrorPageStatus(link, page);
+    if (!link.getProcessFlag().equals(LinkStatusEnum.SUCCESS)) return null;
+
     if (pageType == PageTypeEnum.CATEGORY) getCategoryPageStatus(link, pageText);
     if (!link.getProcessFlag().equals(LinkStatusEnum.SUCCESS)) return null;
 
@@ -43,22 +48,6 @@ public class PageService {
                     && !getPageType(url).equals(PageTypeEnum.PRODUCT))
         .map(url -> url.substring(startPath.length()))
         .toList();
-  }
-
-  private void getCategoryPageStatus(Link link, String pageText) {
-    String regex = "[1-9][0-9]* Product[s]*";
-    Pattern pattern = Pattern.compile(regex);
-    Matcher matcher = pattern.matcher(pageText);
-
-    if (matcher.find()) {
-      String countStr = matcher.group(0).split(" ")[0];
-      int productCount = Integer.parseInt(countStr);
-      link.setProductCount(productCount);
-      if (productCount > 0) link.setProcessFlag(LinkStatusEnum.SUCCESS);
-      else link.setProcessFlag(LinkStatusEnum.INVALID_COUNT);
-    } else {
-      link.setProcessFlag(LinkStatusEnum.FATAL);
-    }
   }
 
   private PageTypeEnum getPageType(String path) {
@@ -83,6 +72,30 @@ public class PageService {
     } else if (status >= 400 && status < 500) {
       link.setProcessFlag(LinkStatusEnum.NOT_FOUND);
     } else if (status >= 500 && status < 600) {
+      link.setProcessFlag(LinkStatusEnum.FATAL);
+    }
+  }
+
+  private void getErrorPageStatus(Link link, Page page){
+    if (!(link.getBaseUrl() + link.getPath()).equals(page.url())) {
+      link.setProcessFlag(LinkStatusEnum.NOT_FOUND);
+    } else {
+      link.setProcessFlag(LinkStatusEnum.SUCCESS);
+    }
+  }
+
+  private void getCategoryPageStatus(Link link, String pageText) {
+    String regex = "[1-9][0-9]* Product[s]*";
+    Pattern pattern = Pattern.compile(regex);
+    Matcher matcher = pattern.matcher(pageText);
+
+    if (matcher.find()) {
+      String countStr = matcher.group(0).split(" ")[0];
+      int productCount = Integer.parseInt(countStr);
+      link.setProductCount(productCount);
+      if (productCount > 0) link.setProcessFlag(LinkStatusEnum.SUCCESS);
+      else link.setProcessFlag(LinkStatusEnum.INVALID_COUNT);
+    } else {
       link.setProcessFlag(LinkStatusEnum.FATAL);
     }
   }

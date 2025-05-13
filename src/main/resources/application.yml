@@ -16,12 +16,12 @@ spring:
 env:
   app:
     maxDepth: 2
-    consumerThread: 6
-    pollerRate: 7000
+    consumerThread: 5
+    pollerRate: 10000
     pageWait: 5000
     browserHeadless: true
   process:
-    pollerRate: 10000
+    pollerRate: 20000
 
 # https://www.centrepointstores.com/kw/en
 # https://blc.centrepointstores.com/kw/en
