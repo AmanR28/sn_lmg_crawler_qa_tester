@@ -71,6 +71,8 @@ public class PageService {
       link.setProcessFlag(LinkStatusEnum.SUCCESS);
     } else if (status >= 400 && status < 500) {
       link.setProcessFlag(LinkStatusEnum.NOT_FOUND);
+      link.setErrorMessage("Status Error : " + status);
+      log.error("Error link @ Status : {} | {}", link, status);
     } else if (status >= 500 && status < 600) {
       link.setProcessFlag(LinkStatusEnum.FATAL);
       link.setErrorMessage("Status Error : " + status);
