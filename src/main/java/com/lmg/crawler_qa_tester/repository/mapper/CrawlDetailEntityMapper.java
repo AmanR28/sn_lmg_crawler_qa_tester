@@ -43,6 +43,7 @@ public class CrawlDetailEntityMapper implements RowMapper<CrawlDetailEntity> {
         .processFlag(LinkStatusEnum.valueOf(entity.getProcessFlag()))
         .errorMessage(entity.getErrorMessage())
         .depth(entity.getDepth())
+        .productCount(entity.getProductCount())
         .build();
   }
 
@@ -65,6 +66,7 @@ public class CrawlDetailEntityMapper implements RowMapper<CrawlDetailEntity> {
             : LinkStatusEnum.NOT_PROCESSED.getValue());
     entity.setErrorMessage(link.getErrorMessage());
     entity.setDepth(link.getDepth());
+    entity.setProductCount(link.getProductCount());
     return entity;
   }
 }

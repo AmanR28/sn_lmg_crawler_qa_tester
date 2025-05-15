@@ -8,34 +8,51 @@ import com.microsoft.playwright.Page;
 import com.microsoft.playwright.Response;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import lombok.extern.slf4j.Slf4j;
 import org.asynchttpclient.uri.Uri;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 @Slf4j
 @Service
 public class PageService {
-  public void processPageStatus(Page page, Link link, Response response) {
-    getPageStatus(link, page, response);
-    PageTypeEnum pageType = getPageType(link.getPath());
-    if (pageType == PageTypeEnum.CATEGORY) getCategoryPageStatus(link, page);
-  }
+  @Value("${env.app.pageWait}")
+  int PAGE_WAIT;
 
   public List<String> processPageData(Page page, Link link) {
-    final String startPath = Uri.create(link.getBaseUrl()).getPath();
+    PageTypeEnum pageType = getPageType(link.getPath());
+
+    Response response = page.navigate(link.getBaseUrl() + link.getPath());
+    page.waitForTimeout(PAGE_WAIT);
+    String pageText = page.innerText("body");
     List<String> urls = getPageUrls(page);
 
-    List<String> baseFilteredUrls =
-        urls.stream()
-            .filter(
-                url -> url.startsWith(startPath) && !getPageType(url).equals(PageTypeEnum.PRODUCT))
-            .map(url -> url.substring(startPath.length()))
-            .toList();
-    return baseFilteredUrls;
+    getPageStatus(link, page, response);
+    if (!link.getProcessFlag().equals(LinkStatusEnum.SUCCESS)) return null;
+
+    getErrorPageStatus(link, page);
+    if (!link.getProcessFlag().equals(LinkStatusEnum.SUCCESS)) return null;
+
+    if (pageType == PageTypeEnum.CATEGORY) getCategoryPageStatus(link, pageText);
+    if (!link.getProcessFlag().equals(LinkStatusEnum.SUCCESS)) return null;
+
+    if (pageType.equals(PageTypeEnum.CATEGORY)) return null;
+    final String startPath = Uri.create(link.getBaseUrl()).getPath();
+    return urls.stream()
+        .filter(
+            url ->
+                url.startsWith(startPath)
+                    && !url.substring(startPath.length()).isEmpty()
+                    && !getPageType(url).equals(PageTypeEnum.PRODUCT))
+        .map(url -> url.substring(startPath.length()))
+        .toList();
   }
 
   private PageTypeEnum getPageType(String path) {
     List<String> pathSlices = List.of(path.split("/"));
+    if (pathSlices.size() < 2) return PageTypeEnum.OTHER;
 
     if (pathSlices.get(1).equals("department")) {
       return PageTypeEnum.DEPARTMENT;
@@ -54,12 +71,42 @@ public class PageService {
       link.setProcessFlag(LinkStatusEnum.SUCCESS);
     } else if (status >= 400 && status < 500) {
       link.setProcessFlag(LinkStatusEnum.NOT_FOUND);
+      link.setErrorMessage("Status Error : " + status);
+      log.error("Error link @ Status : {} | {}", link, status);
     } else if (status >= 500 && status < 600) {
       link.setProcessFlag(LinkStatusEnum.FATAL);
+      link.setErrorMessage("Status Error : " + status);
+      log.error("Error processing link @ Status : {} | {}", link, status);
     }
   }
 
-  private void getCategoryPageStatus(Link link, Page page) {}
+  private void getErrorPageStatus(Link link, Page page) {
+    if (!(link.getBaseUrl() + link.getPath()).equals(page.url()) && page.url().contains("404")) {
+      link.setProcessFlag(LinkStatusEnum.NOT_FOUND);
+      link.setErrorMessage("Redirection Error : " + page.url());
+      log.error("Error processing link @ Redirection : {} | {}", link, page.url());
+    } else {
+      link.setProcessFlag(LinkStatusEnum.SUCCESS);
+    }
+  }
+
+  private void getCategoryPageStatus(Link link, String pageText) {
+    String regex = "[0-9]+ Product[s]*";
+    Pattern pattern = Pattern.compile(regex);
+    Matcher matcher = pattern.matcher(pageText);
+
+    if (matcher.find()) {
+      String countStr = matcher.group(0).split(" ")[0];
+      int productCount = Integer.parseInt(countStr);
+      link.setProductCount(productCount);
+      if (productCount > 0) link.setProcessFlag(LinkStatusEnum.SUCCESS);
+      else link.setProcessFlag(LinkStatusEnum.INVALID_COUNT);
+    } else {
+      link.setProcessFlag(LinkStatusEnum.FATAL);
+      link.setErrorMessage("Page Error : Failed to Find Product Count");
+      log.error("Error processing link @ Product Count : {} | {}", link, matcher.find());
+    }
+  }
 
   private List<String> getPageUrls(Page page) {
 

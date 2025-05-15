@@ -7,11 +7,9 @@ import com.lmg.crawler_qa_tester.util.BrowserFactory;
 import com.lmg.crawler_qa_tester.util.UrlUtil;
 import com.microsoft.playwright.Browser;
 import com.microsoft.playwright.Page;
-import com.microsoft.playwright.Response;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.integration.annotation.ServiceActivator;
 import org.springframework.messaging.Message;
 import org.springframework.stereotype.Service;
@@ -19,8 +17,6 @@ import org.springframework.stereotype.Service;
 @Slf4j
 @Service
 public class ConsumerService {
-  @Value("${env.app.pageWait}")
-  int PAGE_WAIT;
 
   @Autowired private PageService pageService;
   @Autowired private BrowserFactory browserFactory;
@@ -34,14 +30,11 @@ public class ConsumerService {
 
     try (Browser browser = browserFactory.getBrowser()) {
       Page page = browserFactory.getPage(browser, UrlUtil.getDomain(link.getBaseUrl()));
-      Response response = page.navigate(link.getBaseUrl() + link.getPath());
-      page.waitForTimeout(PAGE_WAIT);
-
-      pageService.processPageStatus(page, link, response);
-      crawlRepository.saveLink(link);
-      if (link.getProcessFlag() != LinkStatusEnum.SUCCESS) return;
 
       List<String> urls = pageService.processPageData(page, link);
+      crawlRepository.saveLink(link);
+      if (!link.getProcessFlag().equals(LinkStatusEnum.SUCCESS) || urls == null) return;
+
       crawlRepository.saveNewLinks(
           urls.stream()
               .map(
@@ -56,7 +49,10 @@ public class ConsumerService {
                           .build())
               .toList());
     } catch (Exception e) {
-      log.error("Error processing link: {}", link, e);
+      link.setProcessFlag(LinkStatusEnum.FATAL);
+      link.setErrorMessage("Browser Error : " + e.getMessage());
+      crawlRepository.saveLink(link);
+      log.error("Error processing link @ Browser : {} | {}", link, e);
     }
   }
 }

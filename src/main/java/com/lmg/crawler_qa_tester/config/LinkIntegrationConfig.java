@@ -93,7 +93,7 @@ public class LinkIntegrationConfig {
         + "' and depth < "
         + MAX_DEPTH
         + " limit "
-        + CONSUMER_THREAD;
+        + 1;
   }
 
   private String getUpdateSql() {
