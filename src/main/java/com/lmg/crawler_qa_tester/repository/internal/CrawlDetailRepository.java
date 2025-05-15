@@ -17,6 +17,8 @@ public interface CrawlDetailRepository extends JpaRepository<CrawlDetailEntity, 
 
   int countCrawlDetailEntitiesByCrawlHeaderId(Integer processId);
 
+  List<CrawlDetailEntity> findAllByCrawlHeaderId(Integer crawlHeaderId);
+
   @Modifying
   @Query(
       "UPDATE CrawlDetailEntity c SET c.processFlag = :newFlag WHERE c.crawlHeaderId = :headerId AND c.processFlag = :currentFlag")
