@@ -91,7 +91,7 @@ public class PageService {
   }
 
   private void getCategoryPageStatus(Link link, String pageText) {
-    String regex = "[1-9][0-9]* Product[s]*";
+    String regex = "[0-9]+ Product[s]*";
     Pattern pattern = Pattern.compile(regex);
     Matcher matcher = pattern.matcher(pageText);
 
