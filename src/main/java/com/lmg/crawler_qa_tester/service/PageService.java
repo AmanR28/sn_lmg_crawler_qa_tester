@@ -81,7 +81,7 @@ public class PageService {
   }
 
   private void getErrorPageStatus(Link link, Page page) {
-    if (!(link.getBaseUrl() + link.getPath()).equals(page.url())) {
+    if (!(link.getBaseUrl() + link.getPath()).equals(page.url()) && page.url().contains("404")) {
       link.setProcessFlag(LinkStatusEnum.NOT_FOUND);
       link.setErrorMessage("Redirection Error : " + page.url());
       log.error("Error processing link @ Redirection : {} | {}", link, page.url());
