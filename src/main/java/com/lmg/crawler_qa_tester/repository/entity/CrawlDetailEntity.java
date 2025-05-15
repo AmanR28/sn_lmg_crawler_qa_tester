@@ -42,7 +42,7 @@ public class CrawlDetailEntity {
   @Column(name = "product_count")
   private Integer productCount;
 
-  @Column(name = "error_message")
+  @Column(name = "error_message", columnDefinition = "TEXT")
   private String errorMessage;
 
   @Column(name = "depth")
