@@ -1,9 +1,7 @@
 package com.lmg.crawler_qa_tester.controller;
 
-
 import com.lmg.crawler_qa_tester.dto.comparator.CompareRequest;
 import com.lmg.crawler_qa_tester.service.comparator.CompareService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -13,12 +11,25 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("lmg/crawlerService/env-comparator/compare")
-public class CompareController {
-    @Autowired
-    private CompareService compareService;
+public final class CompareController {
+    private final CompareService compareService;
+
+    public CompareController(CompareService compareService) {
+        this.compareService = compareService;
+    }
 
     @PostMapping
-    public ResponseEntity<String> compare(@RequestBody @Validated CompareRequest request) throws Exception {
-        return compareService.compare(request);
+    public ResponseEntity<String> compare(@RequestBody @Validated CompareRequest request) {
+        long startTime = System.currentTimeMillis();
+        ResponseEntity<String> response = compareService.compare(request);
+        long endTime = System.currentTimeMillis();
+        
+        String originalBody = response.getBody();
+        String updatedBody = originalBody + "\nSheet generation time: " + (endTime - startTime) + "ms";
+        
+        return ResponseEntity
+                .status(response.getStatusCode())
+                .headers(response.getHeaders())
+                .body(updatedBody);
     }
 }

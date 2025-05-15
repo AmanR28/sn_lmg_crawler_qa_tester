@@ -3,7 +3,7 @@ package com.lmg.crawler_qa_tester.service.comparator;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lmg.crawler_qa_tester.exception.ComparatorException;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -18,13 +18,16 @@ import java.util.Objects;
 import static com.lmg.crawler_qa_tester.util.ComparatorConstants.*;
 
 @Service
-@Log4j2
-public class ApiService {
-    private static final HttpClient HTTP_CLIENT = HttpClient.newHttpClient();
-    private final ObjectMapper mapper = new ObjectMapper();
+@Slf4j
+public final class ApiService {
+    private static final HttpClient HTTP_CLIENT = HttpClient.newBuilder()
+            .followRedirects(HttpClient.Redirect.NORMAL)
+            .build();
+    private final ObjectMapper mapper;
     private final JsonNode config;
 
     public ApiService() throws IOException {
+        this.mapper = new ObjectMapper();
         this.config = mapper.readTree(new File("config.json"));
     }
 

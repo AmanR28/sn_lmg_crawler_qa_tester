@@ -1,6 +1,5 @@
 package com.lmg.crawler_qa_tester.exception;
 
-
 import com.lmg.crawler_qa_tester.dto.comparator.ErrorDetails;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.ResponseEntity;
