@@ -16,10 +16,11 @@ spring:
 env:
   app:
     maxDepth: 1
-    consumerThread: 1
-    pollerRate: 6000
+    consumerThread: 6
+    pollerRate: 1000
     pageWait: 5000
     browserHeadless: true
+    location: /Users/aman/Documents
   process:
     pollerRate: 10000
 
