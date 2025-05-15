@@ -15,9 +15,9 @@ spring:
   sql.init.mode: always
 env:
   app:
-    maxDepth: 2
-    consumerThread: 5
-    pollerRate: 10000
+    maxDepth: 5
+    consumerThread: 6
+    pollerRate: 1000
     pageWait: 5000
     browserHeadless: true
   process:
