@@ -5,7 +5,7 @@
       "egy": {
         "countryName": "egypt",
         "max": {
-          "headerStrip":{
+          "rightHeaderStrip":{
             "id": "cf71da81-147a-4f0d-96f0-26f43b242994",
             "app": "max",
             "conceptName": "max",
@@ -25,7 +25,7 @@
           }
         },
         "hc": {
-          "headerStrip":{
+          "rightHeaderStrip":{
             "id": "e8198b7a-5f45-49d8-8ae0-b9acbb0bee2d",
             "app": "homecentre",
             "conceptName": "homecentre",
@@ -48,7 +48,7 @@
       "omn": {
         "countryName": "oman",
         "max": {
-          "headerStrip":{
+          "rightHeaderStrip":{
             "id": "f095b5eb-e841-48b4-b91d-a5fb80d002d8",
             "app": "max",
             "conceptName": "max",
@@ -68,7 +68,7 @@
           }
         },
         "cp": {
-          "headerStrip":{
+          "rightHeaderStrip":{
             "id": "cf71da81-147a-4f0d-96f0-26f43b242994",
             "app": "centrepoint",
             "conceptName": "cp",
@@ -88,7 +88,7 @@
           }
         },
         "hc": {
-          "headerStrip":{
+          "rightHeaderStrip":{
             "id": "41c631d8-88cb-4b57-a539-bcccadbe17b6",
             "app": "homecentre",
             "conceptName": "homecentre",
@@ -111,7 +111,7 @@
       "kwt": {
         "countryName": "kuwait",
         "max": {
-          "headerStrip":{
+          "rightHeaderStrip":{
             "id": "cf71da81-147a-4f0d-96f0-26f43b242994",
             "app": "max",
             "conceptName": "max",
@@ -131,7 +131,7 @@
           }
         },
         "cp": {
-          "headerStrip":{
+          "rightHeaderStrip":{
             "id": "cf71da81-147a-4f0d-96f0-26f43b242994",
             "app": "centrepoint",
             "conceptName": "cp",
@@ -151,7 +151,7 @@
           }
         },
         "hc": {
-          "headerStrip":{
+          "rightHeaderStrip":{
             "id": "7752df8f-af87-4433-82ce-53db84830ee1",
             "app": "homecentre",
             "conceptName": "homecentre",
@@ -174,7 +174,7 @@
       "bha": {
         "countryName": "bahrain",
         "max": {
-          "headerStrip":{
+          "rightHeaderStrip":{
             "id": "cf71da81-147a-4f0d-96f0-26f43b242994",
             "app": "max",
             "conceptName": "max",
@@ -194,7 +194,7 @@
           }
         },
         "cp": {
-          "headerStrip":{
+          "rightHeaderStrip":{
             "id": "cf71da81-147a-4f0d-96f0-26f43b242994",
             "app": "centerpoint",
             "conceptName": "centerpoint",
@@ -214,7 +214,7 @@
           }
         },
         "hc": {
-          "headerStrip":{
+          "rightHeaderStrip":{
             "id": "41c631d8-88cb-4b57-a539-bcccadbe17b6",
             "app": "homecentre",
             "conceptName": "homecentre",
@@ -234,7 +234,7 @@
           }
         },
         "splash": {
-          "headerStrip":{
+          "rightHeaderStrip":{
             "id": "undefined",
             "app": "splash",
             "conceptName": "splashfashions",
@@ -254,7 +254,7 @@
           }
         },
         "hb": {
-          "headerStrip":{
+          "rightHeaderStrip":{
             "id": "b81dbedf-e2ef-4f6a-a3e8-af9a62a50f64",
             "app": "homebox",
             "conceptName": "homeboxstores",
@@ -277,7 +277,7 @@
       "qat": {
         "countryName": "qatar",
         "max": {
-          "headerStrip":{
+          "rightHeaderStrip":{
             "id": "35a86544-73fb-45f5-9491-44035c28931b",
             "app": "max",
             "conceptName": "max",
@@ -297,7 +297,7 @@
           }
         },
         "cp": {
-          "headerStrip":{
+          "rightHeaderStrip":{
             "id": "cf71da81-147a-4f0d-96f0-26f43b242994",
             "app": "centerpoint",
             "conceptName": "centerpoint",
@@ -317,7 +317,7 @@
           }
         },
         "hc": {
-          "headerStrip":{
+          "rightHeaderStrip":{
             "id": "0ad92aea-1cab-4fa7-b73c-35e52babc3e2",
             "app": "homecentre",
             "conceptName": "homecentre",
@@ -341,7 +341,7 @@
       "uae": {
         "countryName": "United Arab Emirates",
         "max": {
-          "headerStrip":{
+          "rightHeaderStrip":{
             "id": "3d673840-fdb4-420c-bc29-a7d590c0c1cb",
             "app": "max",
             "conceptName": "max",
@@ -361,7 +361,7 @@
           }
         },
         "cp": {
-          "headerStrip":{
+          "rightHeaderStrip":{
             "id": "3d673840-fdb4-420c-bc29-a7d590c0c1cb",
             "app": "max",
             "conceptName": "max",
@@ -384,7 +384,7 @@
       "ksa": {
         "countryName": "Saudi Arabia",
         "max": {
-          "headerStrip":{
+          "rightHeaderStrip":{
             "id": "3d673840-fdb4-420c-bc29-a7d590c0c1cb",
             "app": "max",
             "conceptName": "max",
@@ -404,7 +404,7 @@
           }
         },
         "cp": {
-          "headerStrip":{
+          "rightHeaderStrip":{
             "id": "3d673840-fdb4-420c-bc29-a7d590c0c1cb",
             "app": "max",
             "conceptName": "max",
@@ -430,7 +430,7 @@
       "egy": {
         "countryName": "egypt",
         "max": {
-          "headerStrip":{
+          "rightHeaderStrip":{
             "id": "cf71da81-147a-4f0d-96f0-26f43b242994",
             "app": "max",
             "conceptName": "max",
@@ -450,7 +450,7 @@
           }
         },
         "cp": {
-          "headerStrip":{
+          "rightHeaderStrip":{
             "id": "3d673840-fdb4-420c-bc29-a7d590c0c1cb",
             "app": "max",
             "conceptName": "max",
@@ -473,7 +473,7 @@
       "omn": {
         "countryName": "oman",
         "max": {
-          "headerStrip":{
+          "rightHeaderStrip":{
             "id": "cf71da81-147a-4f0d-96f0-26f43b242994",
             "app": "max",
             "conceptName": "max",
@@ -493,7 +493,7 @@
           }
         },
         "cp": {
-          "headerStrip":{
+          "rightHeaderStrip":{
             "id": "cf71da81-147a-4f0d-96f0-26f43b242994",
             "app": "centrepoint",
             "conceptName": "centrepoint",
@@ -516,7 +516,7 @@
       "kwt": {
         "countryName": "kuwait",
         "max": {
-          "headerStrip":{
+          "rightHeaderStrip":{
             "id": "cf71da81-147a-4f0d-96f0-26f43b242994",
             "app": "max",
             "conceptName": "max",
@@ -536,7 +536,7 @@
           }
         },
         "cp": {
-          "headerStrip":{
+          "rightHeaderStrip":{
             "id": "cf71da81-147a-4f0d-96f0-26f43b242994",
             "app": "centrepoint",
             "conceptName": "centrepoint",
@@ -562,7 +562,7 @@
       "egy": {
         "countryName": "egypt",
         "max": {
-          "headerStrip":{
+          "rightHeaderStrip":{
             "id": "a8430537-b5ed-4a5a-b71e-2ef419b78662",
             "app": "max",
             "conceptName": "max",
@@ -591,7 +591,7 @@
       "omn": {
         "countryName": "oman",
         "max": {
-          "headerStrip":{
+          "rightHeaderStrip":{
             "id": "7016da74-a54c-4cfa-9d28-f6b425cd5b2c",
             "app": "max",
             "conceptName": "max",
@@ -611,7 +611,7 @@
           }
         },
         "cp": {
-          "headerStrip":{
+          "rightHeaderStrip":{
             "id": "cf71da81-147a-4f0d-96f0-26f43b242994",
             "app": "centrepoint",
             "conceptName": "centrepoint",
@@ -634,7 +634,7 @@
       "kwt": {
         "countryName": "kuwait",
         "max": {
-          "headerStrip":{
+          "rightHeaderStrip":{
             "id": "497f278d-bad5-449b-b833-97765484f4d4",
             "app": "max",
             "conceptName": "max",
@@ -654,7 +654,7 @@
           }
         },
         "cp": {
-          "headerStrip":{
+          "rightHeaderStrip":{
             "id": "cf71da81-147a-4f0d-96f0-26f43b242994",
             "app": "centrepoint",
             "conceptName": "centrepoint",
@@ -680,7 +680,7 @@
       "egy": {
         "countryName": "egypt",
         "max": {
-          "headerStrip":{
+          "rightHeaderStrip":{
             "id": "3d673840-fdb4-420c-bc29-a7d590c0c1cb",
             "app": "max",
             "conceptName": "max",
