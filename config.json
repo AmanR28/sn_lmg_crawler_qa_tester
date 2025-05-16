@@ -556,21 +556,9 @@
       "subdomain": "www",
       "egy": {
         "countryName": "egypt",
+        "countryCode": "eg",
         "max": {
-          "headerStrip":{
-            "id": "3d673840-fdb4-420c-bc29-a7d590c0c1cb",
-            "app": "max",
-            "conceptName": "max",
-            "domainSuffix": "maxfashion.com"
-          },
-          "headerNavigation":{
-            "id": "3d673840-fdb4-420c-bc29-a7d590c0c1cb",
-            "app": "max",
-            "conceptName": "max",
-            "domainSuffix": "maxfashion.com"
-          },
-          "footer":{
-            "id": "3d673840-fdb4-420c-bc29-a7d590c0c1cb",
+          "apiDetails":{
             "app": "max",
             "conceptName": "max",
             "domainSuffix": "maxfashion.com"

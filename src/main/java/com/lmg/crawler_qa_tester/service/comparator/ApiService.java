@@ -126,4 +126,13 @@ public final class ApiService {
 
         return mapper.readTree(response.body());
     }
+
+    public String getProdApiUrl(String env, String country, String concept, String lang) {
+        String domainSuffix = "maxfashion.com";
+        String appCountryCode = concept.toLowerCase() + country.toLowerCase(); // e.g., maxkw
+        
+        return String.format("https://www.%s/landmarkshopscommercews/cache/v3/%s/%s/cmsNavigationData" +
+                "?pageId=%s-Homepage&appId=Desktop&fields=FULL&position=HEADER,NAVIGATION,FOOTER",
+                domainSuffix, appCountryCode, lang.toLowerCase(), appCountryCode);
+    }
 }

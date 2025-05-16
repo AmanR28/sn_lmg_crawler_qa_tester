@@ -9,6 +9,8 @@ import com.lmg.crawler_qa_tester.util.ExcelUtils;
 import com.lmg.crawler_qa_tester.util.JsonNodeUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -35,8 +37,12 @@ public class CompareService {
 
     public ResponseEntity<String> compare(CompareRequest req) {
         try (Workbook wb = new XSSFWorkbook()) {
-            processStandardApis(req, wb);
-            processLeftHeaderStripApi(req, wb);
+            if (isProdEnvironment(req.compareEnvFrom()) || isProdEnvironment(req.compareEnvTo())) {
+                processProdComparison(req, wb);
+            } else {
+                processStandardApis(req, wb);
+                processLeftHeaderStripApi(req, wb);
+            }
 
             String fileName = ExcelUtils.generateFileName(req.country(), req.concept());
             ExcelUtils.writeWorkbookToFile(wb, fileName);
@@ -56,6 +62,189 @@ public class CompareService {
             log.error("Unexpected error during comparison: {}", e.getMessage(), e);
             throw new ComparatorException("Unexpected Error", e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    private boolean isProdEnvironment(String env) {
+        return "prod".equalsIgnoreCase(env);
+    }
+
+    private void processProdComparison(CompareRequest req, Workbook wb) throws IOException, InterruptedException {
+        // Determine which env is prod and non-prod
+        String prodEnv = isProdEnvironment(req.compareEnvFrom()) ? req.compareEnvFrom() : req.compareEnvTo();
+        String nonProdEnv = isProdEnvironment(req.compareEnvFrom()) ? req.compareEnvTo() : req.compareEnvFrom();
+
+        // First create sheets with non-prod data
+        processStandardApis(new CompareRequest(nonProdEnv, "", req.country(), req.concept()), wb);
+        processLeftHeaderStripApi(new CompareRequest(nonProdEnv, "", req.country(), req.concept()), wb);
+
+        // Now process prod data which comes in different structure
+        for (String lang : VALID_LOCALES) {
+            // Get prod data which contains all information in one call
+            String prodUrl = apiService.getProdApiUrl(prodEnv, req.country(), req.concept(), lang);
+            JsonNode prodJson = apiService.callApi(prodUrl);
+
+            if (prodJson != null && prodJson.has("slots")) {
+                // Get existing sheets
+                Sheet footerSheet = wb.getSheet(FOOTER_STRIP_SHEET_NAME + "_" + lang);
+                Sheet headerSheet = wb.getSheet(HEADER_NAV_SHEET_NAME + "_" + lang);
+                Sheet headerStripSheet = wb.getSheet(RIGHT_HEADER_STRIP_SHEET_NAME + "_" + lang);
+
+                // Process each slot from prod response
+                for (JsonNode slot : prodJson.get("slots")) {
+                    String slotId = slot.get("slotId").asText();
+                    switch (slotId) {
+                        case "FooterSlot":
+                            updateSheetWithProdData(slot, footerSheet, prodEnv);
+                            break;
+                        case "NavigationBarV2Slot":
+                            updateSheetWithProdData(slot, headerSheet, prodEnv);
+                            break;
+                        case "HeaderMessagesSlot":
+                        case "StoreLocatorSlot":
+                        case "DownloadOurAppsSlot":
+                            updateSheetWithProdData(slot, headerStripSheet, prodEnv);
+                            break;
+                    }
+                }
+            }
+        }
+
+        // Handle left header strip for prod
+        String prodLeftHeaderUrl = apiService.getApiUrl(prodEnv, req.country(), req.concept(), null, LEFT_HEADER_STRIP_API_NAME);
+        JsonNode prodLeftHeaderJson = apiService.callApi(prodLeftHeaderUrl);
+        
+        if (prodLeftHeaderJson != null) {
+            for (String locale : VALID_LOCALES) {
+                Sheet leftHeaderSheet = wb.getSheet(LEFT_HEADER_STRIP_SHEET_NAME + "_" + locale);
+                if (leftHeaderSheet != null) {
+                    updateSheetWithProdLeftHeaderData(prodLeftHeaderJson, leftHeaderSheet, prodEnv);
+                }
+            }
+        }
+    }
+
+    private void updateSheetWithProdData(JsonNode prodData, Sheet sheet, String prodEnv) {
+        if (sheet == null || !prodData.has("components")) return;
+
+        JsonNode components = prodData.get("components");
+        for (JsonNode component : components) {
+            String path = null;
+            String value = null;
+
+            // Extract path and value based on component type
+            if (component.has("footerCategoryNavMiddleComponents")) {
+                processProdFooterCategories(component.get("footerCategoryNavMiddleComponents"), sheet, prodEnv);
+            } else if (component.has("footerCategoryNavTopComponents")) {
+                processProdFooterCategories(component.get("footerCategoryNavTopComponents"), sheet, prodEnv);
+            } else if (component.has("homeMainNavNodes")) {
+                processProdMainNavNodes(component.get("homeMainNavNodes"), sheet, prodEnv);
+            } else if (component.has("messages")) {
+                processProdMessages(component.get("messages"), sheet, prodEnv);
+            } else if (component.has("linkName") && component.has("url")) {
+                path = component.get("linkName").asText();
+                value = component.get("url").asText();
+            }
+
+            // Update or create row in sheet
+            if (path != null && value != null) {
+                updateOrCreateRow(sheet, path, value, prodEnv);
+            }
+        }
+    }
+
+    private void processProdFooterCategories(JsonNode categories, Sheet sheet, String prodEnv) {
+        for (JsonNode category : categories) {
+            String title = category.get("title").asText();
+            JsonNode links = category.get("links");
+            
+            for (JsonNode link : links) {
+                String linkName = link.get("linkName").asText();
+                String url = link.get("url").asText();
+                String path = title + "/" + linkName;
+                
+                updateOrCreateRow(sheet, path, url, prodEnv);
+            }
+        }
+    }
+
+    private void processProdMainNavNodes(JsonNode mainNavNodes, Sheet sheet, String prodEnv) {
+        if (mainNavNodes == null || !mainNavNodes.has("navNodes")) return;
+
+        for (JsonNode navNode : mainNavNodes.get("navNodes")) {
+            if (navNode.has("link")) {
+                JsonNode link = navNode.get("link");
+                String linkName = link.get("linkName").asText();
+                String url = link.get("url").asText();
+                updateOrCreateRow(sheet, linkName, url, prodEnv);
+            }
+
+            if (navNode.has("childNavigationNodes")) {
+                String parentName = navNode.has("link") ? 
+                    navNode.get("link").get("linkName").asText() : "";
+                
+                for (JsonNode childNode : navNode.get("childNavigationNodes")) {
+                    if (childNode.has("link")) {
+                        JsonNode link = childNode.get("link");
+                        String linkName = link.get("linkName").asText();
+                        String url = link.get("url").asText();
+                        String path = parentName + "/" + linkName;
+                        updateOrCreateRow(sheet, path, url, prodEnv);
+                    }
+                }
+            }
+        }
+    }
+
+    private void processProdMessages(JsonNode messages, Sheet sheet, String prodEnv) {
+        for (JsonNode message : messages) {
+            if (message.has("title") && message.has("description")) {
+                String title = message.get("title").asText();
+                String description = message.get("description").asText();
+                updateOrCreateRow(sheet, title, description, prodEnv);
+            }
+        }
+    }
+
+    private void updateOrCreateRow(Sheet sheet, String path, String value, String prodEnv) {
+        int rowNum = findRow(sheet, path);
+        if (rowNum == -1) {
+            // Create new row with null for non-prod and value for prod
+            rowNum = sheet.getLastRowNum() + 1;
+            Row row = sheet.createRow(rowNum);
+            row.createCell(0).setCellValue(path);
+            row.createCell(1).setCellValue(""); // non-prod column empty
+            row.createCell(2).setCellValue(value); // prod value
+        } else {
+            // Update existing row's prod column
+            Row row = sheet.getRow(rowNum);
+            row.getCell(2).setCellValue(value);
+        }
+    }
+
+    private void updateSheetWithProdLeftHeaderData(JsonNode prodData, Sheet sheet, String prodEnv) {
+        if (prodData == null || sheet == null) return;
+
+        if (prodData.has("messages")) {
+            JsonNode messages = prodData.get("messages");
+            for (JsonNode message : messages) {
+                if (message.has("title") && message.has("description")) {
+                    String title = message.get("title").asText();
+                    String description = message.get("description").asText();
+                    updateOrCreateRow(sheet, title, description, prodEnv);
+                }
+            }
+        }
+    }
+
+    private int findRow(Sheet sheet, String path) {
+        for (int i = 1; i <= sheet.getLastRowNum(); i++) {
+            Row row = sheet.getRow(i);
+            if (row != null && row.getCell(0) != null && 
+                row.getCell(0).getStringCellValue().equals(path)) {
+                return i;
+            }
+        }
+        return -1;
     }
 
     private void processStandardApis(CompareRequest req, Workbook wb) throws IOException, InterruptedException {
@@ -118,7 +307,7 @@ public class CompareService {
             String url1 = JsonNodeUtils.getFieldValue(content1, "url");
             String url2 = JsonNodeUtils.getFieldValue(content2, "url");
 
-            String currentPath = buildPath(parentPath, name, order);
+            String currentPath = buildPath(parentPath, name);
             ExcelUtils.writeComparisonRow(sheet, currentPath, url1, url2);
 
             JsonNode children1 = JsonNodeUtils.getChildren(content1);
