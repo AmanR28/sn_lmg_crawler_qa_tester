@@ -62,8 +62,8 @@ public class ReportIntegrationConfig {
         @Transformer(inputChannel = "reportPollerChannel", outputChannel = "reportProcessorChannel")
         public ReportDetails getReportWithCrawler(Message<ReportEntity> message) {
             ReportEntity reportEntity = message.getPayload();
-            JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-            Long id = reportEntity.getId();
+//            JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+//            Long id = reportEntity.getId();
             Integer crawlHeaderId = reportEntity.getCrawlId();
 //            //String crawlHeaderSqlCheck = "SELECT * FROM crawl_header WHERE id = ? and status = ?";
 //            List<CrawlHeaderEntity> crawlHeaderEntities = crawlHeaderRepository.findAllByIdAndStatus(reportEntity.getId(),ProcessStatusEnum.COMPLETED.getValue());

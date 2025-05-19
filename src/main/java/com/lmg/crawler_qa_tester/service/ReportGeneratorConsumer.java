@@ -4,6 +4,9 @@ import com.lmg.crawler_qa_tester.constants.ReportStatus;
 import com.lmg.crawler_qa_tester.dto.ReportDetails;
 import com.lmg.crawler_qa_tester.repository.ReportRepository;
 import com.lmg.crawler_qa_tester.repository.entity.CrawlDetailEntity;
+import com.lmg.crawler_qa_tester.repository.entity.CrawlHeaderEntity;
+import com.lmg.crawler_qa_tester.repository.internal.CrawlDetailRepository;
+import com.lmg.crawler_qa_tester.repository.internal.CrawlHeaderRepository;
 import com.opencsv.CSVWriter;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +27,8 @@ public class ReportGeneratorConsumer {
     String fileLocation;
     @Autowired
     private ReportRepository reportRepository;
+    @Autowired
+    private CrawlHeaderRepository crawlHeaderRepository;
 
     @Transactional
     @ServiceActivator(inputChannel = "reportProcessorChannel")
@@ -41,6 +46,14 @@ public class ReportGeneratorConsumer {
         {
             throw new RuntimeException("Crawl Details is empty");
         }
+            Integer crawlHeaderId = crawlDetails.get(0).getCrawlHeaderId();
+            Optional<CrawlHeaderEntity> optionalCrawlHeader = crawlHeaderRepository.findById(crawlHeaderId);
+            if(optionalCrawlHeader.isEmpty())
+            {
+                throw new RuntimeException("Crawl Header is empty");
+            }
+        String fromURL =    optionalCrawlHeader.get().getCompareFromBaseUrl();
+        String toURL  =      optionalCrawlHeader.get().getCompareToBaseUrl();
         Map<String,CrawlDetailEntity> fromEnv = new HashMap<>();
         Map<String,CrawlDetailEntity> toEnv = new HashMap<>();
 
@@ -51,19 +64,27 @@ public class ReportGeneratorConsumer {
                 toEnv.put(detail.getPath(), detail);
             }
         }
-
-            String fullUrl = crawlDetails.get(0).getBaseUrl();
             String locale = reportDetail.getLocale();
             String dateTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss"));
             String country = reportDetail.getCountry();
-            URL urlObj = new URL(fullUrl);
-            String hostName = urlObj.getHost();
-            String fileName = hostName+"_"+country+"_"+locale+"_"+dateTime;
+            URL fromURLObj = new URL(fromURL);
+            URL toURLObj = new URL(toURL);
+            String fromURLHost = fromURLObj.getHost();
+            String toURLHost = toURLObj.getHost();
+            String[] fromURLParts = fromURLHost.split("\\.");
+            String hostName = fromURLParts.length > 2
+                    ? fromURLParts[fromURLParts.length - 2] + "." + fromURLParts[fromURLParts.length - 1]
+                    : fromURLHost;
+            String fromPrefix= fromURLParts.length > 2 ?fromURLParts[0]:"";
+            String[] toURLParts = toURLHost.split("\\.");
+            String toPrefix = toURLParts.length > 2? toURLParts[0]:"";
+            String fileName = fromPrefix+"_"+toPrefix+"_"+hostName+"_"+country+"_"+locale+"_"+dateTime;
             try (CSVWriter writer = new CSVWriter(new FileWriter(fileLocation+"/"+fileName+".csv"))) {
-                String[] headerBlock ={ "URL", "CompareFrom Env Status",
-                        "CompareTo Env Status",
-                        "CompareFrom Category Count",
-                        "CompareTo Category Count",
+                String[] headerBlock ={ "URL "+hostName+"_"+country+"_"+locale,
+                        "Status "+fromPrefix,
+                        "Status "+toPrefix,
+                        "Count "+fromPrefix,
+                        "Count "+toPrefix,
                         "Count Difference",
                         "Count Difference Percentage"};
                 writer.writeNext(headerBlock);
@@ -85,7 +106,6 @@ public class ReportGeneratorConsumer {
                     writeDetailsToCsv(path, fromEnvStatus, toEnvStatus, countFromEnv, countToEnv, countDifference, countPercentage, writer);;
                 }
             }
-
 
             reportRepository.updateStatusAndTimeById(reportId, ReportStatus.SUCCESS.getCode());
 

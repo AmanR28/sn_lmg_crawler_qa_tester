@@ -27,6 +27,7 @@ public interface CrawlHeaderRepository extends JpaRepository<CrawlHeaderEntity, 
           @Param("locale") String locale,
           @Param("department") String department
   );
+  Optional<CrawlHeaderEntity> findById(Integer id);
   List<CrawlHeaderEntity> findAllByIdAndStatus(Long id, String status);
 
 }
