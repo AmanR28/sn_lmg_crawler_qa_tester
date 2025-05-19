@@ -39,6 +39,8 @@ public class PageService {
     if (pageType == PageTypeEnum.SEARCH) getSearchPageStatus(link, pageText);
     if (!link.getProcessFlag().equals(LinkStatusEnum.SUCCESS)) return null;
 
+    if (pageType == PageTypeEnum.CATEGORY) return null;
+    if (pageType == PageTypeEnum.SEARCH) return null;
     return getPageUrls(link, urls);
   }
 
@@ -139,11 +141,7 @@ public class PageService {
             url ->
                 url.startsWith(startPath)
                     && !url.substring(startPath.length()).isEmpty()
-                    && !getPageType(url).equals(PageTypeEnum.PRODUCT)
-                    && !((getPageType(url).equals(PageTypeEnum.CATEGORY)
-                            || (getPageType(url).equals(PageTypeEnum.SEARCH)))
-                        && url.contains("?")
-                        && url.split("[?]")[1].contains("p=")))
+                    && !getPageType(url).equals(PageTypeEnum.PRODUCT))
         .map(url -> url.substring(startPath.length()))
         .toList();
   }
