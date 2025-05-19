@@ -4,6 +4,7 @@ public enum PageTypeEnum {
   DEPARTMENT("DEPARTMENT"),
   CATEGORY("CATEGORY"),
   PRODUCT("PRODUCT"),
+  SEARCH("SEARCH"),
   OTHER("OTHER");
 
   private final String value;

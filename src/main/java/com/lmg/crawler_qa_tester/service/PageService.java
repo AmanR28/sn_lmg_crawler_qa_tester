@@ -3,6 +3,7 @@ package com.lmg.crawler_qa_tester.service;
 import com.lmg.crawler_qa_tester.constants.LinkStatusEnum;
 import com.lmg.crawler_qa_tester.constants.PageTypeEnum;
 import com.lmg.crawler_qa_tester.dto.Link;
+import com.lmg.crawler_qa_tester.util.UrlUtil;
 import com.microsoft.playwright.ElementHandle;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.Response;
@@ -11,7 +12,6 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import lombok.extern.slf4j.Slf4j;
-import org.asynchttpclient.uri.Uri;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -27,7 +27,7 @@ public class PageService {
     Response response = page.navigate(link.getBaseUrl() + link.getPath());
     page.waitForTimeout(PAGE_WAIT);
     String pageText = page.innerText("body");
-    List<String> urls = getPageUrls(page);
+    List<String> urls = extractPageUrls(page);
 
     getPageStatus(link, page, response);
     if (!link.getProcessFlag().equals(LinkStatusEnum.SUCCESS)) return null;
@@ -36,18 +36,10 @@ public class PageService {
     if (!link.getProcessFlag().equals(LinkStatusEnum.SUCCESS)) return null;
 
     if (pageType == PageTypeEnum.CATEGORY) getCategoryPageStatus(link, pageText);
+    if (pageType == PageTypeEnum.SEARCH) getSearchPageStatus(link, pageText);
     if (!link.getProcessFlag().equals(LinkStatusEnum.SUCCESS)) return null;
 
-    if (pageType.equals(PageTypeEnum.CATEGORY)) return null;
-    final String startPath = Uri.create(link.getBaseUrl()).getPath();
-    return urls.stream()
-        .filter(
-            url ->
-                url.startsWith(startPath)
-                    && !url.substring(startPath.length()).isEmpty()
-                    && !getPageType(url).equals(PageTypeEnum.PRODUCT))
-        .map(url -> url.substring(startPath.length()))
-        .toList();
+    return getPageUrls(link, urls);
   }
 
   private PageTypeEnum getPageType(String path) {
@@ -56,8 +48,10 @@ public class PageService {
 
     if (pathSlices.get(1).equals("department")) {
       return PageTypeEnum.DEPARTMENT;
-    } else if (pathSlices.get(1).equals("c") || pathSlices.get(1).startsWith("search?")) {
+    } else if (pathSlices.get(1).equals("c")) {
       return PageTypeEnum.CATEGORY;
+    } else if (pathSlices.get(1).startsWith("search?")) {
+      return PageTypeEnum.SEARCH;
     } else if (pathSlices.size() > 3 && pathSlices.get(pathSlices.size() - 2).equals("p")) {
       return PageTypeEnum.PRODUCT;
     } else {
@@ -108,10 +102,26 @@ public class PageService {
     }
   }
 
-  private List<String> getPageUrls(Page page) {
+  private void getSearchPageStatus(Link link, String pageText) {
+    String regex = "[0-9]+ Product[s]*";
+    Pattern pattern = Pattern.compile(regex);
+    Matcher matcher = pattern.matcher(pageText);
 
+    if (matcher.find()) {
+      String countStr = matcher.group(0).split(" ")[0];
+      int productCount = Integer.parseInt(countStr);
+      link.setProductCount(productCount);
+      if (productCount > 0) link.setProcessFlag(LinkStatusEnum.SUCCESS);
+      else link.setProcessFlag(LinkStatusEnum.INVALID_COUNT);
+    } else {
+      link.setProcessFlag(LinkStatusEnum.FATAL);
+      link.setErrorMessage("Page Error : Failed to Find Search Product Count");
+      log.error("Error processing link @ Search Product Count : {} | {}", link, matcher.find());
+    }
+  }
+
+  private List<String> extractPageUrls(Page page) {
     List<ElementHandle> linkElements = page.querySelectorAll("a");
-
     List<String> pageLinks = new ArrayList<>();
     for (ElementHandle link : linkElements) {
       String href = link.getAttribute("href");
@@ -120,5 +130,21 @@ public class PageService {
       }
     }
     return pageLinks;
+  }
+
+  private List<String> getPageUrls(Link link, List<String> urls) {
+    final String startPath = UrlUtil.getStartPath(link.getBaseUrl());
+    return urls.stream()
+        .filter(
+            url ->
+                url.startsWith(startPath)
+                    && !url.substring(startPath.length()).isEmpty()
+                    && !getPageType(url).equals(PageTypeEnum.PRODUCT)
+                    && !((getPageType(url).equals(PageTypeEnum.CATEGORY)
+                            || (getPageType(url).equals(PageTypeEnum.SEARCH)))
+                        && url.contains("?")
+                        && url.split("[?]")[1].contains("p=")))
+        .map(url -> url.substring(startPath.length()))
+        .toList();
   }
 }
