@@ -90,7 +90,7 @@ public class LinkIntegrationConfig {
 
     return "SELECT * from crawl_detail where process_flag='"
         + LinkStatusEnum.NOT_PROCESSED
-        + "' and depth < "
+        + "' and depth <= "
         + MAX_DEPTH
         + " limit "
         + 1;

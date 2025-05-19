@@ -109,7 +109,7 @@ public class ProcessIntegrationConfig {
         + LinkStatusEnum.NOT_PROCESSED
         + "' OR process_flag = '"
         + LinkStatusEnum.IN_PROGRESS
-        + "') AND depth < "
+        + "') AND depth <= "
         + MAX_DEPTH
         + " LIMIT 1 )";
   }

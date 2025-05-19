@@ -1,6 +1,6 @@
- DELETE FROM crawl_header;
- DELETE FROM crawl_detail;
+DELETE FROM crawl_header;
+DELETE FROM crawl_detail;
  DELETE FROM report;
 INSERT INTO domain_department (domain, departments)
-VALUES ('centrepointstores.com', 'men')
+VALUES ('maxfashion.com', 'men')
 ON CONFLICT DO NOTHING;

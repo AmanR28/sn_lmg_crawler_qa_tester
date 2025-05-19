@@ -15,10 +15,10 @@ spring:
   sql.init.mode: always
 env:
   app:
-    maxDepth: 1
+    maxDepth: 0
     consumerThread: 6
     pollerRate: 1000
-    pageWait: 5000
+    pageWait: 3000
     browserHeadless: true
     location: /Users/aman/Documents
   process:
@@ -26,6 +26,9 @@ env:
 
 # https://www.centrepointstores.com/kw/en
 # https://blc.centrepointstores.com/kw/en
+
+# https://blc.maxfashion.com/kw/en
+# https://www.maxfashion.com/kw/en
 
 ###
 # curl -X POST http://localhost:8080/process -H "Content-Type: application/json" -d '{ "compareFrom": "https://www.centrepointstores.com/kw/en", "compareTo": "https://blc.centrepointstores.com/kw/en" }' | jq

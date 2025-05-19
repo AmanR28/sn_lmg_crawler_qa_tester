@@ -50,7 +50,7 @@ public class ConsumerService {
               .toList());
     } catch (Exception e) {
       link.setProcessFlag(LinkStatusEnum.FATAL);
-      link.setErrorMessage("Browser Error : " + e.getMessage());
+      link.setErrorMessage("Browser Error : " + e.getMessage().substring(0, 255));
       crawlRepository.saveLink(link);
       log.error("Error processing link @ Browser : {} | {}", link, e);
     }
