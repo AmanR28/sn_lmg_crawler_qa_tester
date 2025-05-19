@@ -1,5 +1,5 @@
-DELETE FROM crawl_header;
-DELETE FROM crawl_detail;
+-- delete from crawl_header;
+-- delete from crawl_detail;
  DELETE FROM report;
 INSERT INTO domain_department (domain, departments)
 VALUES ('maxfashion.com', 'men')
