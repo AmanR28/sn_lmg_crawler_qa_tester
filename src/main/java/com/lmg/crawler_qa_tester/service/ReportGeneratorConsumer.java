@@ -1,5 +1,4 @@
 package com.lmg.crawler_qa_tester.service;
-
 import com.lmg.crawler_qa_tester.constants.LinkStatusEnum;
 import com.lmg.crawler_qa_tester.constants.ReportStatus;
 import com.lmg.crawler_qa_tester.dto.ReportDetails;

@@ -28,7 +28,6 @@ public class GenerateReportService {
             String country = reportRequest.getCountry();
             String locale = reportRequest.getLocale();
             String department = reportRequest.getDepartment();
-
             Optional<Integer> optionalId = crawlHeaderRepository.findCrawlHeaderId(domain, country, locale, department);
             if (optionalId.isEmpty()) {
                 return Pair.of("Not Found", "null");
