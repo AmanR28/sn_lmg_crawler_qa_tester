@@ -14,6 +14,8 @@ public interface ReportRepository extends JpaRepository<ReportEntity,Integer> {
                                                @Param("country") String country,
                                                @Param("locale") String locale,
                                                @Param("department") String department);
+    @Query("SELECT r FROM ReportEntity r WHERE r.crawlId = :id")
+    Optional<ReportEntity> findByCrawlId(@Param("id") Integer id);
     Optional<ReportEntity> findById(Integer id);
     long countByIdAndStatus(Long id, String status);
     @Modifying

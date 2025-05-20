@@ -21,16 +21,16 @@ public class ReportEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+//    @Column(nullable = false)
     private String host;
 
-    @Column(nullable = false)
+//    @Column(nullable = false)
     private String country;
 
-    @Column(nullable = false)
+//    @Column(nullable = false)
     private String locale;
 
-    @Column(nullable = false)
+//    @Column(nullable = false)
     private String department;
 
     @Column(name = "crawl_id", nullable = false)
