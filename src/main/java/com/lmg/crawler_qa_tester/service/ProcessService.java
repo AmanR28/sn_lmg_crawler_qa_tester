@@ -30,7 +30,7 @@ public class ProcessService {
   private int CONSUMER_THREAD;
 
   @Transactional
-  public void createProject(String compareFromBaseUrl, String compareToBaseUrl) {
+  public Integer createProject(String compareFromBaseUrl, String compareToBaseUrl) {
     if (crawlRepository.hasActiveProcess())
       throw new RuntimeException("One Process is already running");
 
@@ -56,23 +56,21 @@ public class ProcessService {
 
     String finalCompareFromBaseUrl = compareFromBaseUrl;
     String finalCompareToBaseUrl = compareToBaseUrl;
-    List<Process> processes =
-        departments.stream()
-            .map(
-                department ->
-                    Process.builder()
-                        .compareFromBaseUrl(finalCompareFromBaseUrl)
-                        .compareToBaseUrl(finalCompareToBaseUrl)
-                        .status(ProcessStatusEnum.NEW)
-                        .domain(UrlUtil.getDomain(finalCompareFromBaseUrl))
-                        .country(UrlUtil.getCountry(finalCompareFromBaseUrl))
-                        .locale(UrlUtil.getLocale(finalCompareFromBaseUrl))
-                        .department(department)
-                        .consumerThread(CONSUMER_THREAD)
-                        .build())
-            .toList();
-    crawlRepository.saveAllProcesses(processes);
+    Process process =
+        Process.builder()
+            .compareFromBaseUrl(finalCompareFromBaseUrl)
+            .compareToBaseUrl(finalCompareToBaseUrl)
+            .status(ProcessStatusEnum.NEW)
+            .domain(UrlUtil.getDomain(finalCompareFromBaseUrl))
+            .country(UrlUtil.getCountry(finalCompareFromBaseUrl))
+            .locale(UrlUtil.getLocale(finalCompareFromBaseUrl))
+            .department("men")
+            .consumerThread(CONSUMER_THREAD)
+            .build();
+    Process p1 = crawlRepository.saveProcess(process);
     log.info("Created project");
+
+    return p1.getId();
   }
 
   @Transactional

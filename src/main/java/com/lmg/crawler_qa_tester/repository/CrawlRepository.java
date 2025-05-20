@@ -12,7 +12,7 @@ public interface CrawlRepository {
 
   Process getRunningProcess();
 
-  void saveProcess(Process process);
+  Process saveProcess(Process process);
 
   void saveAllProcesses(List<Process> processes);
 

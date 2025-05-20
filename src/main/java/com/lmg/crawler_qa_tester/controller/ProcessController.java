@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 public class ProcessController {
   @Autowired private ProcessService processService;
   @PostMapping()
-  public void create(@RequestBody ProjectRequest request) {
-    processService.createProject(request.getCompareFrom(), request.getCompareTo());
+  public Integer create(@RequestBody ProjectRequest request) {
+    return processService.createProject(request.getCompareFrom(), request.getCompareTo());
   }
 }

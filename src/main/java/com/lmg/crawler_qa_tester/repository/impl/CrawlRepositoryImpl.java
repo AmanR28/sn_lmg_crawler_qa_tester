@@ -29,8 +29,8 @@ public class CrawlRepositoryImpl implements CrawlRepository {
   }
 
   @Override
-  public void saveProcess(Process process) {
-    crawlHeaderRepository.save(toCrawlHeaderEntity(process));
+  public Process saveProcess(Process process) {
+    return new CrawlHeaderEntityMapper().toProcess(crawlHeaderRepository.save(toCrawlHeaderEntity(process)));
   }
 
   @Override
