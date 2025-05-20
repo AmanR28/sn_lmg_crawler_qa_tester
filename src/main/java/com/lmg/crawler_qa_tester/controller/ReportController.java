@@ -47,12 +47,21 @@ public class ReportController {
   public ResponseEntity<Object> generateReport(@RequestBody GenerateReportRequest reportRequest)
   {
     Pair<String, String> reportStatus= generateReportService.generateReport(reportRequest);
-    Map<String , String > response =  new HashMap<>();
+    Map<String , Object > response =  new HashMap<>();
     String status = reportStatus.getFirst();
     String reportId = reportStatus.getSecond();
+    Long id;
+    try
+    {
+      id = Long.valueOf(reportId);
+    }
+    catch (Exception e)
+    {
+      id = null;
+    }
 
     response.put("Status",status);
-    response.put("reportId",reportId);
+    response.put("reportId",id);
     return switch (status) {
           case "OK" -> new ResponseEntity<>(response, HttpStatus.OK);
           case "Not Found" -> new ResponseEntity<>(response, HttpStatus.NOT_FOUND);

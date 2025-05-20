@@ -4,12 +4,14 @@ import lombok.Data;
 import org.apache.logging.log4j.core.config.plugins.validation.constraints.NotBlank;
 @Data
 public class GenerateReportRequest {
-    @NotBlank
+    //@NotBlank
     private String host;
-    @NotBlank
+    //@NotBlank
     private String country;
-    @NotBlank
+    //@NotBlank
     private String locale;
-    @NotBlank
+    //@NotBlank
     private String department;
+    @NotBlank
+    private Integer crawlHeaderId;
 }

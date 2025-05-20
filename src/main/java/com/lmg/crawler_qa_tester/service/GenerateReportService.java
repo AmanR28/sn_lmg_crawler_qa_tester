@@ -24,15 +24,19 @@ public class GenerateReportService {
 
     public Pair<String,String> generateReport(GenerateReportRequest reportRequest) {
         try {
-            String domain = reportRequest.getHost();
-            String country = reportRequest.getCountry();
-            String locale = reportRequest.getLocale();
-            String department = reportRequest.getDepartment();
-            Optional<Integer> optionalId = crawlHeaderRepository.findCrawlHeaderId(domain, country, locale, department);
+
+            Integer crawlHeaderId = reportRequest.getCrawlHeaderId();
+            Optional<CrawlHeaderEntity> optionalId = crawlHeaderRepository.findById(crawlHeaderId);
+
             if (optionalId.isEmpty()) {
                 return Pair.of("Not Found", "null");
             }
-            Optional<ReportEntity> existingReport = reportRepository.findExistingReport( domain, country,locale, department);
+            CrawlHeaderEntity entity = optionalId.get();
+            String domain = entity.getDomain();
+            String country = entity.getCountry();
+            String locale = entity.getLocale();
+            String department = entity.getDepartment();
+            Optional<ReportEntity> existingReport = reportRepository.findByCrawlId( crawlHeaderId);
 
             if (existingReport.isPresent()) {
                 return Pair.of("Already Exists", existingReport.get().getId().toString());
@@ -43,7 +47,7 @@ public class GenerateReportService {
                     .status(ReportStatus.NOT_AVAILABLE.getCode())
                     .country(country)
                     .locale(locale)
-                    .crawlId(Integer.valueOf(optionalId.get()))
+                    .crawlId(crawlHeaderId)
                     .department(department)
                     .build();
 
