@@ -15,16 +15,20 @@ spring:
   sql.init.mode: always
 env:
   app:
-    maxDepth: 5
+    maxDepth: 3
     consumerThread: 6
     pollerRate: 1000
-    pageWait: 5000
+    pageWait: 3000
     browserHeadless: true
+    location: /Users/aman/Projects/Landmark/QA/poc/sn_lmg_crawler_qa_tester/CrawlReports
   process:
-    pollerRate: 20000
+    pollerRate: 10000
 
 # https://www.centrepointstores.com/kw/en
 # https://blc.centrepointstores.com/kw/en
+
+# https://blc.maxfashion.com/kw/en
+# https://www.maxfashion.com/kw/en
 
 ###
 # curl -X POST http://localhost:8080/process -H "Content-Type: application/json" -d '{ "compareFrom": "https://www.centrepointstores.com/kw/en", "compareTo": "https://blc.centrepointstores.com/kw/en" }' | jq

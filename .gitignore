@@ -35,3 +35,4 @@ build/
 ## Reports
 *.csv
 *.html
+*.xlsx

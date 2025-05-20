@@ -14,4 +14,6 @@ public class UrlUtil {
   public static String getLocale(String url) {
     return Uri.create(url).getPath().split("/")[2];
   }
+
+  public static String getStartPath(String url) {return Uri.create(url).getPath();}
 }
