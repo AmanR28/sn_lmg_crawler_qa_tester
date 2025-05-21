@@ -4,6 +4,7 @@ import com.microsoft.playwright.*;
 import com.microsoft.playwright.options.Cookie;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Component
 public class BrowserFactory {
+  private static final Set<String> BLOCKED_TYPES = Set.of("image", "media", "stylesheet", "font");
   @Autowired private Environment environment;
 
   public List<String> getOptions() {
@@ -34,10 +36,20 @@ public class BrowserFactory {
                 .setUserAgent(
                     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36")
                 .setViewportSize(1920, 1080));
-    Cookie cookie = new Cookie("preprod", "true");
-    cookie.setDomain("." + domain);
-    cookie.setPath("/");
+
+    Cookie cookie = new Cookie("preprod", "true").setDomain("." + domain).setPath("/");
     context.addCookies(List.of(cookie));
-    return context.newPage();
+
+    Page page = context.newPage();
+    page.route(
+        "**/*",
+        route -> {
+          if (BLOCKED_TYPES.contains(route.request().resourceType())) {
+            route.abort();
+          } else {
+            route.resume();
+          }
+        });
+    return page;
   }
 }

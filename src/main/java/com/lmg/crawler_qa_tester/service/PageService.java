@@ -32,7 +32,7 @@ public class PageService {
     getPageStatus(link, page, response);
     if (!link.getProcessFlag().equals(LinkStatusEnum.SUCCESS)) return null;
 
-    getErrorPageStatus(link, page);
+    getErrorPageStatus(link, page, pageText);
     if (!link.getProcessFlag().equals(LinkStatusEnum.SUCCESS)) return null;
 
     if (pageType == PageTypeEnum.CATEGORY) getCategoryPageStatus(link, pageText);
@@ -76,11 +76,11 @@ public class PageService {
     }
   }
 
-  private void getErrorPageStatus(Link link, Page page) {
-    if (!(link.getBaseUrl() + link.getPath()).equals(page.url()) && page.url().contains("404")) {
+  private void getErrorPageStatus(Link link, Page page, String pageText) {
+    if (page.url().contains("404") || pageText.contains("HMM, THIS ISN'T RIGHT")) {
       link.setProcessFlag(LinkStatusEnum.NOT_FOUND);
-      link.setErrorMessage("Redirection Error : " + page.url());
-      log.error("Error processing link @ Redirection : {} | {}", link, page.url());
+      link.setErrorMessage("Server Error : " + page.url());
+      log.error("Error processing link @ Server : {} | {}", link, page.url());
     } else {
       link.setProcessFlag(LinkStatusEnum.SUCCESS);
     }
