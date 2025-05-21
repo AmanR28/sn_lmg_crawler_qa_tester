@@ -52,7 +52,7 @@ public class PageService {
       return PageTypeEnum.DEPARTMENT;
     } else if (pathSlices.get(1).equals("c")) {
       return PageTypeEnum.CATEGORY;
-    } else if (pathSlices.get(1).startsWith("search?")) {
+    } else if (pathSlices.get(1).startsWith("search")) {
       return PageTypeEnum.SEARCH;
     } else if (pathSlices.size() > 3 && pathSlices.get(pathSlices.size() - 2).equals("p")) {
       return PageTypeEnum.PRODUCT;
