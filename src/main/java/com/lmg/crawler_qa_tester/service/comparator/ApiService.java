@@ -81,6 +81,23 @@ public final class ApiService {
         log.debug("Built Left Header Strip URL: {}", url);
         return url;
     }
+    public  String getProdApiUrl(String env, String country, String concept)
+    {
+        try{
+            return config.path("envConfig")
+                    .path(env)
+                    .path(country)
+                    .path(concept)
+                    .path("apiUrl")
+                    .asText();
+        }
+        catch(Exception e)
+        {
+            return null;
+        }
+
+
+    }
 
     private String buildStandardApiUrl(String subdomain, JsonNode apiConfig, String lang, String apiType) {
         final var endpoint = switch (apiType) {
@@ -127,12 +144,12 @@ public final class ApiService {
         return mapper.readTree(response.body());
     }
 
-    public String getProdApiUrl(String env, String country, String concept, String lang) {
-        String domainSuffix = "maxfashion.com";
-        String appCountryCode = concept.toLowerCase() + country.toLowerCase(); // e.g., maxkw
-        
-        return String.format("https://www.%s/landmarkshopscommercews/cache/v3/%s/%s/cmsNavigationData" +
-                "?pageId=%s-Homepage&appId=Desktop&fields=FULL&position=HEADER,NAVIGATION,FOOTER",
-                domainSuffix, appCountryCode, lang.toLowerCase(), appCountryCode);
-    }
+//    public String getProdApiUrl(String env, String country, String concept, String lang) {
+//        String domainSuffix = "maxfashion.com";
+//        String appCountryCode = concept.toLowerCase() + country.toLowerCase(); // e.g., maxkw
+//
+//        return String.format("https://www.%s/landmarkshopscommercews/cache/v3/%s/%s/cmsNavigationData" +
+//                "?pageId=%s-Homepage&appId=Desktop&fields=FULL&position=HEADER,NAVIGATION,FOOTER",
+//                domainSuffix, appCountryCode, lang.toLowerCase(), appCountryCode);
+//    }
 }

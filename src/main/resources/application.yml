@@ -3,9 +3,9 @@ spring:
     name: crawler-wa-tester
   datasource:
     driverClassName: org.postgresql.Driver
-    username: ${DB_USERNAME:admin}
-    password: ${DB_PASSWORD:password}
-    url: ${DB_URL:jdbc:postgresql://localhost:5432/com_lmg_linkvalidator}
+    username: postgres
+    password: password
+    url: jdbc:postgresql://localhost:5432/postgres
   jpa:
     hibernate:
       ddl-auto: create-drop

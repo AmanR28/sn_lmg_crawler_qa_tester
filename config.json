@@ -31,7 +31,7 @@
           }
         },
         "cp": {
-          "headerStrip": {
+          "rightHeaderStrip": {
             "id": "cf71da81-147a-4f0d-96f0-26f43b242994",
             "app": "centerpoint",
             "conceptName": "centerpoint",
@@ -97,30 +97,50 @@
       "kwt": {
         "countryName": "kuwait",
         "max": {
-          "headerStrip":{
+          "leftHeaderStrip":{
+            "id": "0abf1edb-cae3-4709-a929-c8290a06b320",
+            "depth": "all",
+            "format": "inlined",
+            "domainSuffix": "cdn.content.amplience.net"
+          },
+          "rightHeaderStrip":{
             "id": "cf71da81-147a-4f0d-96f0-26f43b242994",
             "app": "max",
             "conceptName": "max",
             "domainSuffix": "maxfashion.com"
           },
           "headerNavigation":{
-            "id": "aaabe3b6-d8d0-4b23-b0e0-f416ddeb5316",
+            "id": "c4764d9c-6b0f-4438-b9f9-885b7b81c793",
             "app": "max",
             "conceptName": "max",
             "domainSuffix": "maxfashion.com"
           },
           "footer":{
-            "id": "3289fb9b-5f13-4c14-8723-c82eae407d96",
+            "id": "a35e7f80-0b30-40f9-872d-19ccdeda45b6",
             "app": "max",
             "conceptName": "max",
             "domainSuffix": "maxfashion.com"
           }
         },
         "cp": {
-          "id": "VALUE",
-          "app": "centrepoint",
-          "conceptName": "centerpoint",
-          "domainSuffix": "centerpointstores.com"
+          "headerStrip":{
+            "id": "3d673840-fdb4-420c-bc29-a7d590c0c1cb",
+            "app": "max",
+            "conceptName": "max",
+            "domainSuffix": "maxfashion.com"
+          },
+          "headerNavigation":{
+            "id": "3d673840-fdb4-420c-bc29-a7d590c0c1cb",
+            "app": "max",
+            "conceptName": "max",
+            "domainSuffix": "maxfashion.com"
+          },
+          "footer":{
+            "id": "3d673840-fdb4-420c-bc29-a7d590c0c1cb",
+            "app": "max",
+            "conceptName": "max",
+            "domainSuffix": "maxfashion.com"
+          }
         }
       },
       "bha": {
@@ -439,7 +459,7 @@
       "egy": {
         "countryName": "egypt",
         "max": {
-          "headerStrip":{
+          "rightHeaderStrip":{
             "id": "a8430537-b5ed-4a5a-b71e-2ef419b78662",
             "app": "max",
             "conceptName": "max",
@@ -468,7 +488,7 @@
       "omn": {
         "countryName": "oman",
         "max": {
-          "headerStrip":{
+          "rightHeaderStrip":{
             "id": "7016da74-a54c-4cfa-9d28-f6b425cd5b2c",
             "app": "max",
             "conceptName": "max",
@@ -559,9 +579,7 @@
         "countryCode": "eg",
         "max": {
           "apiDetails":{
-            "app": "max",
-            "conceptName": "max",
-            "domainSuffix": "maxfashion.com"
+            "apiUrl": ""
           }
         },
         "cp": {
@@ -589,16 +607,10 @@
       "kwt": {
         "countryName": "kuwait",
         "max": {
-          "id": "VALUE",
-          "app": "max",
-          "conceptName": "max",
-          "domainSuffix": "maxfashion.com"
+          "apiUrl": "https://www.maxfashion.com/landmarkshopscommercews/cache/v3/maxkw/%s/cmsNavigationData?pageId=maxkw-Homepage&appId=Desktop&fields=FULL&position=HEADER,NAVIGATION,FOOTER"
         },
         "cp": {
-          "id": "VALUE",
-          "app": "centrepoint",
-          "conceptName": "centerpoint",
-          "domainSuffix": "centerpointstores.com"
+          "apiUrl": "https://www.centrepointstores.com/landmarkshopscommercews/cache/v3/centrepointkw/en/cmsNavigationData?pageId=centrepointkw-Homepage&appId=Desktop&fields=FULL&position=HEADER,NAVIGATION,FOOTER"
         }
       }
     }

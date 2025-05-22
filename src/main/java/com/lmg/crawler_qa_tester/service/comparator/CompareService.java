@@ -14,6 +14,7 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.openqa.selenium.json.Json;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -21,6 +22,7 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -74,13 +76,14 @@ public class CompareService {
         String nonProdEnv = isProdEnvironment(req.compareEnvFrom()) ? req.compareEnvTo() : req.compareEnvFrom();
 
         // First create sheets with non-prod data
-        processStandardApis(new CompareRequest(nonProdEnv, "", req.country(), req.concept()), wb);
-        processLeftHeaderStripApi(new CompareRequest(nonProdEnv, "", req.country(), req.concept()), wb);
+        CompareRequest request = new CompareRequest(nonProdEnv, prodEnv, req.country(), req.concept());
+        processProdAndNonProdApis(request, wb);
+        processLeftHeaderStripForProdAndNonProdApi(request, wb);
 
         // Now process prod data which comes in different structure
         for (String lang : VALID_LOCALES) {
             // Get prod data which contains all information in one call
-            String prodUrl = apiService.getProdApiUrl(prodEnv, req.country(), req.concept(), lang);
+            String prodUrl = String.format(Objects.requireNonNull(apiService.getProdApiUrl(prodEnv, req.country(), req.concept())),lang);
             JsonNode prodJson = apiService.callApi(prodUrl);
 
             if (prodJson != null && prodJson.has("slots")) {
@@ -100,7 +103,11 @@ public class CompareService {
                             updateSheetWithProdData(slot, headerSheet, prodEnv);
                             break;
                         case "HeaderMessagesSlot":
+                            updateSheetWithProdData(slot, headerStripSheet, prodEnv);
+                            break;
                         case "StoreLocatorSlot":
+                            updateSheetWithProdData(slot, headerStripSheet, prodEnv);
+                            break;
                         case "DownloadOurAppsSlot":
                             updateSheetWithProdData(slot, headerStripSheet, prodEnv);
                             break;
@@ -110,17 +117,17 @@ public class CompareService {
         }
 
         // Handle left header strip for prod
-        String prodLeftHeaderUrl = apiService.getApiUrl(prodEnv, req.country(), req.concept(), null, LEFT_HEADER_STRIP_API_NAME);
-        JsonNode prodLeftHeaderJson = apiService.callApi(prodLeftHeaderUrl);
-        
-        if (prodLeftHeaderJson != null) {
-            for (String locale : VALID_LOCALES) {
-                Sheet leftHeaderSheet = wb.getSheet(LEFT_HEADER_STRIP_SHEET_NAME + "_" + locale);
-                if (leftHeaderSheet != null) {
-                    updateSheetWithProdLeftHeaderData(prodLeftHeaderJson, leftHeaderSheet, prodEnv);
-                }
-            }
-        }
+//        String prodLeftHeaderUrl = apiService.getApiUrl(prodEnv, req.country(), req.concept(), null, LEFT_HEADER_STRIP_API_NAME);
+//        JsonNode prodLeftHeaderJson = apiService.callApi(prodLeftHeaderUrl);
+//
+//        if (prodLeftHeaderJson != null) {
+//            for (String locale : VALID_LOCALES) {
+//                Sheet leftHeaderSheet = wb.getSheet(LEFT_HEADER_STRIP_SHEET_NAME + "_" + locale);
+//                if (leftHeaderSheet != null) {
+//                    updateSheetWithProdLeftHeaderData(prodLeftHeaderJson, leftHeaderSheet, prodEnv);
+//                }
+//            }
+//        }
     }
 
     private void updateSheetWithProdData(JsonNode prodData, Sheet sheet, String prodEnv) {
@@ -134,7 +141,8 @@ public class CompareService {
             // Extract path and value based on component type
             if (component.has("footerCategoryNavMiddleComponents")) {
                 processProdFooterCategories(component.get("footerCategoryNavMiddleComponents"), sheet, prodEnv);
-            } else if (component.has("footerCategoryNavTopComponents")) {
+            }
+            if (component.has("footerCategoryNavTopComponents")) {
                 processProdFooterCategories(component.get("footerCategoryNavTopComponents"), sheet, prodEnv);
             } else if (component.has("homeMainNavNodes")) {
                 processProdMainNavNodes(component.get("homeMainNavNodes"), sheet, prodEnv);
@@ -179,12 +187,35 @@ public class CompareService {
             }
 
             if (navNode.has("childNavigationNodes")) {
-                String parentName = navNode.has("link") ? 
-                    navNode.get("link").get("linkName").asText() : "";
-                
+
+           // exploring child navigation
                 for (JsonNode childNode : navNode.get("childNavigationNodes")) {
-                    if (childNode.has("link")) {
-                        JsonNode link = childNode.get("link");
+                    String parentName = navNode.has("link") ?
+                            navNode.get("link").get("linkName").asText() : "";
+                    if (childNode.has("links")) {
+                        boolean fetchedFirst = false;
+                        for (JsonNode link : childNode.get("links") ) {
+                            String linkName = link.get("linkName").asText();
+                            String url = link.get("url").asText();
+                            String path = parentName + "/" + linkName;
+                            if(!fetchedFirst)
+                            {
+                                parentName = path;
+                                fetchedFirst = true;
+                            }
+                            updateOrCreateRow(sheet, path, url, prodEnv);
+                        }
+                    }
+                }
+            }
+            if(navNode.has("staticNavigationNodesLinks"))
+            {
+                String parentName = navNode.has("link") ?
+                        navNode.get("link").get("linkName").asText() : "";
+                for(JsonNode staticNode : navNode.get("staticNavigationNodesLinks"))
+                {
+
+                    for (JsonNode link : staticNode.get("links") ) {
                         String linkName = link.get("linkName").asText();
                         String url = link.get("url").asText();
                         String path = parentName + "/" + linkName;
@@ -212,12 +243,19 @@ public class CompareService {
             rowNum = sheet.getLastRowNum() + 1;
             Row row = sheet.createRow(rowNum);
             row.createCell(0).setCellValue(path);
-            row.createCell(1).setCellValue(""); // non-prod column empty
+            row.createCell(1).setCellValue("null"); // non-prod column empty
             row.createCell(2).setCellValue(value); // prod value
+            row.createCell(3).setCellValue("NO");
         } else {
             // Update existing row's prod column
             Row row = sheet.getRow(rowNum);
             row.getCell(2).setCellValue(value);
+            String val1 = row.getCell(2).toString();
+            String val2 = row.getCell(1).toString();
+            if(val1.equals(val2))
+            {
+                row.createCell(3).setCellValue("YES");
+            }
         }
     }
 
@@ -240,7 +278,7 @@ public class CompareService {
         for (int i = 1; i <= sheet.getLastRowNum(); i++) {
             Row row = sheet.getRow(i);
             if (row != null && row.getCell(0) != null && 
-                row.getCell(0).getStringCellValue().equals(path)) {
+                row.getCell(0).getStringCellValue().equalsIgnoreCase(path)) {
                 return i;
             }
         }
@@ -268,6 +306,45 @@ public class CompareService {
                 compareJson(json1, json2, "", sheet);
             }
         }
+    }
+
+    // process only non prod api and make an entry in xlxs sheet
+    private void processProdAndNonProdApis(CompareRequest req, Workbook wb) throws IOException, InterruptedException {
+        List<ApiEntry> apiEntries = List.of(
+                new ApiEntry(RIGHT_HEADER_STRIP_API_NAME, req.concept(), req.country(), RIGHT_HEADER_STRIP_SHEET_NAME),
+                new ApiEntry(HEADER_NAV_API_NAME, req.concept(), req.country(), HEADER_NAV_SHEET_NAME),
+                new ApiEntry(FOOTER_STRIP_API_NAME, req.concept(), req.country(), FOOTER_STRIP_SHEET_NAME)
+        );
+        for (String lang : LANG_CODES) {
+        for (ApiEntry entry : apiEntries) {
+
+                String url1 = apiService.getApiUrl(req.compareEnvFrom(), entry.country(), entry.concept(), lang, entry.name());
+
+                JsonNode json1 = apiService.callApi(url1);
+
+                String sheetName = entry.sheetName() + "_" + lang;
+                Sheet sheet = ExcelUtils.createSheetWithHeader(wb, sheetName, req.compareEnvFrom(), req.compareEnvTo());
+            compareJson(json1,null,"", sheet);
+            }
+        }
+    }
+    private void processLeftHeaderStripForProdAndNonProdApi(CompareRequest req, Workbook wb) throws IOException, InterruptedException {
+        ApiEntry leftHeaderStripEntry = new ApiEntry(
+                LEFT_HEADER_STRIP_API_NAME,
+                req.concept(),
+                req.country(),
+                LEFT_HEADER_STRIP_SHEET_NAME
+        );
+
+        String url1 = apiService.getApiUrl(req.compareEnvFrom(), leftHeaderStripEntry.country(),
+                leftHeaderStripEntry.concept(), null, leftHeaderStripEntry.name());
+//        String url2 = apiService.getApiUrl(req.compareEnvTo(), leftHeaderStripEntry.country(),
+//                leftHeaderStripEntry.concept(), null, leftHeaderStripEntry.name());
+
+        JsonNode json1 = apiService.callApi(url1);
+//        JsonNode json2 = apiService.callApi(url2);
+
+        compareJsonLocalized(json1, null, wb, leftHeaderStripEntry.sheetName(), req);
     }
 
     private void processLeftHeaderStripApi(CompareRequest req, Workbook wb) throws IOException, InterruptedException {
