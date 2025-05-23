@@ -30,7 +30,8 @@ public class CrawlRepositoryImpl implements CrawlRepository {
 
   @Override
   public Process saveProcess(Process process) {
-    return new CrawlHeaderEntityMapper().toProcess(crawlHeaderRepository.save(toCrawlHeaderEntity(process)));
+    return new CrawlHeaderEntityMapper()
+        .toProcess(crawlHeaderRepository.save(toCrawlHeaderEntity(process)));
   }
 
   @Override
@@ -56,8 +57,8 @@ public class CrawlRepositoryImpl implements CrawlRepository {
 
     String sql =
         """
-                    INSERT INTO crawl_detail (crawl_header_id, env, base_url, path, process_flag, error_message, depth)
-                    VALUES (?, ?, ?, ?, ?, ?, ?)
+                    INSERT INTO crawl_detail (crawl_header_id, env, base_url, path, process_flag, error_message, depth, parent_path)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
                     ON CONFLICT ON CONSTRAINT unique_link DO NOTHING
                 """;
 
@@ -75,7 +76,8 @@ public class CrawlRepositoryImpl implements CrawlRepository {
                         e.getPath(),
                         e.getProcessFlag().getValue(),
                         e.getErrorMessage(),
-                        e.getDepth()
+                        e.getDepth(),
+                        e.getParentPath()
                       })
               .toList();
       jdbcTemplate.batchUpdate(sql, batch);

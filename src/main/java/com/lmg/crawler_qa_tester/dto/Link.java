@@ -18,6 +18,7 @@ public class Link {
   private String baseUrl;
   private String path;
   private LinkStatusEnum processFlag;
+  private String parentPath;
   private String errorMessage;
   private int depth;
   private Integer productCount;

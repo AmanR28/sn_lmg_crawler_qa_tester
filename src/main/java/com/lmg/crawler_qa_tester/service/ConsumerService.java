@@ -35,7 +35,7 @@ public class ConsumerService {
       crawlRepository.saveLink(link);
       if (!link.getProcessFlag().equals(LinkStatusEnum.SUCCESS) || urls == null) return;
 
-      crawlRepository.saveNewLinks(
+      List<Link> links =
           urls.stream()
               .map(
                   url ->
@@ -45,9 +45,11 @@ public class ConsumerService {
                           .baseUrl(link.getBaseUrl())
                           .depth(link.getDepth() + 1)
                           .path(url)
+                          .parentPath(link.getPath())
                           .processFlag(LinkStatusEnum.NOT_PROCESSED)
                           .build())
-              .toList());
+              .toList();
+      crawlRepository.saveNewLinks(links);
     } catch (Exception e) {
       link.setProcessFlag(LinkStatusEnum.FATAL);
       link.setErrorMessage("Browser Error : " + e.getMessage().substring(0, 255));
