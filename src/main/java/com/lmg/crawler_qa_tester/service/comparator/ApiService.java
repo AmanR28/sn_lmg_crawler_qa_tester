@@ -132,13 +132,14 @@ public final class ApiService {
         final var response = HTTP_CLIENT.send(request, HttpResponse.BodyHandlers.ofString());
 
         if (response.statusCode() != HttpStatus.OK.value()) {
-            log.error("API call failed - Status: {}, URL: {}, Response: {}",
-                    response.statusCode(), url, response.body());
-            throw new ComparatorException(
-                    "API call failed with status %d".formatted(response.statusCode()),
-                    response.body(),
-                    HttpStatus.valueOf(response.statusCode())
-            );
+            return null;
+//            log.error("API call failed - Status: {}, URL: {}, Response: {}",
+//                    response.statusCode(), url, response.body());
+//            throw new ComparatorException(
+//                    "API call failed with status %d".formatted(response.statusCode()),
+//                    response.body(),
+//                    HttpStatus.valueOf(response.statusCode())
+//            );
         }
 
         return mapper.readTree(response.body());

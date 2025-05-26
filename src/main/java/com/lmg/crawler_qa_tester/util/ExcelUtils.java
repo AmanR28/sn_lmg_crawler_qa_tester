@@ -1,5 +1,6 @@
 package com.lmg.crawler_qa_tester.util;
 
+import com.lmg.crawler_qa_tester.dto.comparator.CompareRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -38,15 +39,21 @@ public final class ExcelUtils {
     public static void writeComparisonRow(Sheet sheet, String path, String val1, String val2) {
         int rowNum = sheet.getLastRowNum() + 1;
         Row row = sheet.createRow(rowNum);
+        val1 = val1.replaceAll("\\s+", " ").trim();
+        val2 = val2.replaceAll("\\s+", " ").trim();
         row.createCell(0).setCellValue(path);
         row.createCell(1).setCellValue(val1);
         row.createCell(2).setCellValue(val2);
         row.createCell(3).setCellValue(val1.equals(val2) ? "YES" : "NO");
     }
 
-    public static String generateFileName(String country, String concept) {
+    public static String generateFileName(CompareRequest req) {
+        String country = req.country();
+        String concept = req.concept();
+        String fromEnv = req.compareEnvFrom();
+        String toEnv = req.compareEnvTo();
         String timestamp = LocalDateTime.now().format(TIMESTAMP_FORMATTER);
-        return String.format("%s_%s_%s.xlsx", country, concept, timestamp);
+        return String.format("%s_%s_%s_%s_%s.xlsx", country, concept,fromEnv,toEnv, timestamp);
     }
 
     public static void writeWorkbookToFile(Workbook wb, String fileName) throws IOException {

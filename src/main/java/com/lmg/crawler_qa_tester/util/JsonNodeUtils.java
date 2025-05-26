@@ -74,6 +74,18 @@ public final class JsonNodeUtils {
         JsonNode meta = messageNode.path("_meta");
         return meta.has("name") ? meta.path("name").asText(UNKNOWN_VALUE) : UNKNOWN_VALUE;
     }
+    public static String getTitleName(JsonNode messageNode, String locale) {
+        if (messageNode == null || messageNode.isNull()) return UNKNOWN_VALUE;
+        JsonNode title = messageNode.path("title");
+        for(JsonNode value : title.get("values"))
+        {
+            if(value.get("locale").asText().equals(locale))
+            {
+                return value.get("value").asText();
+            }
+        }
+        return  UNKNOWN_VALUE;
+    }
 
     public static String getLocaleValue(JsonNode valuesArray, String locale) {
         if (valuesArray == null || !valuesArray.isArray()) return NULL_VALUE;

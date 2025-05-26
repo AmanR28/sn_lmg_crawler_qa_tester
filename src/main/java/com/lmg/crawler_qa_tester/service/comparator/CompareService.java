@@ -46,7 +46,7 @@ public class CompareService {
                 processLeftHeaderStripApi(req, wb);
             }
 
-            String fileName = ExcelUtils.generateFileName(req.country(), req.concept());
+            String fileName = ExcelUtils.generateFileName(req);
             ExcelUtils.writeWorkbookToFile(wb, fileName);
 
             return ResponseEntity.ok("Excel sheet generated successfully. File: " + fileName);
@@ -238,6 +238,7 @@ public class CompareService {
 
     private void updateOrCreateRow(Sheet sheet, String path, String value, String prodEnv) {
         int rowNum = findRow(sheet, path);
+        value = value.replace("\u00A0", " ").trim();
         if (rowNum == -1) {
             // Create new row with null for non-prod and value for prod
             rowNum = sheet.getLastRowNum() + 1;
@@ -252,6 +253,8 @@ public class CompareService {
             row.getCell(2).setCellValue(value);
             String val1 = row.getCell(2).toString();
             String val2 = row.getCell(1).toString();
+            val1 = val1.replaceAll("\\s+", " ").trim();
+            val2 = val2.replaceAll("\\s+", " ").trim();
             if(val1.equals(val2))
             {
                 row.createCell(3).setCellValue("YES");
@@ -441,11 +444,12 @@ public class CompareService {
             JsonNode message1 = JsonNodeUtils.safeGet(messages1, i);
             JsonNode message2 = JsonNodeUtils.safeGet(messages2, i);
 
-            String messageName = JsonNodeUtils.getMetaName(message1 != null ? message1 : message2);
+           // String messageName = JsonNodeUtils.getMetaName(message1 != null ? message1 : message2);
             JsonNode description1 = JsonNodeUtils.getDescriptionValues(message1);
             JsonNode description2 = JsonNodeUtils.getDescriptionValues(message2);
 
             VALID_LOCALES.forEach(locale -> {
+                String messageName = JsonNodeUtils.getTitleName(message1 != null ? message1 : message2,locale);
                 String val1 = JsonNodeUtils.getLocaleValue(description1, locale);
                 String val2 = JsonNodeUtils.getLocaleValue(description2, locale);
                 ExcelUtils.writeComparisonRow(sheets.get(locale), messageName, val1, val2);
