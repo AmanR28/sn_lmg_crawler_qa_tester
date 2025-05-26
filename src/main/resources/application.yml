@@ -31,6 +31,6 @@ env:
 # https://www.maxfashion.com/kw/en
 
 ###
-# curl -X POST http://localhost:8080/process -H "Content-Type: application/json" -d '{ "compareFrom": "https://www.centrepointstores.com/kw/en", "compareTo": "https://blc.centrepointstores.com/kw/en" }' | jq
+#  curl -X POST http://localhost:8080/process  -H "Content-Type: application/json"  -d '{ "baseUrl": "https://www.maxfashion.com/kw/en", "compareTo": "https://blc.maxfashion.com/kw/en" }'
 # curl -X POST http://localhost:8080/reports/1 > data.csv
 ###
