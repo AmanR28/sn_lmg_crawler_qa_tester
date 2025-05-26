@@ -22,7 +22,7 @@ public class PageService {
   int PAGE_WAIT;
 
   public List<String> processPageData(Page page, Link link) {
-    PageTypeEnum pageType = getPageType(link.getPath());
+    PageTypeEnum pageType = UrlUtil.getPageType(link.getPath());
 
     Response response = page.navigate(link.getBaseUrl() + link.getPath());
     page.waitForTimeout(PAGE_WAIT);
@@ -44,22 +44,6 @@ public class PageService {
     return getPageUrls(link, urls);
   }
 
-  private PageTypeEnum getPageType(String path) {
-    List<String> pathSlices = List.of(path.split("/"));
-    if (pathSlices.size() < 2) return PageTypeEnum.OTHER;
-
-    if (pathSlices.get(1).equals("department")) {
-      return PageTypeEnum.DEPARTMENT;
-    } else if (pathSlices.get(1).equals("c")) {
-      return PageTypeEnum.CATEGORY;
-    } else if (pathSlices.get(1).startsWith("search")) {
-      return PageTypeEnum.SEARCH;
-    } else if (pathSlices.size() > 3 && pathSlices.get(pathSlices.size() - 2).equals("p")) {
-      return PageTypeEnum.PRODUCT;
-    } else {
-      return PageTypeEnum.OTHER;
-    }
-  }
 
   private void getPageStatus(Link link, Page page, Response response) {
     int status = response.status();
@@ -141,7 +125,7 @@ public class PageService {
             url ->
                 url.startsWith(startPath)
                     && !url.substring(startPath.length()).isEmpty()
-                    && !getPageType(url).equals(PageTypeEnum.PRODUCT))
+                    && !UrlUtil.getPageType(url).equals(PageTypeEnum.PRODUCT))
         .map(url -> url.substring(startPath.length()))
         .toList();
   }

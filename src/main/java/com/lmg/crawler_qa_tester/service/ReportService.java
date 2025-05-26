@@ -1,56 +1,64 @@
 package com.lmg.crawler_qa_tester.service;
 
-import com.lmg.crawler_qa_tester.constants.EnvironmentEnum;
-import com.lmg.crawler_qa_tester.constants.LinkStatusEnum;
-import com.lmg.crawler_qa_tester.dto.Link;
+import com.lmg.crawler_qa_tester.constants.ReportStatus;
+import com.lmg.crawler_qa_tester.dto.GenerateReportRequest;
 import com.lmg.crawler_qa_tester.repository.CrawlRepository;
-import com.lmg.crawler_qa_tester.util.CsvUtil;
+import com.lmg.crawler_qa_tester.repository.ReportRepository;
+import com.lmg.crawler_qa_tester.repository.entity.CrawlHeaderEntity;
+import com.lmg.crawler_qa_tester.repository.entity.ReportEntity;
+import com.lmg.crawler_qa_tester.repository.internal.CrawlHeaderRepository;
 import java.util.*;
-import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 
 @Service
 public class ReportService {
   @Autowired CrawlRepository crawlRepository;
+  @Autowired ReportRepository reportRepository;
+  @Autowired private CrawlHeaderRepository crawlHeaderRepository;
 
-  public byte[] generateComparisonReport(Integer processId) {
-    List<String> reportHeaders = List.of(new String[] {"Path", "Prod Status", "Pre Prod Status"});
-    List<String[]> reportData = new LinkedList<String[]>();
+  public Pair<String, String> generateReport(GenerateReportRequest reportRequest) {
+    try {
 
-    List<Link> links = crawlRepository.getLinksByProcessId(processId);
+      Integer crawlHeaderId = reportRequest.getCrawlHeaderId();
+      Optional<CrawlHeaderEntity> optionalId = crawlHeaderRepository.findById(crawlHeaderId);
 
-    List<String> uniquePaths =
-        links.stream()
-            .map(Link::getPath)
-            .distinct()
-            .sorted()
-            .collect(Collectors.toCollection(LinkedList::new));
+      if (optionalId.isEmpty()) {
+        return Pair.of("Not Found", "null");
+      }
+      CrawlHeaderEntity entity = optionalId.get();
+      String domain = entity.getDomain();
+      String country = entity.getCountry();
+      String locale = entity.getLocale();
+      String department = entity.getDepartment();
+      Optional<ReportEntity> existingReport = reportRepository.findByCrawlId(crawlHeaderId);
 
-    HashMap<String, Link> prodMap =
-        new HashMap<>(
-            links.stream()
-                .filter(e -> e.getEnv().equals(EnvironmentEnum.FROM_ENV))
-                .collect(Collectors.toMap(Link::getPath, e -> e)));
-    HashMap<String, Link> preProdMap =
-        new HashMap<>(
-            links.stream()
-                .filter(e -> e.getEnv().equals(EnvironmentEnum.TO_ENV))
-                .collect(Collectors.toMap(Link::getPath, e -> e)));
+      if (existingReport.isPresent()) {
+        return Pair.of("Already Exists", existingReport.get().getId().toString());
+      }
 
-    for (String path : uniquePaths) {
-      reportData.add(
-          new String[] {
-            path,
-            prodMap.get(path) != null
-                ? prodMap.get(path).getProcessFlag().getValue()
-                : LinkStatusEnum.MISSING.getValue(),
-            preProdMap.get(path) != null
-                ? preProdMap.get(path).getProcessFlag().getValue()
-                : LinkStatusEnum.MISSING.getValue()
-          });
+      ReportEntity reportEntity =
+          ReportEntity.builder()
+              .host(domain)
+              .status(ReportStatus.NOT_AVAILABLE.getCode())
+              .country(country)
+              .locale(locale)
+              .crawlId(crawlHeaderId)
+              .department(department)
+              .build();
+
+      ReportEntity savedReport = reportRepository.save(reportEntity);
+
+      return Pair.of("OK", savedReport.getId().toString());
+
+    } catch (Exception e) {
+      e.printStackTrace();
+      return Pair.of("Error", "null");
     }
+  }
 
-    return CsvUtil.getCsvData(reportHeaders, reportData);
+  public Optional<ReportEntity> getReportStatus(Integer id) {
+    return reportRepository.findById(id);
   }
 }
