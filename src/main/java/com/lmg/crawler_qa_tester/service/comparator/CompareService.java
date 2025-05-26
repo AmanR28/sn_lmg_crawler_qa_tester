@@ -306,7 +306,7 @@ public class CompareService {
                 String sheetName = entry.sheetName() + "_" + lang;
                 Sheet sheet = ExcelUtils.createSheetWithHeader(wb, sheetName, req.compareEnvFrom(), req.compareEnvTo());
 
-                compareJson(json1, json2, "", sheet);
+                compareJson(json1, json2, "", sheet, false);
             }
         }
     }
@@ -327,7 +327,7 @@ public class CompareService {
 
                 String sheetName = entry.sheetName() + "_" + lang;
                 Sheet sheet = ExcelUtils.createSheetWithHeader(wb, sheetName, req.compareEnvFrom(), req.compareEnvTo());
-            compareJson(json1,null,"", sheet);
+            compareJson(json1,null,"", sheet, true);
             }
         }
     }
@@ -369,7 +369,7 @@ public class CompareService {
         compareJsonLocalized(json1, json2, wb, leftHeaderStripEntry.sheetName(), req);
     }
 
-    private void compareJson(JsonNode node1, JsonNode node2, String parentPath, Sheet sheet) {
+    private void compareJson(JsonNode node1, JsonNode node2, String parentPath, Sheet sheet, boolean isProdComparison) {
         int maxSize = Math.max(
                 (node1 != null && node1.isArray()) ? node1.size() : 0,
                 (node2 != null && node2.isArray()) ? node2.size() : 0
@@ -386,10 +386,10 @@ public class CompareService {
             String order = JsonNodeUtils.getFieldValue(content1, content2, "displayOrder");
             String url1 = JsonNodeUtils.getFieldValue(content1, "url");
             String url2 = JsonNodeUtils.getFieldValue(content2, "url");
-
-            String currentPath = buildPath(parentPath, name);
+            String currentPath= isProdComparison?
+                    buildPath(parentPath, name):
+                    buildPath(parentPath, name,order);
             ExcelUtils.writeComparisonRow(sheet, currentPath, url1, url2);
-
             JsonNode children1 = JsonNodeUtils.getChildren(content1);
             JsonNode children2 = JsonNodeUtils.getChildren(content2);
 
@@ -398,7 +398,8 @@ public class CompareService {
                         children1 != null ? children1 : objectMapper.createArrayNode(),
                         children2 != null ? children2 : objectMapper.createArrayNode(),
                         currentPath,
-                        sheet
+                        sheet,
+                        isProdComparison
                 );
             }
         }
