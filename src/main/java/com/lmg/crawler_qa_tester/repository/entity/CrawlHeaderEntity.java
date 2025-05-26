@@ -25,7 +25,6 @@ public class CrawlHeaderEntity {
   @Column(name = "compare_from_base_url")
   private String compareFromBaseUrl;
 
-  @NonNull
   @Column(name = "compare_to_base_url")
   private String compareToBaseUrl;
 

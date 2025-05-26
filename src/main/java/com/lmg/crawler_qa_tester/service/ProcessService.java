@@ -6,7 +6,6 @@ import com.lmg.crawler_qa_tester.constants.ProcessStatusEnum;
 import com.lmg.crawler_qa_tester.dto.Link;
 import com.lmg.crawler_qa_tester.dto.Process;
 import com.lmg.crawler_qa_tester.repository.CrawlRepository;
-import com.lmg.crawler_qa_tester.repository.DomainRepository;
 import com.lmg.crawler_qa_tester.util.UrlUtil;
 import jakarta.transaction.Transactional;
 import java.util.List;
@@ -24,7 +23,6 @@ import org.springframework.stereotype.Service;
 public class ProcessService {
   @Autowired private ApplicationContext applicationContext;
   @Autowired private CrawlRepository crawlRepository;
-  @Autowired private DomainRepository domainRepository;
 
   @Value("${env.app.consumerThread}")
   private int CONSUMER_THREAD;
@@ -36,23 +34,22 @@ public class ProcessService {
 
     if (compareFromBaseUrl.endsWith("/"))
       compareFromBaseUrl = compareFromBaseUrl.substring(0, compareFromBaseUrl.length() - 1);
-    if (compareToBaseUrl.endsWith("/"))
-      compareToBaseUrl = compareToBaseUrl.substring(0, compareToBaseUrl.length() - 1);
 
-    if (!UrlUtil.getDomain(compareFromBaseUrl).equals(UrlUtil.getDomain(compareToBaseUrl)))
-      throw new RuntimeException("CompareFrom Domain doesn't match CompareTo Domain");
-    if (!UrlUtil.getCountry(compareFromBaseUrl).equals(UrlUtil.getCountry(compareToBaseUrl)))
-      throw new RuntimeException("CompareFrom Country doesn't match CompareTo Country");
-    if (!UrlUtil.getLocale(compareToBaseUrl).equals(UrlUtil.getLocale(compareFromBaseUrl)))
-      throw new RuntimeException("CompareFrom Locale doesn't match CompareTo Locale");
+    if (compareToBaseUrl != null) {
+      if (compareToBaseUrl.endsWith("/"))
+        compareToBaseUrl = compareToBaseUrl.substring(0, compareToBaseUrl.length() - 1);
+      if (!UrlUtil.getDomain(compareFromBaseUrl).equals(UrlUtil.getDomain(compareToBaseUrl)))
+        throw new RuntimeException("CompareFrom Domain doesn't match CompareTo Domain");
+      if (!UrlUtil.getCountry(compareFromBaseUrl).equals(UrlUtil.getCountry(compareToBaseUrl)))
+        throw new RuntimeException("CompareFrom Country doesn't match CompareTo Country");
+      if (!UrlUtil.getLocale(compareFromBaseUrl).equals(UrlUtil.getLocale(compareToBaseUrl)))
+        throw new RuntimeException("CompareFrom Locale doesn't match CompareTo Locale");
+    }
 
     log.info(
         "Create project with compareFromBaseUrl: {} and compareToBaseUrl: {}",
         compareFromBaseUrl,
         compareToBaseUrl);
-
-    List<String> departments =
-        domainRepository.getDepartments(UrlUtil.getDomain(compareFromBaseUrl));
 
     String finalCompareFromBaseUrl = compareFromBaseUrl;
     String finalCompareToBaseUrl = compareToBaseUrl;
@@ -86,17 +83,22 @@ public class ProcessService {
             .processFlag(LinkStatusEnum.NOT_PROCESSED)
             .depth(0)
             .build();
-    Link tolink =
-        Link.builder()
-            .crawlHeaderId(process.getId())
-            .env(EnvironmentEnum.TO_ENV)
-            .baseUrl(process.getCompareToBaseUrl())
-            .path("/")
-            .processFlag(LinkStatusEnum.NOT_PROCESSED)
-            .depth(0)
-            .build();
+    crawlRepository.saveLink(fromlink);
+
+    if (process.getCompareToBaseUrl() != null) {
+      Link tolink =
+          Link.builder()
+              .crawlHeaderId(process.getId())
+              .env(EnvironmentEnum.TO_ENV)
+              .baseUrl(process.getCompareToBaseUrl())
+              .path("/")
+              .processFlag(LinkStatusEnum.NOT_PROCESSED)
+              .depth(0)
+              .build();
+      crawlRepository.saveLink(tolink);
+    }
+
     process.setStatus(ProcessStatusEnum.RUNNING);
-    crawlRepository.saveNewLinks(List.of(fromlink, tolink));
     crawlRepository.saveProcess(process);
   }
 

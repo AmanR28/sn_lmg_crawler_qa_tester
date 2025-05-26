@@ -11,6 +11,6 @@ public class ProcessController {
   @Autowired private ProcessService processService;
   @PostMapping()
   public Integer create(@RequestBody ProjectRequest request) {
-    return processService.createProject(request.getCompareFrom(), request.getCompareTo());
+    return processService.createProject(request.getBaseUrl(), request.getCompareTo());
   }
 }
