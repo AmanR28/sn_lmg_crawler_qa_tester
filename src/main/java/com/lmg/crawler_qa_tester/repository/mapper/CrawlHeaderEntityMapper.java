@@ -71,6 +71,7 @@ public class CrawlHeaderEntityMapper implements RowMapper<CrawlHeaderEntity> {
     entity.setLocale(process.getLocale());
     entity.setDepartment(process.getDepartment());
     entity.setCreatedTime(process.getCreatedTime());
+    entity.setPageCount(process.getPageCount());
     return entity;
   }
 }

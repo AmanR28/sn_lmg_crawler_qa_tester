@@ -101,7 +101,7 @@ public class ReportGeneratorConsumer {
                     PageTypeEnum pageType = UrlUtil.getPageType(path);
                     if(pageType == PageTypeEnum.CATEGORY || pageType == PageTypeEnum.SEARCH)
                     {
-                        if (status.equals(LinkStatusEnum.SUCCESS.getValue())) {
+                        if (status.equals(LinkStatusEnum.SUCCESS.getValue()) || status.equals(LinkStatusEnum.INVALID_COUNT.getValue())) {
                           count = detail.getProductCount() != null ? String.valueOf(detail.getProductCount()) : "0";
                         }
                     }
@@ -177,9 +177,9 @@ public class ReportGeneratorConsumer {
                     PageTypeEnum pageType = UrlUtil.getPageType(path);
                     if(pageType == PageTypeEnum.CATEGORY || pageType == PageTypeEnum.SEARCH)
                     {
-                        if( fromEnvStatus.equals(LinkStatusEnum.SUCCESS.getValue()))
+                        if( fromEnvStatus.equals(LinkStatusEnum.SUCCESS.getValue()) || fromEnvStatus.equals(LinkStatusEnum.INVALID_COUNT.getValue()))
                             countFrom = String.valueOf(countFromEnv);
-                        if( toEnvStatus.equals(LinkStatusEnum.SUCCESS.getValue()))
+                        if( toEnvStatus.equals(LinkStatusEnum.SUCCESS.getValue()) || toEnvStatus.equals(LinkStatusEnum.INVALID_COUNT.getValue()))
                             countTo = String.valueOf(countToEnv);
                         if( fromEnvStatus.equals(LinkStatusEnum.SUCCESS.getValue()) && toEnvStatus.equals(LinkStatusEnum.SUCCESS.getValue()))
                              countDiff= String.valueOf(countDifference);

@@ -24,6 +24,7 @@ public class CrawlDetailEntityMapper implements RowMapper<CrawlDetailEntity> {
     entity.setPath(rs.getString("path"));
     entity.setProcessFlag(rs.getString("process_flag"));
     entity.setDepth(rs.getInt("depth"));
+    entity.setParentPath(rs.getString("parent_path"));
     return entity;
   }
 
