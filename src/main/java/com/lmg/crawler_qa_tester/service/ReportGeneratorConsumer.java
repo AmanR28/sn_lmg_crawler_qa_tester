@@ -6,22 +6,21 @@ import com.lmg.crawler_qa_tester.dto.ReportDetails;
 import com.lmg.crawler_qa_tester.repository.ReportRepository;
 import com.lmg.crawler_qa_tester.repository.entity.CrawlDetailEntity;
 import com.lmg.crawler_qa_tester.repository.entity.CrawlHeaderEntity;
-import com.lmg.crawler_qa_tester.repository.internal.CrawlDetailRepository;
 import com.lmg.crawler_qa_tester.repository.internal.CrawlHeaderRepository;
 import com.lmg.crawler_qa_tester.util.UrlUtil;
 import com.opencsv.CSVWriter;
 import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.integration.annotation.ServiceActivator;
-import org.springframework.messaging.Message;
-import org.springframework.stereotype.Component;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URL;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.integration.annotation.ServiceActivator;
+import org.springframework.messaging.Message;
+import org.springframework.stereotype.Component;
 
 @Component
 public class ReportGeneratorConsumer {
@@ -102,7 +101,9 @@ public class ReportGeneratorConsumer {
                     PageTypeEnum pageType = UrlUtil.getPageType(path);
                     if(pageType == PageTypeEnum.CATEGORY || pageType == PageTypeEnum.SEARCH)
                     {
-                        count = detail.getProductCount()!=null? String.valueOf(detail.getProductCount()):"0";
+                        if (status.equals(LinkStatusEnum.SUCCESS.getValue())) {
+                          count = detail.getProductCount() != null ? String.valueOf(detail.getProductCount()) : "0";
+                        }
                     }
                     String[] record = {
                             path,
@@ -176,8 +177,10 @@ public class ReportGeneratorConsumer {
                     PageTypeEnum pageType = UrlUtil.getPageType(path);
                     if(pageType == PageTypeEnum.CATEGORY || pageType == PageTypeEnum.SEARCH)
                     {
-                        countFrom = String.valueOf(countFromEnv);
-                        countTo=String.valueOf(countToEnv);
+                        if( fromEnvStatus.equals(LinkStatusEnum.SUCCESS.getValue()))
+                            countFrom = String.valueOf(countFromEnv);
+                        if( toEnvStatus.equals(LinkStatusEnum.SUCCESS.getValue()))
+                            countTo = String.valueOf(countToEnv);
                         if( fromEnvStatus.equals(LinkStatusEnum.SUCCESS.getValue()) && toEnvStatus.equals(LinkStatusEnum.SUCCESS.getValue()))
                              countDiff= String.valueOf(countDifference);
                     }
