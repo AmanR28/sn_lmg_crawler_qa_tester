@@ -85,6 +85,7 @@ public class ReportGeneratorConsumer {
             String fileName = fromPrefix + "_" + hostName + "_" + country + "_" + locale + "_" + dateTime;
             try (CSVWriter writer = new CSVWriter(new FileWriter(fileLocation + "/" + fileName + ".csv"))) {
                 String[] headerBlock = {"URL " + hostName + "_" + country + "_" + locale,
+                        "Parent Path",
                         "Status " ,
                         "Count " ,
                        };
@@ -97,6 +98,7 @@ public class ReportGeneratorConsumer {
                     }
                     uniquePath.add(path);
                     String status = detail.getProcessFlag();
+                    String parentPath = detail.getParentPath();
                     String count="";
                     PageTypeEnum pageType = UrlUtil.getPageType(path);
                     if(pageType == PageTypeEnum.CATEGORY || pageType == PageTypeEnum.SEARCH)
@@ -107,6 +109,7 @@ public class ReportGeneratorConsumer {
                     }
                     String[] record = {
                             path,
+                            parentPath,
                             status,
                             count
                     };
@@ -152,7 +155,9 @@ public class ReportGeneratorConsumer {
             String fileName = fromPrefix + "_" + toPrefix + "_" + hostName + "_" + country + "_" + locale + "_" + dateTime;
             try (CSVWriter writer = new CSVWriter(new FileWriter(fileLocation + "/" + fileName + ".csv"))) {
                 String[] headerBlock = {"URL " + hostName + "_" + country + "_" + locale,
+                        "Parent Path "+fromPrefix,
                         "Status " + fromPrefix,
+                        "Parent Path "+toPrefix,
                         "Status " + toPrefix,
                         "Count " + fromPrefix,
                         "Count " + toPrefix,
@@ -167,7 +172,9 @@ public class ReportGeneratorConsumer {
                     }
                     uniquePath.add(path);
                     String fromEnvStatus = fromEnv.containsKey(path) ? fromEnv.get(path).getProcessFlag() : LinkStatusEnum.MISSING.getValue();
+                    String fromEnvParentPath = fromEnv.containsKey(path) ? fromEnv.get(path).getParentPath():"";
                     String toEnvStatus = toEnv.containsKey(path) ? toEnv.get(path).getProcessFlag() : LinkStatusEnum.MISSING.getValue();
+                    String toEnvParentPAth =  toEnv.containsKey(path) ? toEnv.get(path).getParentPath() :"";
                     int countFromEnv = fromEnv.containsKey(path) ? (fromEnv.get(path).getProductCount() != null ? fromEnv.get(path).getProductCount() : 0) : 0;
                     int countToEnv = toEnv.containsKey(path) ? (toEnv.get(path).getProductCount() != null ? toEnv.get(path).getProductCount() : 0) : 0;
                     int countDifference = countFromEnv - countToEnv;
@@ -185,7 +192,7 @@ public class ReportGeneratorConsumer {
                              countDiff= String.valueOf(countDifference);
                     }
                     String countPercentage = (countToEnv != 0 && !countDiff.isEmpty()) ? String.format("%.2f", 100.0 * countDifference / countToEnv) : "";
-                    writeDetailsToCsv(path, fromEnvStatus, toEnvStatus, countFrom, countTo, countDiff, countPercentage, writer);
+                    writeDetailsToCsv(path, fromEnvStatus, toEnvStatus, countFrom, countTo, countDiff, countPercentage, fromEnvParentPath,toEnvParentPAth,writer);
                 }
             }
             updateStatus(reportId,ReportStatus.SUCCESS.getCode());
@@ -203,11 +210,13 @@ public class ReportGeneratorConsumer {
     }
     private void writeDetailsToCsv(String path, String fromEnvStatus, String toEnvStatus,
                                    String countFromEnv, String countToEnv, String countDifference, String countPercentage,
-                                   CSVWriter writer) throws IOException {
+                                   String fromParentPath, String toParentPath, CSVWriter writer) throws IOException {
 
         String[] record = {
                 path,
+                fromParentPath,
                 fromEnvStatus,
+                toParentPath,
                 toEnvStatus,
                 String.valueOf(countFromEnv),
                 String.valueOf(countToEnv),
