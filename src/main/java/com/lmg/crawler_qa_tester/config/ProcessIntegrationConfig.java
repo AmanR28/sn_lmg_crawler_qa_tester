@@ -47,6 +47,8 @@ public class ProcessIntegrationConfig {
         + ProcessStatusEnum.NEW
         + "' ORDER BY id LIMIT 1 ) UNION ALL ( SELECT * FROM crawl_header WHERE status = '"
         + ProcessStatusEnum.RUNNING
+        + "' ORDER BY id LIMIT 1 ) UNION ALL ( SELECT * FROM crawl_header WHERE status = '"
+        + ProcessStatusEnum.POST_RUNNING
         + "' ORDER BY id LIMIT 1 )";
   }
 
@@ -73,34 +75,36 @@ public class ProcessIntegrationConfig {
   @Router(inputChannel = "processRouterChannel")
   public String processRouter(List<Process> processes) {
     if (processes == null || processes.isEmpty()) return null;
-    if (processes.size() != 1) return null;
-    Process process = processes.get(0);
-    ProcessStatusEnum status = process.getStatus();
-    if (status == ProcessStatusEnum.RUNNING) {
-      return "runningProcessConsumerChannel";
+
+    if (processes.stream()
+        .noneMatch(
+            p ->
+                (p.getStatus().equals(ProcessStatusEnum.RUNNING))
+                    || (p.getStatus().equals(ProcessStatusEnum.POST_RUNNING)))) {
+      Process newProcess =
+          processes.stream()
+              .filter(p -> p.getStatus() == ProcessStatusEnum.NEW)
+              .findFirst()
+              .orElse(null);
+      if (newProcess != null) return "newProcessConsumerChannel";
     }
-    if (status == ProcessStatusEnum.NEW) {
-      return "newProcessConsumerChannel";
-    }
+
     return null;
   }
 
   @Bean
-  public PublishSubscribeChannel completeProcessPollerChannel() {
+  public PublishSubscribeChannel statusProcessPollerChannel() {
     return new PublishSubscribeChannel();
   }
 
   @Bean
   @InboundChannelAdapter(
-      value = "completeProcessPollerChannel",
+      value = "statusProcessPollerChannel",
       poller = @Poller(fixedRate = "${env.app.pollerRate}"))
   public MessageSource<?> completeProcessMessagePoller() {
     JdbcPollingChannelAdapter jdbcPollingChannelAdapter =
         new JdbcPollingChannelAdapter(dataSource, getSelectSqlForCompleteProcess());
-    jdbcPollingChannelAdapter.setRowMapper(
-        (rs, rowNum) -> {
-          return rs.getInt(1);
-        });
+    jdbcPollingChannelAdapter.setRowMapper((rs, rowNum) -> rs.getInt(1));
     return jdbcPollingChannelAdapter;
   }
 
@@ -109,6 +113,8 @@ public class ProcessIntegrationConfig {
         + LinkStatusEnum.NOT_PROCESSED
         + "' OR process_flag = '"
         + LinkStatusEnum.IN_PROGRESS
+        + "' OR process_flag = '"
+        + LinkStatusEnum.PRE_MISSING
         + "') AND depth <= "
         + MAX_DEPTH
         + " LIMIT 1 )";

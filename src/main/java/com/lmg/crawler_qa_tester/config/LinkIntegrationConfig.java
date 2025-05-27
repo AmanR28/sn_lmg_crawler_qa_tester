@@ -92,14 +92,13 @@ public class LinkIntegrationConfig {
         + LinkStatusEnum.NOT_PROCESSED
         + "' and depth <= "
         + MAX_DEPTH
-        + " limit "
-        + 1;
+        + " limit 1";
   }
 
   private String getUpdateSql() {
 
     return "UPDATE crawl_detail SET process_flag='"
         + LinkStatusEnum.IN_PROGRESS
-        + "' WHERE id in (:id)";
+        + "' WHERE id = :id";
   }
 }

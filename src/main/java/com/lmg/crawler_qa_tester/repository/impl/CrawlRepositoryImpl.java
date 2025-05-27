@@ -13,11 +13,14 @@ import com.lmg.crawler_qa_tester.repository.mapper.CrawlDetailEntityMapper;
 import com.lmg.crawler_qa_tester.repository.mapper.CrawlHeaderEntityMapper;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 @Repository
 public class CrawlRepositoryImpl implements CrawlRepository {
+  @Value("${env.app.maxDepth}")
+  private int MAX_DEPTH;
 
   @Autowired private JdbcTemplate jdbcTemplate;
   @Autowired private CrawlDetailRepository crawlDetailRepository;
@@ -90,13 +93,18 @@ public class CrawlRepositoryImpl implements CrawlRepository {
   }
 
   @Override
-  public Process getRunningProcess() {
-    return toProcess(crawlHeaderRepository.findByStatus(ProcessStatusEnum.RUNNING.getValue()));
+  public Process getProcessByStatus(ProcessStatusEnum status) {
+    return toProcess(crawlHeaderRepository.findByStatus(status.getValue()));
   }
 
   @Override
   public int getLinkCountByProcessId(Integer processId) {
-    return crawlDetailRepository.countCrawlDetailEntitiesByCrawlHeaderId(processId);
+    String sql =
+        """
+        SELECT COUNT(*) FROM crawl_detail
+        WHERE crawl_header_id = ? AND depth <= ?
+    """;
+    return jdbcTemplate.queryForObject(sql, Integer.class, processId, MAX_DEPTH);
   }
 
   private CrawlHeaderEntity toCrawlHeaderEntity(Process process) {
