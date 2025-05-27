@@ -8,14 +8,14 @@ spring:
     url: ${DB_URL:jdbc:postgresql://localhost:5432/com_lmg_linkvalidator}
   jpa:
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: update
     show-sql: true
 #    properties.hibernate.format_sql: true
     defer-datasource-initialization: true
   sql.init.mode: always
 env:
   app:
-    maxDepth: 0
+    maxDepth: 1
     consumerThread: 8
     pollerRate: 1000
     pageWait: 3000

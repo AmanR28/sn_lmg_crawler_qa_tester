@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.integration.annotation.ServiceActivator;
+import org.springframework.integration.endpoint.AbstractPollingEndpoint;
 import org.springframework.messaging.Message;
 import org.springframework.stereotype.Service;
 
@@ -106,6 +107,18 @@ public class ProcessService {
   }
 
   @Transactional
+  @ServiceActivator(inputChannel = "runningProcessConsumerChannel")
+  public void consumeRunningProcess(Message<?> message) {
+    AbstractPollingEndpoint endpoint =
+        applicationContext.getBean(
+            "linkMessagePoller.inboundChannelAdapter", AbstractPollingEndpoint.class);
+    if (!endpoint.isRunning()) {
+      endpoint.start();
+      log.info("Started prod message poller");
+    }
+  }
+
+  @Transactional
   @ServiceActivator(inputChannel = "statusProcessPollerChannel")
   public void consumeCompleteProcess(Message<Integer> message) {
     Integer count = message.getPayload();
@@ -127,7 +140,7 @@ public class ProcessService {
   }
 
   private void setProcessPostRunning(Process process) {
-    startPostRunningProcess(process.getId());
+    startPostRunningProcess(process);
     process.setStatus(ProcessStatusEnum.POST_RUNNING);
     process.setPageCount(crawlRepository.getLinkCountByProcessId(process.getId()));
     crawlRepository.saveProcess(process);
@@ -140,9 +153,9 @@ public class ProcessService {
     crawlRepository.saveProcess(process);
   }
 
-  private void startPostRunningProcess(Integer processId) {
+  private void startPostRunningProcess(Process process) {
     List<Link> missingLinks = new ArrayList<>();
-    List<Link> links = crawlRepository.getLinksByProcessId(processId);
+    List<Link> links = crawlRepository.getLinksByProcessId(process.getId());
 
     List<String> uniquePaths =
         links.stream()
@@ -151,31 +164,42 @@ public class ProcessService {
             .sorted()
             .collect(Collectors.toCollection(LinkedList::new));
 
-    HashMap<String, Link> prodMap =
+    HashMap<String, Link> fromEnvMap =
         new HashMap<>(
             links.stream()
                 .filter(e -> e.getEnv().equals(EnvironmentEnum.FROM_ENV))
                 .collect(Collectors.toMap(Link::getPath, e -> e)));
-    HashMap<String, Link> preProdMap =
+    HashMap<String, Link> toEnvMap =
         new HashMap<>(
             links.stream()
                 .filter(e -> e.getEnv().equals(EnvironmentEnum.TO_ENV))
                 .collect(Collectors.toMap(Link::getPath, e -> e)));
 
     for (String path : uniquePaths) {
-      if (!prodMap.containsKey(path)) {
-        Link preProdLink = preProdMap.get(path);
-        if (preProdLink != null) {
-          preProdLink.setProcessFlag(LinkStatusEnum.PRE_MISSING);
-          crawlRepository.saveLink(preProdLink);
-          missingLinks.add(preProdLink);
-        }
-      }
-      if (!preProdMap.containsKey(path)) {
-        Link prodLink = prodMap.get(path);
-        prodLink.setProcessFlag(LinkStatusEnum.PRE_MISSING);
-        crawlRepository.saveLink(prodLink);
-        missingLinks.add(prodLink);
+      if (!fromEnvMap.containsKey(path)) {
+        Link baseLink = toEnvMap.get(path);
+        Link link =
+            Link.builder()
+                .crawlHeaderId(process.getId())
+                .baseUrl(process.getCompareFromBaseUrl())
+                .path(path)
+                .env(EnvironmentEnum.FROM_ENV)
+                .processFlag(LinkStatusEnum.PRE_MISSING)
+                .depth(baseLink.getDepth())
+                .build();
+        missingLinks.add(link);
+      } else if (!toEnvMap.containsKey(path)) {
+        Link baseLink = fromEnvMap.get(path);
+        Link link =
+            Link.builder()
+                .crawlHeaderId(process.getId())
+                .baseUrl(process.getCompareToBaseUrl())
+                .path(path)
+                .env(EnvironmentEnum.TO_ENV)
+                .processFlag(LinkStatusEnum.PRE_MISSING)
+                .depth(baseLink.getDepth())
+                .build();
+        missingLinks.add(link);
       }
     }
 

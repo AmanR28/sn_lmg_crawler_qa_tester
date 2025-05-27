@@ -76,18 +76,24 @@ public class ProcessIntegrationConfig {
   public String processRouter(List<Process> processes) {
     if (processes == null || processes.isEmpty()) return null;
 
-    if (processes.stream()
-        .noneMatch(
-            p ->
-                (p.getStatus().equals(ProcessStatusEnum.RUNNING))
-                    || (p.getStatus().equals(ProcessStatusEnum.POST_RUNNING)))) {
-      Process newProcess =
-          processes.stream()
-              .filter(p -> p.getStatus() == ProcessStatusEnum.NEW)
-              .findFirst()
-              .orElse(null);
-      if (newProcess != null) return "newProcessConsumerChannel";
+    Process process =
+        processes.stream()
+            .filter(
+                e ->
+                    (e.getStatus().equals(ProcessStatusEnum.RUNNING)
+                        || e.getStatus().equals(ProcessStatusEnum.POST_RUNNING)))
+            .findFirst()
+            .orElse(null);
+    if (process != null) {
+      return "runningProcessConsumerChannel";
     }
+
+    Process newProcess =
+        processes.stream()
+            .filter(p -> p.getStatus() == ProcessStatusEnum.NEW)
+            .findFirst()
+            .orElse(null);
+    if (newProcess != null) return "newProcessConsumerChannel";
 
     return null;
   }
@@ -101,7 +107,7 @@ public class ProcessIntegrationConfig {
   @InboundChannelAdapter(
       value = "statusProcessPollerChannel",
       poller = @Poller(fixedRate = "${env.app.pollerRate}"))
-  public MessageSource<?> completeProcessMessagePoller() {
+  public MessageSource<?> statusProcessMessagePoller() {
     JdbcPollingChannelAdapter jdbcPollingChannelAdapter =
         new JdbcPollingChannelAdapter(dataSource, getSelectSqlForCompleteProcess());
     jdbcPollingChannelAdapter.setRowMapper((rs, rowNum) -> rs.getInt(1));
@@ -115,6 +121,8 @@ public class ProcessIntegrationConfig {
         + LinkStatusEnum.IN_PROGRESS
         + "' OR process_flag = '"
         + LinkStatusEnum.PRE_MISSING
+        + "' OR process_flag = '"
+        + LinkStatusEnum.IN_MISSING
         + "') AND depth <= "
         + MAX_DEPTH
         + " LIMIT 1 )";
