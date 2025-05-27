@@ -196,7 +196,6 @@ public class ReportGeneratorConsumer {
                 }
             }
             updateStatus(reportId,ReportStatus.SUCCESS.getCode());
-            //reportRepository.updateStatusAndTimeById(reportId, ReportStatus.SUCCESS.getCode());
         }
         catch (Exception e)
         {
