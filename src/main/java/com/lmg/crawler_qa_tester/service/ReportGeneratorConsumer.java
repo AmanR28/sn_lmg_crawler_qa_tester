@@ -178,9 +178,10 @@ public class ReportGeneratorConsumer {
                     {
                         countFrom = String.valueOf(countFromEnv);
                         countTo=String.valueOf(countToEnv);
-                        countDiff= String.valueOf(countDifference);
+                        if( fromEnvStatus.equals(LinkStatusEnum.SUCCESS.getValue()) && toEnvStatus.equals(LinkStatusEnum.SUCCESS.getValue()))
+                             countDiff= String.valueOf(countDifference);
                     }
-                    String countPercentage = (countToEnv != 0) ? String.format("%.2f", 100.0 * countDifference / countToEnv) : "";
+                    String countPercentage = (countToEnv != 0 && !countDiff.isEmpty()) ? String.format("%.2f", 100.0 * countDifference / countToEnv) : "";
                     writeDetailsToCsv(path, fromEnvStatus, toEnvStatus, countFrom, countTo, countDiff, countPercentage, writer);
                 }
             }
