@@ -62,5 +62,5 @@ public class CrawlHeaderEntity {
   private int pollerRate;
 
   @Column(name = "page_count")
-  private int pageCount = 0;
+  private int pageCount;
 }

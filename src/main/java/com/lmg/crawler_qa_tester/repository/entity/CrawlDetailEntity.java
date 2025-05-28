@@ -1,6 +1,7 @@
 package com.lmg.crawler_qa_tester.repository.entity;
 
 import com.lmg.crawler_qa_tester.constants.LinkStatusEnum;
+import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NonNull;
@@ -11,7 +12,10 @@ import lombok.Setter;
 @Entity
 @Table(
     name = "crawl_detail",
-    uniqueConstraints = @UniqueConstraint(name = "unique_link", columnNames = {"crawl_header_id", "env", "base_url", "path"}),
+    uniqueConstraints =
+        @UniqueConstraint(
+            name = "unique_link",
+            columnNames = {"crawl_header_id", "env", "base_url", "path"}),
     indexes = @Index(name = "idx_process_flag", columnList = "process_flag"))
 public class CrawlDetailEntity {
   @Id
@@ -39,6 +43,7 @@ public class CrawlDetailEntity {
   @Column(name = "process_flag")
   private String processFlag = LinkStatusEnum.NOT_PROCESSED.getValue();
 
+  @Nullable
   @Column(name = "product_count")
   private Integer productCount;
 

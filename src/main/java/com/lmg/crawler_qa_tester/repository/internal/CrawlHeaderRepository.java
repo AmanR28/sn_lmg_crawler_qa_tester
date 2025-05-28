@@ -20,14 +20,14 @@ public interface CrawlHeaderRepository extends JpaRepository<CrawlHeaderEntity, 
     return (this.countByStatus(ProcessStatusEnum.NEW.getValue()) > 0
         || this.countByStatus(ProcessStatusEnum.RUNNING.getValue()) > 0);
   }
-  @Query("SELECT cHeader.id FROM CrawlHeaderEntity  cHeader WHERE cHeader.domain = :domain AND cHeader.country = :country AND cHeader.locale = :locale AND cHeader.department = :department")
-  Optional<Integer> findCrawlHeaderId(
-          @Param("domain") String domain,
-          @Param("country") String country,
-          @Param("locale") String locale,
-          @Param("department") String department
-  );
-  Optional<CrawlHeaderEntity> findById(Integer id);
-  List<CrawlHeaderEntity> findAllByIdAndStatus(Long id, String status);
 
+  @Query(
+      "SELECT cHeader.id FROM CrawlHeaderEntity  cHeader WHERE cHeader.domain = :domain AND cHeader.country = :country AND cHeader.locale = :locale AND cHeader.department = :department")
+  Optional<Integer> findCrawlHeaderId(
+      @Param("domain") String domain,
+      @Param("country") String country,
+      @Param("locale") String locale,
+      @Param("department") String department);
+
+  Optional<CrawlHeaderEntity> findById(Integer id);
 }
