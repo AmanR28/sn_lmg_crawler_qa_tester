@@ -565,7 +565,7 @@
       },
       "uae": {
         "countryName": "uae",
-        "cp": {
+        "centrepoint": {
           "leftHeaderStrip":{
             "id": "6c3383df-9e29-4217-a366-95d265ca3cbe",
             "depth": "all",
@@ -685,7 +685,7 @@
       },
 
       "qat": {
-        "countryName": "kuwait",
+        "countryName": "qatar",
         "max": {
           "apiUrl": "https://www.maxfashion.com/landmarkshopscommercews/cache/v3/maxkw/%s/cmsNavigationData?pageId=maxkw-Homepage&appId=Desktop&fields=FULL&position=HEADER,NAVIGATION,FOOTER"
         },
@@ -694,7 +694,7 @@
         }
       },
       "uae": {
-        "countryName": "kuwait",
+        "countryName": "uae",
         "max": {
           "apiUrl": "https://www.maxfashion.com/landmarkshopscommercews/cache/v3/maxkw/%s/cmsNavigationData?pageId=maxkw-Homepage&appId=Desktop&fields=FULL&position=HEADER,NAVIGATION,FOOTER"
         },
