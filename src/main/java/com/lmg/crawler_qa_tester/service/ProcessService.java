@@ -8,7 +8,11 @@ import com.lmg.crawler_qa_tester.dto.Process;
 import com.lmg.crawler_qa_tester.repository.CrawlRepository;
 import com.lmg.crawler_qa_tester.util.UrlUtil;
 import jakarta.transaction.Transactional;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -115,19 +119,90 @@ public class ProcessService {
   }
 
   @Transactional
-  @ServiceActivator(inputChannel = "completeProcessPollerChannel")
+  @ServiceActivator(inputChannel = "statusProcessPollerChannel")
   public void consumeCompleteProcess(Message<Integer> message) {
     Integer count = message.getPayload();
     if (count != 0) return;
 
-    Process process = crawlRepository.getRunningProcess();
-    if (process == null) return;
+    Process runningProcess = crawlRepository.getProcessByStatus(ProcessStatusEnum.RUNNING);
+    Process postRunningProcess = crawlRepository.getProcessByStatus(ProcessStatusEnum.POST_RUNNING);
 
-    crawlRepository.resetInProgressLinks(
-        process.getId(), LinkStatusEnum.IN_PROGRESS, LinkStatusEnum.NOT_PROCESSED);
+    if (runningProcess != null) {
+      if (runningProcess.getCompareToBaseUrl() == null) {
+        setProcessCompleted(runningProcess);
+      } else {
+        setProcessPostRunning(runningProcess);
+      }
+    }
+    if (postRunningProcess != null) {
+      setProcessCompleted(postRunningProcess);
+    }
+  }
+
+  private void setProcessPostRunning(Process process) {
+    startPostRunningProcess(process);
+    process.setStatus(ProcessStatusEnum.POST_RUNNING);
+    process.setPageCount(crawlRepository.getLinkCountByProcessId(process.getId()));
+    crawlRepository.saveProcess(process);
+  }
+
+  private void setProcessCompleted(Process process) {
 
     process.setStatus(ProcessStatusEnum.COMPLETED);
     process.setPageCount(crawlRepository.getLinkCountByProcessId(process.getId()));
     crawlRepository.saveProcess(process);
+  }
+
+  private void startPostRunningProcess(Process process) {
+    List<Link> missingLinks = new ArrayList<>();
+    List<Link> links = crawlRepository.getLinksByProcessId(process.getId());
+
+    List<String> uniquePaths =
+        links.stream()
+            .map(Link::getPath)
+            .distinct()
+            .sorted()
+            .collect(Collectors.toCollection(LinkedList::new));
+
+    HashMap<String, Link> fromEnvMap =
+        new HashMap<>(
+            links.stream()
+                .filter(e -> e.getEnv().equals(EnvironmentEnum.FROM_ENV))
+                .collect(Collectors.toMap(Link::getPath, e -> e)));
+    HashMap<String, Link> toEnvMap =
+        new HashMap<>(
+            links.stream()
+                .filter(e -> e.getEnv().equals(EnvironmentEnum.TO_ENV))
+                .collect(Collectors.toMap(Link::getPath, e -> e)));
+
+    for (String path : uniquePaths) {
+      if (!fromEnvMap.containsKey(path)) {
+        Link baseLink = toEnvMap.get(path);
+        Link link =
+            Link.builder()
+                .crawlHeaderId(process.getId())
+                .baseUrl(process.getCompareFromBaseUrl())
+                .path(path)
+                .env(EnvironmentEnum.FROM_ENV)
+                .processFlag(LinkStatusEnum.PRE_MISSING)
+                .depth(baseLink.getDepth())
+                .build();
+        missingLinks.add(link);
+      } else if (!toEnvMap.containsKey(path)) {
+        Link baseLink = fromEnvMap.get(path);
+        Link link =
+            Link.builder()
+                .crawlHeaderId(process.getId())
+                .baseUrl(process.getCompareToBaseUrl())
+                .path(path)
+                .env(EnvironmentEnum.TO_ENV)
+                .processFlag(LinkStatusEnum.PRE_MISSING)
+                .depth(baseLink.getDepth())
+                .build();
+        missingLinks.add(link);
+      }
+    }
+
+    crawlRepository.saveNewLinks(missingLinks);
   }
 }

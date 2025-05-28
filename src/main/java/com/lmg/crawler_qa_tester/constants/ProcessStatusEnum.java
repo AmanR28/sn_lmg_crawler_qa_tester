@@ -1,8 +1,12 @@
 package com.lmg.crawler_qa_tester.constants;
 
+import lombok.Getter;
+
+@Getter
 public enum ProcessStatusEnum {
   NEW("NEW"),
   RUNNING("RUNNING"),
+  POST_RUNNING("POST_RUNNING"),
   COMPLETED("COMPLETED"),
   FATAL("FATAL");
 
@@ -12,11 +16,7 @@ public enum ProcessStatusEnum {
     this.value = status;
   }
 
-  public String getValue() {
-    return value;
-  }
-
-  @Override
+    @Override
   public String toString() {
     return this.value;
   }

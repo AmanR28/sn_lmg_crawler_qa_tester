@@ -88,18 +88,24 @@ public class LinkIntegrationConfig {
 
   private String getSelectSql() {
 
-    return "SELECT * from crawl_detail where process_flag='"
+    return "SELECT * from crawl_detail where (process_flag='"
         + LinkStatusEnum.NOT_PROCESSED
-        + "' and depth <= "
+        + "' or process_flag ='"
+        + LinkStatusEnum.PRE_MISSING
+        + "') and depth <= "
         + MAX_DEPTH
-        + " limit "
-        + 1;
+        + " limit 1";
   }
 
   private String getUpdateSql() {
-
-    return "UPDATE crawl_detail SET process_flag='"
+    return "UPDATE crawl_detail SET process_flag = CASE process_flag WHEN '"
+        + LinkStatusEnum.NOT_PROCESSED
+        + "' THEN '"
         + LinkStatusEnum.IN_PROGRESS
-        + "' WHERE id in (:id)";
+        + "' WHEN '"
+        + LinkStatusEnum.PRE_MISSING
+        + "' THEN '"
+        + LinkStatusEnum.IN_MISSING
+        + "' ELSE process_flag END WHERE  id = :id";
   }
 }

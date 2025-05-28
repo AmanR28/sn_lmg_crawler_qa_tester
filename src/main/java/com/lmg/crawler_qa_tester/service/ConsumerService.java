@@ -26,12 +26,20 @@ public class ConsumerService {
   public void consumeProd(Message<Link> message) {
 
     Link link = message.getPayload();
+    LinkStatusEnum initialProcessFlag = link.getProcessFlag();
     log.info("Processing Prod Link: {}", link);
 
     try (Browser browser = browserFactory.getBrowser()) {
       Page page = browserFactory.getPage(browser, UrlUtil.getDomain(link.getBaseUrl()));
 
       List<String> urls = pageService.processPageData(page, link);
+
+      if (initialProcessFlag.equals(LinkStatusEnum.PRE_MISSING)) {
+        link.setProcessFlag(LinkStatusEnum.MISSING);
+        crawlRepository.saveLink(link);
+        return;
+      }
+
       crawlRepository.saveLink(link);
       if (!link.getProcessFlag().equals(LinkStatusEnum.SUCCESS) || urls == null) return;
 

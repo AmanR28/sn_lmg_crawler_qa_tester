@@ -1,6 +1,7 @@
 package com.lmg.crawler_qa_tester.repository;
 
 import com.lmg.crawler_qa_tester.constants.LinkStatusEnum;
+import com.lmg.crawler_qa_tester.constants.ProcessStatusEnum;
 import com.lmg.crawler_qa_tester.dto.Link;
 import com.lmg.crawler_qa_tester.dto.Process;
 import java.util.List;
@@ -9,8 +10,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface CrawlRepository {
   boolean hasActiveProcess();
-
-  Process getRunningProcess();
 
   Process saveProcess(Process process);
 
@@ -25,4 +24,6 @@ public interface CrawlRepository {
   void saveNewLinks(List<Link> links);
 
   void resetInProgressLinks(Integer id, LinkStatusEnum fromFlag, LinkStatusEnum toFlag);
+
+  Process getProcessByStatus(ProcessStatusEnum processStatusEnum);
 }
