@@ -14,6 +14,10 @@ public interface CrawlDetailRepository extends JpaRepository<CrawlDetailEntity, 
   List<CrawlDetailEntity> getCrawlDetailEntitiesByCrawlHeaderId(Integer processId);
 
   List<CrawlDetailEntity> findAllByCrawlHeaderId(Integer crawlHeaderId);
+  @Query("SELECT c FROM CrawlDetailEntity c WHERE c.crawlHeaderId = :crawlHeaderId AND c.depth <= :maxDepth")
+  List<CrawlDetailEntity> findByCrawlHeaderIdAndDepthLessThanEqual(@Param("crawlHeaderId") Integer crawlHeaderId,
+                                                                   @Param("maxDepth") Integer maxDepth);
+
 
   @Modifying
   @Query(

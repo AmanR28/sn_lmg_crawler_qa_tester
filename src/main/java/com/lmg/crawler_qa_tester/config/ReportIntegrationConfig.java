@@ -14,6 +14,7 @@ import com.lmg.crawler_qa_tester.repository.mapper.CrawlHeaderEntityMapper;
 import com.lmg.crawler_qa_tester.repository.mapper.ReportEntityMapper;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.integration.annotation.InboundChannelAdapter;
@@ -31,6 +32,8 @@ import java.util.List;
 
 @Configuration
 public class ReportIntegrationConfig {
+    @Value("${env.app.maxDepth}")
+    private int MAX_DEPTH;
     @Autowired
     private DataSource dataSource;
     @Autowired
@@ -71,7 +74,7 @@ public class ReportIntegrationConfig {
 //            {
 //                return null;
 //            }
-            List<CrawlDetailEntity> crawlDetailEntities = crawlDetailRepository.findAllByCrawlHeaderId(crawlHeaderId);
+            List<CrawlDetailEntity> crawlDetailEntities = crawlDetailRepository.findByCrawlHeaderIdAndDepthLessThanEqual(crawlHeaderId, MAX_DEPTH);
             reportEntity.setStatus(ReportStatus.IN_PROGRESS.getCode());
             reportEntity.setUpdatedAt(LocalDateTime.now());
             reportRepository.save(reportEntity);

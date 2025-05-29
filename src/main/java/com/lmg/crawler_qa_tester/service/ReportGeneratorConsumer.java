@@ -167,31 +167,36 @@ public class ReportGeneratorConsumer {
                 Set<String> uniquePath = new HashSet<>();
                 for (CrawlDetailEntity detail : crawlDetails) {
                     String path = detail.getPath();
-                    if (uniquePath.contains(path)) {
+                    if ( !uniquePath.add(path)) {
                         continue;
                     }
-                    uniquePath.add(path);
-                    String fromEnvStatus = fromEnv.containsKey(path) ? fromEnv.get(path).getProcessFlag() : LinkStatusEnum.MISSING.getValue();
-                    String fromEnvParentPath = fromEnv.containsKey(path) ? fromEnv.get(path).getParentPath():"";
-                    String toEnvStatus = toEnv.containsKey(path) ? toEnv.get(path).getProcessFlag() : LinkStatusEnum.MISSING.getValue();
-                    String toEnvParentPAth =  toEnv.containsKey(path) ? toEnv.get(path).getParentPath() :"";
-                    int countFromEnv = fromEnv.containsKey(path) ? (fromEnv.get(path).getProductCount() != null ? fromEnv.get(path).getProductCount() : 0) : 0;
-                    int countToEnv = toEnv.containsKey(path) ? (toEnv.get(path).getProductCount() != null ? toEnv.get(path).getProductCount() : 0) : 0;
-                    int countDifference = countFromEnv - countToEnv;
-                    String countFrom = "";
-                    String countTo = "";
-                    String countDiff = "";
+                    CrawlDetailEntity fromDetails = fromEnv.get(path);
+                    CrawlDetailEntity toDetails = toEnv.get(path);
+                    String fromEnvStatus = fromDetails !=null? fromDetails.getProcessFlag() : null;
+                    String fromEnvParentPath = fromDetails!=null? fromDetails.getParentPath():"";
+                    String toEnvStatus = toDetails !=null ? toDetails.getProcessFlag() : null;
+                    String toEnvParentPAth =  toDetails!=null ?toDetails.getParentPath() :"";
+                    Integer countFromEnv = fromDetails!=null ? fromDetails.getProductCount():null;
+                    Integer countToEnv = toDetails!=null ? toDetails.getProductCount()  : null;
+                    Integer countDifference = null;
+                    if(countFromEnv != null && countToEnv !=null)
+                    {
+                        countDifference = countFromEnv - countToEnv;
+                    }
+                    String countFrom = null;
+                    String countTo = null;
+                    String countDiff = null;
                     PageTypeEnum pageType = UrlUtil.getPageType(path);
                     if(pageType == PageTypeEnum.CATEGORY || pageType == PageTypeEnum.SEARCH)
                     {
-                        if( fromEnvStatus.equals(LinkStatusEnum.SUCCESS.getValue()) || fromEnvStatus.equals(LinkStatusEnum.INVALID_COUNT.getValue()))
+//                        if( fromEnvStatus.equals(LinkStatusEnum.SUCCESS.getValue()) || fromEnvStatus.equals(LinkStatusEnum.INVALID_COUNT.getValue()))
                             countFrom = String.valueOf(countFromEnv);
-                        if( toEnvStatus.equals(LinkStatusEnum.SUCCESS.getValue()) || toEnvStatus.equals(LinkStatusEnum.INVALID_COUNT.getValue()))
+//                        if( toEnvStatus.equals(LinkStatusEnum.SUCCESS.getValue()) || toEnvStatus.equals(LinkStatusEnum.INVALID_COUNT.getValue()))
                             countTo = String.valueOf(countToEnv);
-                        if( fromEnvStatus.equals(LinkStatusEnum.SUCCESS.getValue()) && toEnvStatus.equals(LinkStatusEnum.SUCCESS.getValue()))
+//                        if( fromEnvStatus.equals(LinkStatusEnum.SUCCESS.getValue()) && toEnvStatus.equals(LinkStatusEnum.SUCCESS.getValue()))
                              countDiff= String.valueOf(countDifference);
                     }
-                    String countPercentage = (countToEnv != 0 && !countDiff.isEmpty()) ? String.format("%.2f", 100.0 * countDifference / countToEnv) : "";
+                    String countPercentage = (countToEnv != null    && countToEnv !=0 && countDifference !=null) ? String.format("%.2f", 100.0 * countDifference / countToEnv) : "";
                     writeDetailsToCsv(path, fromEnvStatus, toEnvStatus, countFrom, countTo, countDiff, countPercentage, fromEnvParentPath,toEnvParentPAth,writer);
                 }
             }
