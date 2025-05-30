@@ -85,6 +85,10 @@ public class CompareService {
             // Get prod data which contains all information in one call
             String prodUrl = String.format(Objects.requireNonNull(apiService.getProdApiUrl(prodEnv, req.country(), req.concept())),lang);
             JsonNode prodJson = apiService.callApi(prodUrl);
+            if(prodJson!=null && prodJson.has("status"))
+            {
+                // on which sheet we have to update
+            }
 
             if (prodJson != null && prodJson.has("slots")) {
                 // Get existing sheets
@@ -302,10 +306,18 @@ public class CompareService {
 
                 JsonNode json1 = apiService.callApi(url1);
                 JsonNode json2 = apiService.callApi(url2);
-
                 String sheetName = entry.sheetName() + "_" + lang;
                 Sheet sheet = ExcelUtils.createSheetWithHeader(wb, sheetName, req.compareEnvFrom(), req.compareEnvTo());
-
+                if(json1!=null && json1.has("status"))
+                {
+                    // on which sheet we have to update
+                    updateOrCreateRow(sheet,"message", String.valueOf(json1.get("messages")), req.compareEnvFrom());
+                }
+                if(json2!=null && json2.has("status"))
+                {
+                    // on which sheet we have to update
+                    updateOrCreateRow(sheet,"message", String.valueOf(json2.get("messages")), req.compareEnvTo());
+                }
                 compareJson(json1, json2, "", sheet, false);
             }
         }
@@ -327,6 +339,10 @@ public class CompareService {
 
                 String sheetName = entry.sheetName() + "_" + lang;
                 Sheet sheet = ExcelUtils.createSheetWithHeader(wb, sheetName, req.compareEnvFrom(), req.compareEnvTo());
+                if(json1!=null && json1.has("status"))
+                {
+                    updateOrCreateRow(sheet,"message", String.valueOf(json1.get("messages")), req.compareEnvFrom());
+                }
             compareJson(json1,null,"", sheet, true);
             }
         }
@@ -410,6 +426,7 @@ public class CompareService {
         VALID_LOCALES.forEach(locale ->
                 sheets.put(locale, ExcelUtils.getOrCreateSheet(wb, baseName + "_" + locale, req.compareEnvFrom(), req.compareEnvTo()))
         );
+
 
         traverseAndCompare(json1, json2, "", sheets);
     }

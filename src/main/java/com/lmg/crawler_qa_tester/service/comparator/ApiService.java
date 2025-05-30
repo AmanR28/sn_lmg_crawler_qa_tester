@@ -2,6 +2,7 @@ package com.lmg.crawler_qa_tester.service.comparator;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.lmg.crawler_qa_tester.exception.ComparatorException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -132,7 +133,12 @@ public final class ApiService {
         final var response = HTTP_CLIENT.send(request, HttpResponse.BodyHandlers.ofString());
 
         if (response.statusCode() != HttpStatus.OK.value()) {
-            return null;
+            ObjectMapper mapper = new ObjectMapper();
+            ObjectNode res = mapper.createObjectNode();
+            res.put("messages", "getting "+response.statusCode());
+            res.put("status", response.statusCode());
+            return res;
+
 //            log.error("API call failed - Status: {}, URL: {}, Response: {}",
 //                    response.statusCode(), url, response.body());
 //            throw new ComparatorException(
