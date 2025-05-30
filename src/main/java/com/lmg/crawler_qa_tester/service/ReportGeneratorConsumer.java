@@ -103,9 +103,7 @@ public class ReportGeneratorConsumer {
                     PageTypeEnum pageType = UrlUtil.getPageType(path);
                     if(pageType == PageTypeEnum.CATEGORY || pageType == PageTypeEnum.SEARCH)
                     {
-                        if (status.equals(LinkStatusEnum.SUCCESS.getValue()) || status.equals(LinkStatusEnum.INVALID_COUNT.getValue())) {
-                          count = detail.getProductCount() != null ? String.valueOf(detail.getProductCount()) : "0";
-                        }
+                          count = detail.getProductCount() != null ? String.valueOf(detail.getProductCount()) : "";
                     }
                     String[] record = {
                             path,
@@ -172,9 +170,9 @@ public class ReportGeneratorConsumer {
                     }
                     CrawlDetailEntity fromDetails = fromEnv.get(path);
                     CrawlDetailEntity toDetails = toEnv.get(path);
-                    String fromEnvStatus = fromDetails !=null? fromDetails.getProcessFlag() : null;
+                    String fromEnvStatus = fromDetails !=null? fromDetails.getProcessFlag() : "";
                     String fromEnvParentPath = fromDetails!=null? fromDetails.getParentPath():"";
-                    String toEnvStatus = toDetails !=null ? toDetails.getProcessFlag() : null;
+                    String toEnvStatus = toDetails !=null ? toDetails.getProcessFlag() : "";
                     String toEnvParentPAth =  toDetails!=null ?toDetails.getParentPath() :"";
                     Integer countFromEnv = fromDetails!=null ? fromDetails.getProductCount():null;
                     Integer countToEnv = toDetails!=null ? toDetails.getProductCount()  : null;
@@ -183,18 +181,15 @@ public class ReportGeneratorConsumer {
                     {
                         countDifference = countFromEnv - countToEnv;
                     }
-                    String countFrom = null;
-                    String countTo = null;
-                    String countDiff = null;
+                    String countFrom = "";
+                    String countTo = "";
+                    String countDiff = "";
                     PageTypeEnum pageType = UrlUtil.getPageType(path);
                     if(pageType == PageTypeEnum.CATEGORY || pageType == PageTypeEnum.SEARCH)
                     {
-//                        if( fromEnvStatus.equals(LinkStatusEnum.SUCCESS.getValue()) || fromEnvStatus.equals(LinkStatusEnum.INVALID_COUNT.getValue()))
-                            countFrom = String.valueOf(countFromEnv);
-//                        if( toEnvStatus.equals(LinkStatusEnum.SUCCESS.getValue()) || toEnvStatus.equals(LinkStatusEnum.INVALID_COUNT.getValue()))
-                            countTo = String.valueOf(countToEnv);
-//                        if( fromEnvStatus.equals(LinkStatusEnum.SUCCESS.getValue()) && toEnvStatus.equals(LinkStatusEnum.SUCCESS.getValue()))
-                             countDiff= String.valueOf(countDifference);
+                            countFrom = countFromEnv!=null?String.valueOf(countFromEnv):"";
+                            countTo = countToEnv!=null?String.valueOf(countToEnv):"";
+                            countDiff= countDifference!=null?String.valueOf(countDifference):"";
                     }
                     String countPercentage = (countToEnv != null    && countToEnv !=0 && countDifference !=null) ? String.format("%.2f", 100.0 * countDifference / countToEnv) : "";
                     writeDetailsToCsv(path, fromEnvStatus, toEnvStatus, countFrom, countTo, countDiff, countPercentage, fromEnvParentPath,toEnvParentPAth,writer);
