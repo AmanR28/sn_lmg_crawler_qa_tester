@@ -362,6 +362,10 @@ public class CompareService {
 
         JsonNode json1 = apiService.callApi(url1);
 //        JsonNode json2 = apiService.callApi(url2);
+        if(json1!=null && json1.has("status"))
+        {
+            VALID_LOCALES.forEach(locale->updateOrCreateRow(ExcelUtils.getOrCreateSheet(wb,LEFT_HEADER_STRIP_SHEET_NAME+"_"+locale,req.compareEnvFrom(),req.compareEnvTo()),"message", String.valueOf(json1.get("messages")), req.compareEnvFrom()));
+        }
 
         compareJsonLocalized(json1, null, wb, leftHeaderStripEntry.sheetName(), req);
     }
@@ -381,6 +385,16 @@ public class CompareService {
 
         JsonNode json1 = apiService.callApi(url1);
         JsonNode json2 = apiService.callApi(url2);
+        if(json1!=null && json1.has("status"))
+        {
+            VALID_LOCALES.forEach(locale->
+                    updateOrCreateRow(ExcelUtils.getOrCreateSheet(wb,LEFT_HEADER_STRIP_SHEET_NAME+"_"+locale,req.compareEnvFrom(),req.compareEnvTo()),"message", String.valueOf(json1.get("messages")), req.compareEnvFrom()));
+        }
+        if(json2!=null && json2.has("status"))
+        {
+            VALID_LOCALES.forEach(locale->
+                    updateOrCreateRow(ExcelUtils.getOrCreateSheet(wb,LEFT_HEADER_STRIP_SHEET_NAME+"_"+locale,req.compareEnvFrom(),req.compareEnvTo()),"message", String.valueOf(json2.get("messages")), req.compareEnvFrom()));
+        }
 
         compareJsonLocalized(json1, json2, wb, leftHeaderStripEntry.sheetName(), req);
     }
