@@ -147,7 +147,11 @@ public final class ApiService {
 //                    HttpStatus.valueOf(response.statusCode())
 //            );
         }
-
+//        ObjectMapper mapper = new ObjectMapper();
+//        ObjectNode res = mapper.createObjectNode();
+//        res.put("messages", "getting "+response.statusCode());
+//        res.put("status", response.statusCode());
+//        return res;
         return mapper.readTree(response.body());
     }
 

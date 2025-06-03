@@ -88,6 +88,13 @@ public class CompareService {
             if(prodJson!=null && prodJson.has("status"))
             {
                 // on which sheet we have to update
+                Sheet footerSheet = wb.getSheet(FOOTER_STRIP_SHEET_NAME + "_" + lang);
+                Sheet headerSheet = wb.getSheet(HEADER_NAV_SHEET_NAME + "_" + lang);
+                Sheet headerStripSheet = wb.getSheet(RIGHT_HEADER_STRIP_SHEET_NAME + "_" + lang);
+                String messages = prodJson.get("messages").asText();
+                updateOrCreateRow(footerSheet,"message",messages,"prod");
+                updateOrCreateRow(headerSheet,"message",messages,"prod");
+                updateOrCreateRow(headerStripSheet,"message",messages,"prod");
             }
 
             if (prodJson != null && prodJson.has("slots")) {
@@ -239,22 +246,28 @@ public class CompareService {
             }
         }
     }
-
+private int getCellNumber(Sheet sheet, String env)
+{
+  Row firstRow =   sheet.getRow(0);
+  String cellEnv = firstRow.getCell(1).toString();
+  return cellEnv.equals(env)?1:2;
+}
     private void updateOrCreateRow(Sheet sheet, String path, String value, String prodEnv) {
         int rowNum = findRow(sheet, path);
+        int cellNo = getCellNumber(sheet,prodEnv);
         value = value.replace("\u00A0", " ").trim();
         if (rowNum == -1) {
             // Create new row with null for non-prod and value for prod
             rowNum = sheet.getLastRowNum() + 1;
             Row row = sheet.createRow(rowNum);
             row.createCell(0).setCellValue(path);
-            row.createCell(1).setCellValue("null"); // non-prod column empty
-            row.createCell(2).setCellValue(value); // prod value
             row.createCell(3).setCellValue("NO");
+            row.createCell(1).setCellValue(cellNo == 1 ? value : "null");
+            row.createCell(2).setCellValue(cellNo == 1 ? "null" : value);
         } else {
             // Update existing row's prod column
             Row row = sheet.getRow(rowNum);
-            row.getCell(2).setCellValue(value);
+            row.getCell(cellNo).setCellValue(value);
             String val1 = row.getCell(2).toString();
             String val2 = row.getCell(1).toString();
             val1 = val1.replaceAll("\\s+", " ").trim();
@@ -311,12 +324,12 @@ public class CompareService {
                 if(json1!=null && json1.has("status"))
                 {
                     // on which sheet we have to update
-                    updateOrCreateRow(sheet,"message", String.valueOf(json1.get("messages")), req.compareEnvFrom());
+                    updateOrCreateRow(sheet,"message", json1.get("messages").asText(), req.compareEnvFrom());
                 }
                 if(json2!=null && json2.has("status"))
                 {
                     // on which sheet we have to update
-                    updateOrCreateRow(sheet,"message", String.valueOf(json2.get("messages")), req.compareEnvTo());
+                    updateOrCreateRow(sheet,"message", json2.get("messages").asText(), req.compareEnvTo());
                 }
                 compareJson(json1, json2, "", sheet, false);
             }
@@ -341,7 +354,7 @@ public class CompareService {
                 Sheet sheet = ExcelUtils.createSheetWithHeader(wb, sheetName, req.compareEnvFrom(), req.compareEnvTo());
                 if(json1!=null && json1.has("status"))
                 {
-                    updateOrCreateRow(sheet,"message", String.valueOf(json1.get("messages")), req.compareEnvFrom());
+                    updateOrCreateRow(sheet,"message", json1.get("messages").asText(), req.compareEnvFrom());
                 }
             compareJson(json1,null,"", sheet, true);
             }
@@ -364,7 +377,7 @@ public class CompareService {
 //        JsonNode json2 = apiService.callApi(url2);
         if(json1!=null && json1.has("status"))
         {
-            VALID_LOCALES.forEach(locale->updateOrCreateRow(ExcelUtils.getOrCreateSheet(wb,LEFT_HEADER_STRIP_SHEET_NAME+"_"+locale,req.compareEnvFrom(),req.compareEnvTo()),"message", String.valueOf(json1.get("messages")), req.compareEnvFrom()));
+            VALID_LOCALES.forEach(locale->updateOrCreateRow(ExcelUtils.getOrCreateSheet(wb,LEFT_HEADER_STRIP_SHEET_NAME+"_"+locale,req.compareEnvFrom(),req.compareEnvTo()),"message", json1.get("messages").asText(), req.compareEnvFrom()));
         }
 
         compareJsonLocalized(json1, null, wb, leftHeaderStripEntry.sheetName(), req);
@@ -388,12 +401,12 @@ public class CompareService {
         if(json1!=null && json1.has("status"))
         {
             VALID_LOCALES.forEach(locale->
-                    updateOrCreateRow(ExcelUtils.getOrCreateSheet(wb,LEFT_HEADER_STRIP_SHEET_NAME+"_"+locale,req.compareEnvFrom(),req.compareEnvTo()),"message", String.valueOf(json1.get("messages")), req.compareEnvFrom()));
+                    updateOrCreateRow(ExcelUtils.getOrCreateSheet(wb,LEFT_HEADER_STRIP_SHEET_NAME+"_"+locale,req.compareEnvFrom(),req.compareEnvTo()),"message", json1.get("messages").asText(), req.compareEnvFrom()));
         }
         if(json2!=null && json2.has("status"))
         {
             VALID_LOCALES.forEach(locale->
-                    updateOrCreateRow(ExcelUtils.getOrCreateSheet(wb,LEFT_HEADER_STRIP_SHEET_NAME+"_"+locale,req.compareEnvFrom(),req.compareEnvTo()),"message", String.valueOf(json2.get("messages")), req.compareEnvFrom()));
+                    updateOrCreateRow(ExcelUtils.getOrCreateSheet(wb,LEFT_HEADER_STRIP_SHEET_NAME+"_"+locale,req.compareEnvFrom(),req.compareEnvTo()),"message", json2.get("messages").asText(), req.compareEnvFrom()));
         }
 
         compareJsonLocalized(json1, json2, wb, leftHeaderStripEntry.sheetName(), req);
