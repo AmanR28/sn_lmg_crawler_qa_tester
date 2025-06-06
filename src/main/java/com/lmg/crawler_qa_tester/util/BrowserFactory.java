@@ -44,7 +44,13 @@ public class BrowserFactory {
     page.route(
         "**/*",
         route -> {
-          if (BLOCKED_TYPES.contains(route.request().resourceType())) {
+          String resourceType = route.request().resourceType();
+          String url = route.request().url();
+
+          boolean isBlockedType = blockMedia && BLOCKED_TYPES.contains(resourceType);
+          boolean isAnalytics = blockAnalytics && BLOCKED_ANALYTICS_DOMAINS.stream().anyMatch(url::contains);
+
+          if (isBlockedType || isAnalytics) {
             route.abort();
           } else {
             route.resume();
