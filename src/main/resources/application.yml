@@ -15,14 +15,14 @@ spring:
   sql.init.mode: always
 env:
   app:
-    maxDepth: 0
-    consumerThread: 1
+    maxDepth: 9
+    consumerThread: 8
     pollerRate: 1000
-    pageWait: 300000
-    browserHeadless: false
+    pageWait: 3000
+    browserHeadless: true
     location: /Users/aman/Projects/Landmark/QA/poc/sn_lmg_crawler_qa_tester/CrawlReports
-    blockMedia: false
-    blockAnalytics: true
+    blockMedia: true
+    blockAnalytics: false
   process:
     pollerRate: 10000
 
