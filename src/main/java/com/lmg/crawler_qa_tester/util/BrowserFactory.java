@@ -7,13 +7,35 @@ import java.util.List;
 import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
 public class BrowserFactory {
+    @Value("${env.app.blockMedia}")
+    private boolean blockMedia;
+
+    @Value("${env.app.blockAnalytics}")
+    private boolean blockAnalytics;
+
   private static final Set<String> BLOCKED_TYPES = Set.of("image", "media", "stylesheet", "font");
+  private static final List<String> BLOCKED_ANALYTICS_DOMAINS =
+      List.of(
+          "google-analytics.com",
+          "googletagmanager.com",
+          "facebook.net",
+          "facebook.com/tr",
+          "tiktok.com",
+          "snapchat.com",
+          "doubleclick.net",
+          "adsbygoogle.js",
+          "bing.com",
+          "yahoo.com",
+          "criteo.com",
+          "adnxs.com");
+
   @Autowired private Environment environment;
 
   public List<String> getOptions() {
@@ -21,9 +43,8 @@ public class BrowserFactory {
         "--disable-blink-features=AutomationControlled", "--no-sandbox", "--disable-dev-shm-usage");
   }
 
-  public Browser getBrowser() {
+  public Browser getBrowser(Playwright playwright) {
     boolean isHeadless = environment.getProperty("env.app.browserHeadless", Boolean.class, true);
-    Playwright playwright = Playwright.create();
     BrowserType.LaunchOptions launchOptions =
         new BrowserType.LaunchOptions().setHeadless(isHeadless).setArgs(getOptions());
     return playwright.chromium().launch(launchOptions);
