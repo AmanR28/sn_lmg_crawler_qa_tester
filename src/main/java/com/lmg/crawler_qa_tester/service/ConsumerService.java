@@ -27,7 +27,7 @@ public class ConsumerService {
 
     Link link = message.getPayload();
     LinkStatusEnum initialProcessFlag = link.getProcessFlag();
-    log.info("Processing Prod Link: {}", link);
+    log.info("Processing Link: {}", link);
 
     try (Browser browser = browserFactory.getBrowser()) {
       Page page = browserFactory.getPage(browser, UrlUtil.getDomain(link.getBaseUrl()));

@@ -43,8 +43,9 @@ public class BrowserFactory {
         "--disable-blink-features=AutomationControlled", "--no-sandbox", "--disable-dev-shm-usage");
   }
 
-  public Browser getBrowser(Playwright playwright) {
+  public Browser getBrowser() {
     boolean isHeadless = environment.getProperty("env.app.browserHeadless", Boolean.class, true);
+    Playwright playwright = Playwright.create();
     BrowserType.LaunchOptions launchOptions =
         new BrowserType.LaunchOptions().setHeadless(isHeadless).setArgs(getOptions());
     return playwright.chromium().launch(launchOptions);

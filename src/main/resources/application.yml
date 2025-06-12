@@ -20,9 +20,9 @@ env:
     pollerRate: 1000
     pageWait: 3000
     browserHeadless: true
-    location: /Users/aman/Projects/Landmark/QA/poc/sn_lmg_crawler_qa_tester/CrawlReports
+    location: /Users/aman/Projects/Landmark/QA/@poc/sn_lmg_crawler_qa_tester/CrawlReports
     blockMedia: true
-    blockAnalytics: false
+    blockAnalytics: true
   process:
     pollerRate: 10000
 
