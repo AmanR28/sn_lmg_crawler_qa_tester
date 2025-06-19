@@ -38,26 +38,41 @@ public final class ApiService {
         Objects.requireNonNull(concept, "Concept cannot be null");
         Objects.requireNonNull(apiType, "API type cannot be null");
 
-        final var envLower = env.toLowerCase();
-        final var countryLower = country.toLowerCase();
-        final var conceptLower = concept.toLowerCase();
+        try{
+            String url =  config.path("envConfig")
+                    .path(env)
+                    .path(country)
+                    .path(concept)
+                    .path(apiType)
+                    .asText();
+            url = String.format(url,lang);
+            return url;
+        }
+        catch(Exception e)
+        {
+            return null;
+        }
 
-        // Get configuration nodes with validation
-        final var envData = getConfigNode(config.path("envConfig"), envLower, "Environment");
-        final var countryData = getConfigNode(envData, countryLower, "Country");
-        final var conceptData = getConfigNode(countryData, conceptLower, "Concept");
-        final var apiConfig = getConfigNode(conceptData, apiType, "API");
-
-        log.info("Resolved configuration - Env: {}, Country: {}, Concept: {}, API: {}",
-                env, country, concept, apiType);
-
-        return switch (apiType) {
-            case LEFT_HEADER_STRIP_API_NAME -> buildLeftHeaderStripUrl(apiConfig, conceptLower);
-            default -> buildStandardApiUrl(envData.path("subdomain").asText(),
-                    apiConfig,
-                    lang != null ? lang.toLowerCase() : LANG_EN_CODE,
-                    apiType);
-        };
+//        final var envLower = env.toLowerCase();
+//        final var countryLower = country.toLowerCase();
+//        final var conceptLower = concept.toLowerCase();
+//
+//        // Get configuration nodes with validation
+//        final var envData = getConfigNode(config.path("envConfig"), envLower, "Environment");
+//        final var countryData = getConfigNode(envData, countryLower, "Country");
+//        final var conceptData = getConfigNode(countryData, conceptLower, "Concept");
+//        final var apiConfig = getConfigNode(conceptData, apiType, "API");
+//
+//        log.info("Resolved configuration - Env: {}, Country: {}, Concept: {}, API: {}",
+//                env, country, concept, apiType);
+//
+//        return switch (apiType) {
+//            case LEFT_HEADER_STRIP_API_NAME -> buildLeftHeaderStripUrl(apiConfig, conceptLower);
+//            default -> buildStandardApiUrl(envData.path("subdomain").asText(),
+//                    apiConfig,
+//                    lang != null ? lang.toLowerCase() : LANG_EN_CODE,
+//                    apiType);
+//        };
     }
 
     private JsonNode getConfigNode(JsonNode parentNode, String key, String nodeType) {

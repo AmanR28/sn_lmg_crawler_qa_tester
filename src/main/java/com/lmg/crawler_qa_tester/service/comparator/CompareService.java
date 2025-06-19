@@ -2,6 +2,8 @@ package com.lmg.crawler_qa_tester.service.comparator;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.lmg.crawler_qa_tester.dto.comparator.ApiEntry;
 import com.lmg.crawler_qa_tester.dto.comparator.CompareRequest;
 import com.lmg.crawler_qa_tester.exception.ComparatorException;
@@ -173,8 +175,8 @@ public class CompareService {
 
     private void processProdFooterCategories(JsonNode categories, Sheet sheet, String prodEnv) {
         for (JsonNode category : categories) {
-            String title = category.get("title").asText();
-            JsonNode links = category.get("links");
+            String title = category.has("title")?category.get("title").asText():"";
+            JsonNode links = category.has("links")?category.get("links"): JsonNodeFactory.instance.arrayNode();;
             
             for (JsonNode link : links) {
                 String linkName = link.get("linkName").asText();
